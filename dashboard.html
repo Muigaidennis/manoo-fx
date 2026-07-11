@@ -182,12 +182,18 @@
     const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
     const existingToken = sessionStorage.getItem('deriv_access_token');
 
-    if (code && returnedState) {
+    if (code) {
+      const debugInfo = `[debug] code: ${code ? 'present' : 'MISSING'} | state param: ${returnedState || 'MISSING'} | saved state: ${savedState || 'MISSING'} | code_verifier: ${codeVerifier ? 'present' : 'MISSING'}`;
+      console.log(debugInfo);
+
       if (error) {
         statusEl.innerHTML = `<span class="err">Deriv returned an error: ${error}</span>`;
         showLoginPrompt();
-      } else if (returnedState !== savedState) {
-        statusEl.innerHTML = `<span class="err">State mismatch — possible CSRF. Login aborted.</span>`;
+      } else if (!codeVerifier) {
+        statusEl.innerHTML = `<span class="err">code_verifier missing from sessionStorage — likely opened in a new tab/window instead of the same tab, or storage was cleared before redirect back.</span><br><small>${debugInfo}</small>`;
+        showLoginPrompt();
+      } else if (returnedState && savedState && returnedState !== savedState) {
+        statusEl.innerHTML = `<span class="err">State mismatch — possible CSRF. Login aborted.</span><br><small>${debugInfo}</small>`;
         showLoginPrompt();
       } else {
         statusEl.innerHTML = `<span class="ok">Verified ✓</span> Exchanging code for access token...`;
