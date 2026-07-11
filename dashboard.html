@@ -6,102 +6,48 @@
 <title>Manoo FX — Dashboard</title>
 <style>
   :root {
-    --bg: #0d0614;
-    --panel: #170a26;
-    --gradient: linear-gradient(90deg, #6d28d9, #a21caf);
-    --text: #f2e9ff;
-    --muted: #b9a8d1;
-    --ok: #4ade80;
-    --err: #f87171;
+    --bg: #0d0614; --panel: #170a26; --gradient: linear-gradient(90deg, #6d28d9, #a21caf);
+    --text: #f2e9ff; --muted: #b9a8d1; --ok: #4ade80; --err: #f87171; --pink: #ec4899;
   }
   * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: system-ui, -apple-system, sans-serif;
-    min-height: 100vh;
-  }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; }
 
-  .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    background: #0a0510;
-    gap: 10px;
-  }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #0a0510; gap: 10px; position: relative; }
   .topbar .left, .topbar .right { display: flex; align-items: center; gap: 10px; }
-  .icon-btn {
-    background: none; border: none; color: var(--text);
-    font-size: 20px; cursor: pointer; padding: 4px;
-  }
+  .icon-btn { background: none; border: none; color: var(--text); font-size: 20px; cursor: pointer; padding: 4px; }
   .currency-pill, .balance-pill {
-    display: flex; align-items: center; gap: 6px;
-    background: #1e0f33; border: 1px solid #3a1e5c;
-    border-radius: 20px; padding: 6px 12px;
-    font-size: 14px; font-weight: 600;
-    white-space: nowrap; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; background: #1e0f33; border: 1px solid #3a1e5c;
+    border-radius: 20px; padding: 6px 12px; font-size: 14px; font-weight: 600; white-space: nowrap; cursor: pointer;
   }
   .balance-pill { flex: 1; justify-content: center; min-width: 0; }
-  .badge {
-    background: #2b1547; color: var(--pink, #ec4899);
-    font-size: 11px; font-weight: 700;
-    padding: 2px 8px; border-radius: 10px;
-  }
+  .badge { background: #2b1547; color: var(--pink); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
   .badge.real { color: var(--ok); }
-  .transfer-btn {
-    background: var(--gradient); color: white; border: none;
-    padding: 8px 16px; border-radius: 20px;
-    font-weight: 600; font-size: 14px; cursor: pointer;
-  }
+  .transfer-btn { background: var(--gradient); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 14px; cursor: pointer; }
 
   .tabnav { display: flex; overflow-x: auto; background: var(--gradient); padding: 0 4px; }
   .tabnav::-webkit-scrollbar { display: none; }
-  .tab {
-    display: flex; align-items: center; gap: 6px;
-    padding: 14px 16px; white-space: nowrap;
-    color: rgba(255,255,255,0.75); font-size: 14px; font-weight: 600;
-    background: none; border: none; cursor: pointer;
-  }
+  .tab { display: flex; align-items: center; gap: 6px; padding: 14px 16px; white-space: nowrap; color: rgba(255,255,255,0.75); font-size: 14px; font-weight: 600; background: none; border: none; cursor: pointer; }
   .tab.active { color: white; background: rgba(255,255,255,0.12); border-radius: 8px 8px 0 0; }
 
   .content { padding: 20px 16px; }
   .status-line { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
-  .status-line .ok { color: var(--ok); }
-  .status-line .err { color: var(--err); }
-  .account-card {
-    background: var(--panel); border: 1px solid #2b1547;
-    border-radius: 14px; padding: 16px; margin-bottom: 12px;
-  }
+  .status-line .ok { color: var(--ok); } .status-line .err { color: var(--err); }
+  .account-card { background: var(--panel); border: 1px solid #2b1547; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
   .account-card p { margin: 6px 0; font-size: 14px; color: var(--muted); }
   .account-card p strong { color: var(--text); }
   .login-prompt { text-align: center; padding: 40px 16px; }
-  .login-btn {
-    display: inline-block; margin-top: 16px;
-    background: var(--gradient); color: white;
-    padding: 12px 28px; border-radius: 24px;
-    font-weight: 700; text-decoration: none; font-size: 15px;
-  }
+  .login-btn { display: inline-block; margin-top: 16px; background: var(--gradient); color: white; padding: 12px 28px; border-radius: 24px; font-weight: 700; text-decoration: none; font-size: 15px; }
 
-  /* Account switcher dropdown */
-  .switcher {
-    position: absolute; top: 56px; left: 50%; transform: translateX(-50%);
-    background: var(--panel); border: 1px solid #3a1e5c; border-radius: 12px;
-    padding: 6px; z-index: 10; display: none; min-width: 220px;
-  }
+  .switcher { position: absolute; top: 56px; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid #3a1e5c; border-radius: 12px; padding: 6px; z-index: 10; display: none; min-width: 220px; }
   .switcher.open { display: block; }
-  .switcher-item {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 14px;
-  }
+  .switcher-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; }
   .switcher-item:hover { background: #24123a; }
   .switcher-item.current { background: #2b1547; }
 </style>
 </head>
 <body>
 
-  <div class="topbar" style="position:relative;">
+  <div class="topbar">
     <div class="left">
       <button class="icon-btn">☰</button>
       <div class="currency-pill" id="currency-pill">USD ▾</div>
@@ -112,9 +58,7 @@
       <span class="badge" id="account-badge">—</span>
       <span>▾</span>
     </div>
-    <div class="right">
-      <button class="transfer-btn" id="switch-btn">Switch</button>
-    </div>
+    <div class="right"><button class="transfer-btn" id="switch-btn">Switch</button></div>
     <div class="switcher" id="switcher"></div>
   </div>
 
@@ -137,145 +81,157 @@
   </div>
 
   <script>
-    const APP_ID = '33NyIprKo3XAhtN4o99wt';
+    const CLIENT_ID = '33NyIprKo3XAhtN4o99wt';
     const REDIRECT_URI = 'https://manoo-fx.vercel.app/dashboard.html';
+    const API_BASE = 'https://api.derivws.com/trading/v1/options';
 
     const statusEl = document.getElementById('status');
-    const params = new URLSearchParams(window.location.search);
 
-    function loginWithDeriv() {
-      const url = `https://oauth.deriv.com/oauth2/authorize?app_id=${APP_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&l=EN`;
-      window.location.href = url;
+    function randomString(length) {
+      const array = crypto.getRandomValues(new Uint8Array(length));
+      return Array.from(array).map(v => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~'[v % 66]).join('');
     }
-
-    document.getElementById('deriv-login-btn').addEventListener('click', (e) => {
-      e.preventDefault();
-      loginWithDeriv();
-    });
-
-    // Parses acct1/token1/cur1, acct2/token2/cur2... from the redirect URL
-    function parseAccountsFromUrl(params) {
-      const accounts = [];
-      let i = 1;
-      while (params.get(`acct${i}`)) {
-        accounts.push({
-          loginid: params.get(`acct${i}`),
-          token: params.get(`token${i}`),
-          currency: params.get(`cur${i}`),
-        });
-        i++;
-      }
-      return accounts;
+    async function deriveCodeChallenge(verifier) {
+      const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
+      return btoa(String.fromCharCode(...new Uint8Array(hash))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     }
-
-    function isDemo(loginid) {
-      return loginid.toUpperCase().startsWith('VR');
+    async function loginWithDeriv() {
+      const codeVerifier = randomString(64);
+      const codeChallenge = await deriveCodeChallenge(codeVerifier);
+      const state = randomString(16);
+      sessionStorage.setItem('pkce_code_verifier', codeVerifier);
+      sessionStorage.setItem('oauth_state', state);
+      const p = new URLSearchParams({
+        response_type: 'code', client_id: CLIENT_ID, redirect_uri: REDIRECT_URI,
+        scope: 'trade account_manage', state, code_challenge: codeChallenge, code_challenge_method: 'S256',
+      });
+      window.location.href = `https://auth.deriv.com/oauth2/auth?${p.toString()}`;
     }
-
-    const urlAccounts = parseAccountsFromUrl(params);
-
-    if (urlAccounts.length > 0) {
-      // Fresh redirect back from Deriv — save all accounts, clean the URL
-      sessionStorage.setItem('deriv_accounts', JSON.stringify(urlAccounts));
-      window.history.replaceState({}, '', '/dashboard.html');
-      loadAccount(preferredAccount(urlAccounts));
-    } else {
-      const saved = sessionStorage.getItem('deriv_accounts');
-      if (saved) {
-        const accounts = JSON.parse(saved);
-        loadAccount(preferredAccount(accounts));
-      } else {
-        showLoginPrompt();
-      }
-    }
-
-    // Prefer a real account if one exists, otherwise fall back to demo
-    function preferredAccount(accounts) {
-      const lastUsedId = sessionStorage.getItem('deriv_active_loginid');
-      if (lastUsedId) {
-        const match = accounts.find(a => a.loginid === lastUsedId);
-        if (match) return match;
-      }
-      return accounts.find(a => !isDemo(a.loginid)) || accounts[0];
-    }
+    document.getElementById('deriv-login-btn').addEventListener('click', (e) => { e.preventDefault(); loginWithDeriv(); });
 
     function showLoginPrompt() {
       document.getElementById('login-prompt').style.display = 'block';
       statusEl.textContent = '';
     }
 
-    function buildSwitcher(accounts, activeLoginid) {
+    // Fetches the user's Options accounts (real + demo) with live balances
+    async function fetchAccounts(accessToken) {
+      const res = await fetch(`${API_BASE}/accounts`, {
+        headers: { 'Deriv-App-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` },
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.errors?.[0]?.message || 'Failed to fetch accounts');
+      return Array.isArray(json.data) ? json.data : [json.data];
+    }
+
+    function buildSwitcher(accounts, activeId) {
       const switcher = document.getElementById('switcher');
       switcher.innerHTML = accounts.map(acc => `
-        <div class="switcher-item ${acc.loginid === activeLoginid ? 'current' : ''}" data-loginid="${acc.loginid}">
-          <span>${isDemo(acc.loginid) ? 'Demo' : 'Real'} · ${acc.loginid}</span>
-          <span>${acc.currency.toUpperCase()}</span>
+        <div class="switcher-item ${acc.account_id === activeId ? 'current' : ''}" data-id="${acc.account_id}">
+          <span>${acc.account_type === 'demo' ? 'Demo' : 'Real'} · ${acc.account_id}</span>
+          <span>${acc.balance.toLocaleString()} ${acc.currency}</span>
         </div>
       `).join('');
-
       switcher.querySelectorAll('.switcher-item').forEach(item => {
         item.addEventListener('click', () => {
-          const chosen = accounts.find(a => a.loginid === item.dataset.loginid);
-          sessionStorage.setItem('deriv_active_loginid', chosen.loginid);
+          const chosen = accounts.find(a => a.account_id === item.dataset.id);
+          sessionStorage.setItem('deriv_active_account', chosen.account_id);
           switcher.classList.remove('open');
-          loadAccount(chosen);
+          renderAccount(chosen, accounts);
         });
       });
     }
-
     document.getElementById('switch-btn').addEventListener('click', () => {
       document.getElementById('switcher').classList.toggle('open');
     });
 
-    function loadAccount(account) {
-      if (!account) { showLoginPrompt(); return; }
+    function renderAccount(account, allAccounts) {
+      const isReal = account.account_type !== 'demo';
+      document.getElementById('account-badge').textContent = isReal ? 'Real' : 'Demo';
+      document.getElementById('account-badge').className = 'badge' + (isReal ? ' real' : '');
+      document.getElementById('balance-amount').textContent = `${account.balance.toLocaleString()} ${account.currency}`;
+      document.getElementById('account-card-wrap').innerHTML = `
+        <div class="account-card">
+          <p><strong>Account ID:</strong> ${account.account_id}</p>
+          <p><strong>Currency:</strong> ${account.currency}</p>
+          <p><strong>Account type:</strong> ${isReal ? 'Real money' : 'Demo (virtual funds)'}</p>
+          <p><strong>Status:</strong> ${account.status}</p>
+        </div>
+      `;
+      buildSwitcher(allAccounts, account.account_id);
+      statusEl.innerHTML = `<span class="ok">Account loaded ✓</span>`;
+    }
 
-      sessionStorage.setItem('deriv_active_loginid', account.loginid);
-      statusEl.textContent = 'Loading your account...';
+    async function loadDashboard(accessToken) {
+      statusEl.textContent = 'Loading your accounts...';
+      try {
+        const accounts = await fetchAccounts(accessToken);
+        if (accounts.length === 0) { showLoginPrompt(); return; }
+        sessionStorage.setItem('deriv_accounts', JSON.stringify(accounts));
 
-      const saved = sessionStorage.getItem('deriv_accounts');
-      const accounts = saved ? JSON.parse(saved) : [account];
-      buildSwitcher(accounts, account.loginid);
+        const lastUsedId = sessionStorage.getItem('deriv_active_account');
+        const preferred = accounts.find(a => a.account_id === lastUsedId)
+          || accounts.find(a => a.account_type !== 'demo')
+          || accounts[0];
 
-      const demo = isDemo(account.loginid);
-      document.getElementById('account-badge').textContent = demo ? 'Demo' : 'Real';
-      document.getElementById('account-badge').className = 'badge' + (demo ? '' : ' real');
+        sessionStorage.setItem('deriv_active_account', preferred.account_id);
+        renderAccount(preferred, accounts);
+      } catch (err) {
+        statusEl.innerHTML = `<span class="err">${err.message}</span>`;
+        sessionStorage.removeItem('deriv_access_token');
+        showLoginPrompt();
+      }
+    }
 
-      const ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${APP_ID}`);
+    // --- Entry point ---
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const returnedState = params.get('state');
+    const error = params.get('error');
+    const savedState = sessionStorage.getItem('oauth_state');
+    const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
+    const existingToken = sessionStorage.getItem('deriv_access_token');
 
-      ws.onopen = () => ws.send(JSON.stringify({ authorize: account.token }));
+    if (code) {
+      if (error) {
+        statusEl.innerHTML = `<span class="err">Deriv returned an error: ${error}</span>`;
+        showLoginPrompt();
+      } else if (!codeVerifier) {
+        statusEl.innerHTML = `<span class="err">Session data missing — make sure login opens in the same tab, not a new one.</span>`;
+        showLoginPrompt();
+      } else if (returnedState && savedState && returnedState !== savedState) {
+        statusEl.innerHTML = `<span class="err">State mismatch — possible CSRF. Login aborted.</span>`;
+        showLoginPrompt();
+      } else {
+        statusEl.textContent = 'Exchanging code for access token...';
+        sessionStorage.removeItem('oauth_state');
 
-      ws.onmessage = (msg) => {
-        const response = JSON.parse(msg.data);
-
-        if (response.error) {
-          statusEl.innerHTML = `<span class="err">API error: ${response.error.message}</span>`;
-          return;
-        }
-
-        if (response.msg_type === 'authorize') {
-          ws.send(JSON.stringify({ balance: 1 }));
-          const acc = response.authorize;
-          document.getElementById('account-card-wrap').innerHTML = `
-            <div class="account-card">
-              <p><strong>Name:</strong> ${acc.fullname || 'N/A'}</p>
-              <p><strong>Login ID:</strong> ${acc.loginid}</p>
-              <p><strong>Currency:</strong> ${acc.currency}</p>
-              <p><strong>Account type:</strong> ${demo ? 'Demo (virtual funds)' : 'Real money'}</p>
-            </div>
-          `;
-        }
-
-        if (response.msg_type === 'balance') {
-          statusEl.innerHTML = `<span class="ok">Account loaded ✓</span>`;
-          document.getElementById('balance-amount').textContent =
-            `${Number(response.balance.balance).toLocaleString()} ${response.balance.currency}`;
-        }
-      };
-
-      ws.onerror = () => {
-        statusEl.innerHTML = `<span class="err">WebSocket connection failed.</span>`;
-      };
+        fetch('/api/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, code_verifier: codeVerifier }),
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.access_token) {
+              sessionStorage.setItem('deriv_access_token', data.access_token);
+              sessionStorage.removeItem('pkce_code_verifier');
+              window.history.replaceState({}, '', '/dashboard.html');
+              loadDashboard(data.access_token);
+            } else {
+              statusEl.innerHTML = `<span class="err">Token exchange failed: ${JSON.stringify(data)}</span>`;
+              showLoginPrompt();
+            }
+          })
+          .catch(err => {
+            statusEl.innerHTML = `<span class="err">Network error: ${err.message}</span>`;
+            showLoginPrompt();
+          });
+      }
+    } else if (existingToken) {
+      loadDashboard(existingToken);
+    } else {
+      showLoginPrompt();
     }
   </script>
 </body>
