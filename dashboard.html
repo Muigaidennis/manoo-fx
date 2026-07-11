@@ -1,281 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manoo FX — Dashboard</title>
-<style>
-  :root {
-    --bg: #0d0614;
-    --panel: #170a26;
-    --violet: #7c3aed;
-    --pink: #ec4899;
-    --gradient: linear-gradient(90deg, #6d28d9, #a21caf);
-    --text: #f2e9ff;
-    --muted: #b9a8d1;
-    --ok: #4ade80;
-    --err: #f87171;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: system-ui, -apple-system, sans-serif;
-    min-height: 100vh;
-  }
-
-  .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    background: #0a0510;
-    gap: 10px;
-  }
-  .topbar .left, .topbar .right { display: flex; align-items: center; gap: 10px; }
-  .icon-btn {
-    background: none; border: none; color: var(--text);
-    font-size: 20px; cursor: pointer; padding: 4px;
-  }
-  .currency-pill, .balance-pill {
-    display: flex; align-items: center; gap: 6px;
-    background: #1e0f33; border: 1px solid #3a1e5c;
-    border-radius: 20px; padding: 6px 12px;
-    font-size: 14px; font-weight: 600;
-    white-space: nowrap;
-  }
-  .balance-pill { flex: 1; justify-content: center; min-width: 0; }
-  .balance-amount { font-size: 15px; }
-  .badge {
-    background: #2b1547; color: var(--pink);
-    font-size: 11px; font-weight: 700;
-    padding: 2px 8px; border-radius: 10px;
-  }
-  .badge.real { color: #4ade80; }
-  .transfer-btn {
-    background: var(--gradient); color: white; border: none;
-    padding: 8px 16px; border-radius: 20px;
-    font-weight: 600; font-size: 14px; cursor: pointer;
-  }
-
-  .tabnav {
-    display: flex; overflow-x: auto;
-    background: var(--gradient);
-    padding: 0 4px;
-  }
-  .tabnav::-webkit-scrollbar { display: none; }
-  .tab {
-    display: flex; align-items: center; gap: 6px;
-    padding: 14px 16px; white-space: nowrap;
-    color: rgba(255,255,255,0.75); font-size: 14px; font-weight: 600;
-    background: none; border: none; cursor: pointer;
-  }
-  .tab.active { color: white; background: rgba(255,255,255,0.12); border-radius: 8px 8px 0 0; }
-
-  .content { padding: 20px 16px; }
-  .status-line { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
-  .status-line .ok { color: var(--ok); }
-  .status-line .err { color: var(--err); }
-  .account-card {
-    background: var(--panel); border: 1px solid #2b1547;
-    border-radius: 14px; padding: 16px; margin-bottom: 12px;
-  }
-  .account-card p { margin: 6px 0; font-size: 14px; color: var(--muted); }
-  .account-card p strong { color: var(--text); }
-  .login-prompt { text-align: center; padding: 40px 16px; }
-  .login-btn {
-    display: inline-block; margin-top: 16px;
-    background: var(--gradient); color: white;
-    padding: 12px 28px; border-radius: 24px;
-    font-weight: 700; text-decoration: none; font-size: 15px;
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>Manoo FX — Dashboard</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #12071f;
+      color: #f2e9ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+    .box { max-width: 420px; padding: 24px; }
+    .ok { color: #4ade80; }
+    .err { color: #f87171; }
+    code { background: #24123a; padding: 2px 6px; border-radius: 4px; word-break: break-all; }
+  </style>
 </head>
 <body>
-
-  <div class="topbar">
-    <div class="left">
-      <button class="icon-btn">☰</button>
-      <div class="currency-pill" id="currency-pill">USD ▾</div>
-    </div>
-    <div class="balance-pill" id="balance-pill">
-      <span>🅳</span>
-      <span class="balance-amount" id="balance-amount">— —</span>
-      <span class="badge" id="account-badge">—</span>
-      <span>▾</span>
-    </div>
-    <div class="right">
-      <button class="transfer-btn" id="switch-btn">Switch</button>
-    </div>
-  </div>
-
-  <div class="tabnav">
-    <button class="tab active">📊 Dashboard</button>
-    <button class="tab">★ Best Bots</button>
-    <button class="tab">⚙ Bot Builder</button>
-    <button class="tab">📈 AI Analysis</button>
-    <button class="tab">📈 Danalysis</button>
-    <button class="tab">🔄 Auto Trades</button>
-  </div>
-
-  <div class="content">
-    <p class="status-line" id="status">Checking login status...</p>
-    <div id="account-card-wrap"></div>
-    <div class="login-prompt" id="login-prompt" style="display:none;">
-      <p>You're not logged in yet.</p>
-      <a href="#" id="deriv-login-btn" class="login-btn">Login with Deriv</a>
-    </div>
+  <!--
+    This page is registered as the OAuth redirect_uri in the Deriv app dashboard,
+    so it doubles as the login callback AND the dashboard. On first load after
+    login it verifies the OAuth state/code below. Add your actual dashboard
+    content (charts, bots, account info) further down the page once this
+    verification block confirms things are working.
+  -->
+  <div class="box">
+    <h2>Manoo FX Login</h2>
+    <p id="status">Verifying...</p>
   </div>
 
   <script>
-    const CLIENT_ID = '33NyIprKo3XAhtN4o99wt';
-    const REDIRECT_URI = 'https://manoo-fx.vercel.app/dashboard.html';
-
-    function randomString(length) {
-      const array = crypto.getRandomValues(new Uint8Array(length));
-      return Array.from(array)
-        .map(v => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~'[v % 66])
-        .join('');
-    }
-
-    async function deriveCodeChallenge(verifier) {
-      const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
-      return btoa(String.fromCharCode(...new Uint8Array(hash)))
-        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    }
-
-    async function loginWithDeriv() {
-      const codeVerifier = randomString(64);
-      const codeChallenge = await deriveCodeChallenge(codeVerifier);
-      const state = randomString(16);
-      sessionStorage.setItem('pkce_code_verifier', codeVerifier);
-      sessionStorage.setItem('oauth_state', state);
-
-      const p = new URLSearchParams({
-        response_type: 'code',
-        client_id: CLIENT_ID,
-        redirect_uri: REDIRECT_URI,
-        scope: 'trade account_manage',
-        state: state,
-        code_challenge: codeChallenge,
-        code_challenge_method: 'S256',
-      });
-      window.location.href = `https://auth.deriv.com/oauth2/auth?${p.toString()}`;
-    }
-
-    document.getElementById('deriv-login-btn').addEventListener('click', (e) => {
-      e.preventDefault();
-      loginWithDeriv();
-    });
-    document.getElementById('switch-btn').addEventListener('click', () => {
-      sessionStorage.removeItem('deriv_access_token');
-      loginWithDeriv();
-    });
-
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const returnedState = params.get('state');
+    const error = params.get('error');
     const statusEl = document.getElementById('status');
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    const returnedState = urlParams.get('state');
-    const error = urlParams.get('error');
+
     const savedState = sessionStorage.getItem('oauth_state');
     const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
-    const existingToken = sessionStorage.getItem('deriv_access_token');
 
-    if (code) {
-      const debugInfo = `[debug] code: ${code ? 'present' : 'MISSING'} | state param: ${returnedState || 'MISSING'} | saved state: ${savedState || 'MISSING'} | code_verifier: ${codeVerifier ? 'present' : 'MISSING'}`;
-      console.log(debugInfo);
-
-      if (error) {
-        statusEl.innerHTML = `<span class="err">Deriv returned an error: ${error}</span>`;
-        showLoginPrompt();
-      } else if (!codeVerifier) {
-        statusEl.innerHTML = `<span class="err">code_verifier missing from sessionStorage — likely opened in a new tab/window instead of the same tab, or storage was cleared before redirect back.</span><br><small>${debugInfo}</small>`;
-        showLoginPrompt();
-      } else if (returnedState && savedState && returnedState !== savedState) {
-        statusEl.innerHTML = `<span class="err">State mismatch — possible CSRF. Login aborted.</span><br><small>${debugInfo}</small>`;
-        showLoginPrompt();
-      } else {
-        statusEl.innerHTML = `<span class="ok">Verified ✓</span> Exchanging code for access token...`;
-        sessionStorage.removeItem('oauth_state');
-
-        fetch('/api/token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code, code_verifier: codeVerifier }),
-        })
-          .then(res => res.json())
-          .then(data => {
-            if (data.access_token) {
-              sessionStorage.setItem('deriv_access_token', data.access_token);
-              sessionStorage.removeItem('pkce_code_verifier');
-              window.history.replaceState({}, '', '/dashboard.html');
-              connectAndFetchAccount(data.access_token);
-            } else {
-              statusEl.innerHTML = `<span class="err">Token exchange failed: ${JSON.stringify(data)}</span>`;
-              showLoginPrompt();
-            }
-          })
-          .catch(err => {
-            statusEl.innerHTML = `<span class="err">Network error: ${err.message}</span>`;
-            showLoginPrompt();
-          });
-      }
-    } else if (existingToken) {
-      statusEl.textContent = 'Loading your account...';
-      connectAndFetchAccount(existingToken);
+    if (error) {
+      statusEl.innerHTML = `<span class="err">Deriv returned an error: ${error}</span>`;
+    } else if (!code || !returnedState) {
+      statusEl.innerHTML = `<span class="err">Missing code or state in redirect.</span>`;
+    } else if (returnedState !== savedState) {
+      statusEl.innerHTML = `<span class="err">State mismatch — possible CSRF. Login aborted.</span>`;
     } else {
-      showLoginPrompt();
-    }
+      // State verified. At this point we'd normally POST { code, codeVerifier }
+      // to our backend to exchange for an access token. That endpoint comes next.
+      statusEl.innerHTML = `<span class="ok">State verified ✓</span><br><br>Exchanging code for access token...`;
 
-    function showLoginPrompt() {
-      document.getElementById('login-prompt').style.display = 'block';
-      statusEl.textContent = '';
-    }
+      // Clean up one-time-use values
+      sessionStorage.removeItem('oauth_state');
 
-    function connectAndFetchAccount(accessToken) {
-      const ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${CLIENT_ID}`);
-
-      ws.onopen = () => ws.send(JSON.stringify({ authorize: accessToken }));
-
-      ws.onmessage = (msg) => {
-        const response = JSON.parse(msg.data);
-
-        if (response.error) {
-          statusEl.innerHTML = `<span class="err">API error: ${response.error.message}</span>`;
-          sessionStorage.removeItem('deriv_access_token');
-          showLoginPrompt();
-          return;
-        }
-
-        if (response.msg_type === 'authorize') {
-          ws.send(JSON.stringify({ balance: 1 }));
-          const acc = response.authorize;
-          const isDemo = acc.loginid.startsWith('VR');
-
-          document.getElementById('account-badge').textContent = isDemo ? 'Demo' : 'Real';
-          document.getElementById('account-badge').className = 'badge' + (isDemo ? '' : ' real');
-
-          document.getElementById('account-card-wrap').innerHTML = `
-            <div class="account-card">
-              <p><strong>Name:</strong> ${acc.fullname || 'N/A'}</p>
-              <p><strong>Login ID:</strong> ${acc.loginid}</p>
-              <p><strong>Currency:</strong> ${acc.currency}</p>
-              <p><strong>Account type:</strong> ${isDemo ? 'Demo (virtual funds)' : 'Real money'}</p>
-            </div>
-          `;
-        }
-
-        if (response.msg_type === 'balance') {
-          statusEl.innerHTML = `<span class="ok">Account loaded ✓</span>`;
-          document.getElementById('balance-amount').textContent =
-            `${Number(response.balance.balance).toLocaleString()} ${response.balance.currency}`;
-        }
-      };
-
-      ws.onerror = () => {
-        statusEl.innerHTML = `<span class="err">WebSocket connection failed.</span>`;
-      };
+      fetch('/api/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, code_verifier: codeVerifier }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.access_token) {
+            sessionStorage.setItem('deriv_access_token', data.access_token);
+            sessionStorage.removeItem('pkce_code_verifier');
+            statusEl.innerHTML = `<span class="ok">Logged in successfully ✓</span><br><br>Access token stored. You're ready to make authenticated API calls.`;
+          } else {
+            statusEl.innerHTML = `<span class="err">Token exchange failed: ${JSON.stringify(data)}</span>`;
+          }
+        })
+        .catch(err => {
+          statusEl.innerHTML = `<span class="err">Network error during token exchange: ${err.message}</span>`;
+        });
     }
   </script>
 </body>
