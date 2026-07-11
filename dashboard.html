@@ -8,8 +8,6 @@
   :root {
     --bg: #0d0614;
     --panel: #170a26;
-    --violet: #7c3aed;
-    --pink: #ec4899;
     --gradient: linear-gradient(90deg, #6d28d9, #a21caf);
     --text: #f2e9ff;
     --muted: #b9a8d1;
@@ -43,27 +41,22 @@
     background: #1e0f33; border: 1px solid #3a1e5c;
     border-radius: 20px; padding: 6px 12px;
     font-size: 14px; font-weight: 600;
-    white-space: nowrap;
+    white-space: nowrap; cursor: pointer;
   }
   .balance-pill { flex: 1; justify-content: center; min-width: 0; }
-  .balance-amount { font-size: 15px; }
   .badge {
-    background: #2b1547; color: var(--pink);
+    background: #2b1547; color: var(--pink, #ec4899);
     font-size: 11px; font-weight: 700;
     padding: 2px 8px; border-radius: 10px;
   }
-  .badge.real { color: #4ade80; }
+  .badge.real { color: var(--ok); }
   .transfer-btn {
     background: var(--gradient); color: white; border: none;
     padding: 8px 16px; border-radius: 20px;
     font-weight: 600; font-size: 14px; cursor: pointer;
   }
 
-  .tabnav {
-    display: flex; overflow-x: auto;
-    background: var(--gradient);
-    padding: 0 4px;
-  }
+  .tabnav { display: flex; overflow-x: auto; background: var(--gradient); padding: 0 4px; }
   .tabnav::-webkit-scrollbar { display: none; }
   .tab {
     display: flex; align-items: center; gap: 6px;
@@ -90,11 +83,25 @@
     padding: 12px 28px; border-radius: 24px;
     font-weight: 700; text-decoration: none; font-size: 15px;
   }
+
+  /* Account switcher dropdown */
+  .switcher {
+    position: absolute; top: 56px; left: 50%; transform: translateX(-50%);
+    background: var(--panel); border: 1px solid #3a1e5c; border-radius: 12px;
+    padding: 6px; z-index: 10; display: none; min-width: 220px;
+  }
+  .switcher.open { display: block; }
+  .switcher-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 14px;
+  }
+  .switcher-item:hover { background: #24123a; }
+  .switcher-item.current { background: #2b1547; }
 </style>
 </head>
 <body>
 
-  <div class="topbar">
+  <div class="topbar" style="position:relative;">
     <div class="left">
       <button class="icon-btn">☰</button>
       <div class="currency-pill" id="currency-pill">USD ▾</div>
@@ -108,6 +115,7 @@
     <div class="right">
       <button class="transfer-btn" id="switch-btn">Switch</button>
     </div>
+    <div class="switcher" id="switcher"></div>
   </div>
 
   <div class="tabnav">
@@ -129,103 +137,66 @@
   </div>
 
   <script>
-    const CLIENT_ID = '33NyIprKo3XAhtN4o99wt';
+    const APP_ID = '33NyIprKo3XAhtN4o99wt';
     const REDIRECT_URI = 'https://manoo-fx.vercel.app/dashboard.html';
 
-    function randomString(length) {
-      const array = crypto.getRandomValues(new Uint8Array(length));
-      return Array.from(array)
-        .map(v => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~'[v % 66])
-        .join('');
-    }
+    const statusEl = document.getElementById('status');
+    const params = new URLSearchParams(window.location.search);
 
-    async function deriveCodeChallenge(verifier) {
-      const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
-      return btoa(String.fromCharCode(...new Uint8Array(hash)))
-        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    }
-
-    async function loginWithDeriv() {
-      const codeVerifier = randomString(64);
-      const codeChallenge = await deriveCodeChallenge(codeVerifier);
-      const state = randomString(16);
-      sessionStorage.setItem('pkce_code_verifier', codeVerifier);
-      sessionStorage.setItem('oauth_state', state);
-
-      const p = new URLSearchParams({
-        response_type: 'code',
-        client_id: CLIENT_ID,
-        redirect_uri: REDIRECT_URI,
-        scope: 'trade account_manage',
-        state: state,
-        code_challenge: codeChallenge,
-        code_challenge_method: 'S256',
-      });
-      window.location.href = `https://auth.deriv.com/oauth2/auth?${p.toString()}`;
+    function loginWithDeriv() {
+      const url = `https://oauth.deriv.com/oauth2/authorize?app_id=${APP_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&l=EN`;
+      window.location.href = url;
     }
 
     document.getElementById('deriv-login-btn').addEventListener('click', (e) => {
       e.preventDefault();
       loginWithDeriv();
     });
-    document.getElementById('switch-btn').addEventListener('click', () => {
-      sessionStorage.removeItem('deriv_access_token');
-      loginWithDeriv();
-    });
 
-    const statusEl = document.getElementById('status');
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    const returnedState = urlParams.get('state');
-    const error = urlParams.get('error');
-    const savedState = sessionStorage.getItem('oauth_state');
-    const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
-    const existingToken = sessionStorage.getItem('deriv_access_token');
-
-    if (code) {
-      const debugInfo = `[debug] code: ${code ? 'present' : 'MISSING'} | state param: ${returnedState || 'MISSING'} | saved state: ${savedState || 'MISSING'} | code_verifier: ${codeVerifier ? 'present' : 'MISSING'}`;
-      console.log(debugInfo);
-
-      if (error) {
-        statusEl.innerHTML = `<span class="err">Deriv returned an error: ${error}</span>`;
-        showLoginPrompt();
-      } else if (!codeVerifier) {
-        statusEl.innerHTML = `<span class="err">code_verifier missing from sessionStorage — likely opened in a new tab/window instead of the same tab, or storage was cleared before redirect back.</span><br><small>${debugInfo}</small>`;
-        showLoginPrompt();
-      } else if (returnedState && savedState && returnedState !== savedState) {
-        statusEl.innerHTML = `<span class="err">State mismatch — possible CSRF. Login aborted.</span><br><small>${debugInfo}</small>`;
-        showLoginPrompt();
-      } else {
-        statusEl.innerHTML = `<span class="ok">Verified ✓</span> Exchanging code for access token...`;
-        sessionStorage.removeItem('oauth_state');
-
-        fetch('/api/token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code, code_verifier: codeVerifier }),
-        })
-          .then(res => res.json())
-          .then(data => {
-            if (data.access_token) {
-              sessionStorage.setItem('deriv_access_token', data.access_token);
-              sessionStorage.removeItem('pkce_code_verifier');
-              window.history.replaceState({}, '', '/dashboard.html');
-              connectAndFetchAccount(data.access_token);
-            } else {
-              statusEl.innerHTML = `<span class="err">Token exchange failed: ${JSON.stringify(data)}</span>`;
-              showLoginPrompt();
-            }
-          })
-          .catch(err => {
-            statusEl.innerHTML = `<span class="err">Network error: ${err.message}</span>`;
-            showLoginPrompt();
-          });
+    // Parses acct1/token1/cur1, acct2/token2/cur2... from the redirect URL
+    function parseAccountsFromUrl(params) {
+      const accounts = [];
+      let i = 1;
+      while (params.get(`acct${i}`)) {
+        accounts.push({
+          loginid: params.get(`acct${i}`),
+          token: params.get(`token${i}`),
+          currency: params.get(`cur${i}`),
+        });
+        i++;
       }
-    } else if (existingToken) {
-      statusEl.textContent = 'Loading your account...';
-      connectAndFetchAccount(existingToken);
+      return accounts;
+    }
+
+    function isDemo(loginid) {
+      return loginid.toUpperCase().startsWith('VR');
+    }
+
+    const urlAccounts = parseAccountsFromUrl(params);
+
+    if (urlAccounts.length > 0) {
+      // Fresh redirect back from Deriv — save all accounts, clean the URL
+      sessionStorage.setItem('deriv_accounts', JSON.stringify(urlAccounts));
+      window.history.replaceState({}, '', '/dashboard.html');
+      loadAccount(preferredAccount(urlAccounts));
     } else {
-      showLoginPrompt();
+      const saved = sessionStorage.getItem('deriv_accounts');
+      if (saved) {
+        const accounts = JSON.parse(saved);
+        loadAccount(preferredAccount(accounts));
+      } else {
+        showLoginPrompt();
+      }
+    }
+
+    // Prefer a real account if one exists, otherwise fall back to demo
+    function preferredAccount(accounts) {
+      const lastUsedId = sessionStorage.getItem('deriv_active_loginid');
+      if (lastUsedId) {
+        const match = accounts.find(a => a.loginid === lastUsedId);
+        if (match) return match;
+      }
+      return accounts.find(a => !isDemo(a.loginid)) || accounts[0];
     }
 
     function showLoginPrompt() {
@@ -233,35 +204,64 @@
       statusEl.textContent = '';
     }
 
-    function connectAndFetchAccount(accessToken) {
-      const ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${CLIENT_ID}`);
+    function buildSwitcher(accounts, activeLoginid) {
+      const switcher = document.getElementById('switcher');
+      switcher.innerHTML = accounts.map(acc => `
+        <div class="switcher-item ${acc.loginid === activeLoginid ? 'current' : ''}" data-loginid="${acc.loginid}">
+          <span>${isDemo(acc.loginid) ? 'Demo' : 'Real'} · ${acc.loginid}</span>
+          <span>${acc.currency.toUpperCase()}</span>
+        </div>
+      `).join('');
 
-      ws.onopen = () => ws.send(JSON.stringify({ authorize: accessToken }));
+      switcher.querySelectorAll('.switcher-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const chosen = accounts.find(a => a.loginid === item.dataset.loginid);
+          sessionStorage.setItem('deriv_active_loginid', chosen.loginid);
+          switcher.classList.remove('open');
+          loadAccount(chosen);
+        });
+      });
+    }
+
+    document.getElementById('switch-btn').addEventListener('click', () => {
+      document.getElementById('switcher').classList.toggle('open');
+    });
+
+    function loadAccount(account) {
+      if (!account) { showLoginPrompt(); return; }
+
+      sessionStorage.setItem('deriv_active_loginid', account.loginid);
+      statusEl.textContent = 'Loading your account...';
+
+      const saved = sessionStorage.getItem('deriv_accounts');
+      const accounts = saved ? JSON.parse(saved) : [account];
+      buildSwitcher(accounts, account.loginid);
+
+      const demo = isDemo(account.loginid);
+      document.getElementById('account-badge').textContent = demo ? 'Demo' : 'Real';
+      document.getElementById('account-badge').className = 'badge' + (demo ? '' : ' real');
+
+      const ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${APP_ID}`);
+
+      ws.onopen = () => ws.send(JSON.stringify({ authorize: account.token }));
 
       ws.onmessage = (msg) => {
         const response = JSON.parse(msg.data);
 
         if (response.error) {
           statusEl.innerHTML = `<span class="err">API error: ${response.error.message}</span>`;
-          sessionStorage.removeItem('deriv_access_token');
-          showLoginPrompt();
           return;
         }
 
         if (response.msg_type === 'authorize') {
           ws.send(JSON.stringify({ balance: 1 }));
           const acc = response.authorize;
-          const isDemo = acc.loginid.startsWith('VR');
-
-          document.getElementById('account-badge').textContent = isDemo ? 'Demo' : 'Real';
-          document.getElementById('account-badge').className = 'badge' + (isDemo ? '' : ' real');
-
           document.getElementById('account-card-wrap').innerHTML = `
             <div class="account-card">
               <p><strong>Name:</strong> ${acc.fullname || 'N/A'}</p>
               <p><strong>Login ID:</strong> ${acc.loginid}</p>
               <p><strong>Currency:</strong> ${acc.currency}</p>
-              <p><strong>Account type:</strong> ${isDemo ? 'Demo (virtual funds)' : 'Real money'}</p>
+              <p><strong>Account type:</strong> ${demo ? 'Demo (virtual funds)' : 'Real money'}</p>
             </div>
           `;
         }
