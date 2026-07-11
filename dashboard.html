@@ -53,17 +53,29 @@
     } else {
       // State verified. At this point we'd normally POST { code, codeVerifier }
       // to our backend to exchange for an access token. That endpoint comes next.
-      statusEl.innerHTML = `
-        <span class="ok">State verified ✓</span><br><br>
-        Authorization code received:<br>
-        <code>${code}</code><br><br>
-        Next step: send this + your code_verifier to a backend endpoint
-        to exchange for an access token.
-      `;
+      statusEl.innerHTML = `<span class="ok">State verified ✓</span><br><br>Exchanging code for access token...`;
 
       // Clean up one-time-use values
       sessionStorage.removeItem('oauth_state');
-      // Keep codeVerifier until the token exchange step is built — don't clear yet
+
+      fetch('/api/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, code_verifier: codeVerifier }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.access_token) {
+            sessionStorage.setItem('deriv_access_token', data.access_token);
+            sessionStorage.removeItem('pkce_code_verifier');
+            statusEl.innerHTML = `<span class="ok">Logged in successfully ✓</span><br><br>Access token stored. You're ready to make authenticated API calls.`;
+          } else {
+            statusEl.innerHTML = `<span class="err">Token exchange failed: ${JSON.stringify(data)}</span>`;
+          }
+        })
+        .catch(err => {
+          statusEl.innerHTML = `<span class="err">Network error during token exchange: ${err.message}</span>`;
+        });
     }
   </script>
 </body>
