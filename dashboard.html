@@ -1,55 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manoo FX - Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Manoo FX — Dashboard</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #12071f;
+      color: #f2e9ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+    .box { max-width: 420px; padding: 24px; }
+    .ok { color: #4ade80; }
+    .err { color: #f87171; }
+    code { background: #24123a; padding: 2px 6px; border-radius: 4px; word-break: break-all; }
+  </style>
 </head>
 <body>
-    
-    <!-- Simple Dashboard Header -->
-    <header class="dash-header">
-        <div class="logo">MANOO FX</div>
-        <nav>
-            <span>Balance: <strong>$12,450.75</strong></span>
-            <button class="btn-logout">Logout</button>
-        </nav>
-    </header>
+  <!--
+    This page is registered as the OAuth redirect_uri in the Deriv app dashboard,
+    so it doubles as the login callback AND the dashboard. On first load after
+    login it verifies the OAuth state/code below. Add your actual dashboard
+    content (charts, bots, account info) further down the page once this
+    verification block confirms things are working.
+  -->
+  <div class="box">
+    <h2>Manoo FX Login</h2>
+    <p id="status">Verifying...</p>
+  </div>
 
-    <div class="dashboard">
-        <h1>Welcome back, Trader!</h1>
-        <p>Your trading dashboard</p>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const returnedState = params.get('state');
+    const error = params.get('error');
+    const statusEl = document.getElementById('status');
 
-        <!-- Account Summary -->
-        <div class="account-summary">
-            <div class="card">
-                <h3>Account Balance</h3>
-                <h2>$12,450.75</h2>
-            </div>
-            <div class="card">
-                <h3>Equity</h3>
-                <h2>$12,380.00</h2>
-            </div>
-            <div class="card">
-                <h3>Open Positions</h3>
-                <h2>3</h2>
-            </div>
-        </div>
+    const savedState = sessionStorage.getItem('oauth_state');
+    const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
 
-        <!-- Quick Trade -->
-        <div class="quick-trade">
-            <h2>Quick Trade</h2>
-            <p>Demo version - Click buttons to simulate</p>
-            <button class="trade-btn buy">BUY EUR/USD</button>
-            <button class="trade-btn sell">SELL EUR/USD</button>
-        </div>
+    if (error) {
+      statusEl.innerHTML = `<span class="err">Deriv returned an error: ${error}</span>`;
+    } else if (!code || !returnedState) {
+      statusEl.innerHTML = `<span class="err">Missing code or state in redirect.</span>`;
+    } else if (returnedState !== savedState) {
+      statusEl.innerHTML = `<span class="err">State mismatch — possible CSRF. Login aborted.</span>`;
+    } else {
+      // State verified. At this point we'd normally POST { code, codeVerifier }
+      // to our backend to exchange for an access token. That endpoint comes next.
+      statusEl.innerHTML = `
+        <span class="ok">State verified ✓</span><br><br>
+        Authorization code received:<br>
+        <code>${code}</code><br><br>
+        Next step: send this + your code_verifier to a backend endpoint
+        to exchange for an access token.
+      `;
 
-        <p style="text-align: center; margin-top: 50px; color: #64748b;">
-            This is a basic dashboard for learning.<br>
-            More features (charts, positions, history) will be added later.
-        </p>
-    </div>
-
+      // Clean up one-time-use values
+      sessionStorage.removeItem('oauth_state');
+      // Keep codeVerifier until the token exchange step is built — don't clear yet
+    }
+  </script>
 </body>
 </html>
