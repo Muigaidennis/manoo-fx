@@ -1,27 +1,25 @@
-// /api/token.js
-// Vercel Serverless Function — exchanges the authorization code for an access token.
-// Deploy this at /api/token.js in your project root; Vercel auto-detects it.
+// Vercel Serverless Function — exchanges a Deriv authorization code for an access token.
+
+const CLIENT_ID = '33NyIprKo3XAhtN4o99wt';
+const REDIRECT_URI = 'https://manoo-fx.vercel.app/dashboard.html';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { code, code_verifier } = req.body;
-
-  if (!code || !code_verifier) {
+  const { code, code_verifier: codeVerifier } = req.body || {};
+  if (typeof code !== 'string' || typeof codeVerifier !== 'string' || !code || !codeVerifier) {
     return res.status(400).json({ error: 'Missing code or code_verifier' });
   }
-
-  const CLIENT_ID = '33NyIprKo3XAhtN4o99wt';
-  const REDIRECT_URI = 'https://manoo-fx.vercel.app/dashboard.html';
 
   try {
     const params = new URLSearchParams({
       grant_type: 'authorization_code',
       client_id: CLIENT_ID,
-      code: code,
-      code_verifier: code_verifier,
+      code,
+      code_verifier: codeVerifier,
       redirect_uri: REDIRECT_URI,
     });
 
@@ -32,13 +30,12 @@ export default async function handler(req, res) {
     });
 
     const data = await derivRes.json();
-
     if (!derivRes.ok) {
       return res.status(derivRes.status).json({ error: 'Token exchange failed', details: data });
     }
 
     return res.status(200).json(data);
   } catch (err) {
-    return res.status(500).json({ error: 'Server error', details: err.message });
+    return res.status(502).json({ error: 'Unable to reach Deriv token service' });
   }
 }

@@ -124,12 +124,23 @@
       return Array.isArray(json.data) ? json.data : [json.data];
     }
 
+    function formatBalance(value) {
+      const amount = Number(value);
+      return Number.isFinite(amount) ? amount.toLocaleString(undefined, { maximumFractionDigits: 8 }) : '—';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>'"]/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[char]));
+    }
+
     function buildSwitcher(accounts, activeId) {
       const switcher = document.getElementById('switcher');
       switcher.innerHTML = accounts.map(acc => `
         <div class="switcher-item ${acc.account_id === activeId ? 'current' : ''}" data-id="${acc.account_id}">
-          <span>${acc.account_type === 'demo' ? 'Demo' : 'Real'} · ${acc.account_id}</span>
-          <span>${acc.balance.toLocaleString()} ${acc.currency}</span>
+          <span>${acc.account_type === 'demo' ? 'Demo' : 'Real'} · ${escapeHtml(acc.account_id)}</span>
+          <span>${formatBalance(acc.balance)} ${escapeHtml(acc.currency)}</span>
         </div>
       `).join('');
       switcher.querySelectorAll('.switcher-item').forEach(item => {
@@ -149,13 +160,13 @@
       const isReal = account.account_type !== 'demo';
       document.getElementById('account-badge').textContent = isReal ? 'Real' : 'Demo';
       document.getElementById('account-badge').className = 'badge' + (isReal ? ' real' : '');
-      document.getElementById('balance-amount').textContent = `${account.balance.toLocaleString()} ${account.currency}`;
+      document.getElementById('balance-amount').textContent = `${formatBalance(account.balance)} ${account.currency || ''}`.trim();
       document.getElementById('account-card-wrap').innerHTML = `
         <div class="account-card">
-          <p><strong>Account ID:</strong> ${account.account_id}</p>
-          <p><strong>Currency:</strong> ${account.currency}</p>
+          <p><strong>Account ID:</strong> ${escapeHtml(account.account_id)}</p>
+          <p><strong>Currency:</strong> ${escapeHtml(account.currency)}</p>
           <p><strong>Account type:</strong> ${isReal ? 'Real money' : 'Demo (virtual funds)'}</p>
-          <p><strong>Status:</strong> ${account.status}</p>
+          <p><strong>Status:</strong> ${escapeHtml(account.status)}</p>
         </div>
       `;
       buildSwitcher(allAccounts, account.account_id);
@@ -192,15 +203,15 @@
     const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
     const existingToken = sessionStorage.getItem('deriv_access_token');
 
-    if (code) {
-      if (error) {
-        statusEl.innerHTML = `<span class="err">Deriv returned an error: ${error}</span>`;
+    if (error) {
+      statusEl.innerHTML = `<span class="err">Deriv returned an error: ${escapeHtml(error)}</span>`;
+      showLoginPrompt();
+    } else if (code) {
+      if (!savedState || !returnedState || returnedState !== savedState) {
+        statusEl.innerHTML = '<span class="err">Invalid OAuth state — login aborted for your safety.</span>';
         showLoginPrompt();
       } else if (!codeVerifier) {
         statusEl.innerHTML = `<span class="err">Session data missing — make sure login opens in the same tab, not a new one.</span>`;
-        showLoginPrompt();
-      } else if (returnedState && savedState && returnedState !== savedState) {
-        statusEl.innerHTML = `<span class="err">State mismatch — possible CSRF. Login aborted.</span>`;
         showLoginPrompt();
       } else {
         statusEl.textContent = 'Exchanging code for access token...';
@@ -219,7 +230,7 @@
               window.history.replaceState({}, '', '/dashboard.html');
               loadDashboard(data.access_token);
             } else {
-              statusEl.innerHTML = `<span class="err">Token exchange failed: ${JSON.stringify(data)}</span>`;
+              statusEl.innerHTML = `<span class="err">Token exchange failed: ${escapeHtml(data.error || 'Unknown error')}</span>`;
               showLoginPrompt();
             }
           })
