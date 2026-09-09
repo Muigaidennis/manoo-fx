@@ -63,6 +63,13 @@
   .quote-meta { color: var(--muted); font-size: 13px; margin: 8px 0 20px; }
   .trade-disabled { border-top: 1px solid #3a1e5c; padding-top: 14px; color: var(--muted); font-size: 13px; line-height: 1.45; }
   .official-link { display: inline-block; margin-top: 14px; color: #67e8f9; font-weight: 600; text-decoration: none; }
+  .digit-strip { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .digit-chip { width: 31px; height: 31px; display: grid; place-items: center; border-radius: 6px; background: #24123a; border: 1px solid #553078; font-weight: 700; }
+  .digit-chip.latest { color: #0b0711; background: var(--ok); border-color: var(--ok); }
+  .digit-title { margin-top: 18px; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+  .digit-stats { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; margin-top: 8px; }
+  .digit-stat { text-align: center; font-size: 11px; color: var(--muted); }
+  .digit-stat i { display: block; height: 4px; margin-top: 4px; border-radius: 3px; background: #a21caf; }
   @media (max-width: 760px) { .trader-grid { grid-template-columns: 1fr; } .quote-panel { border-left: 0; border-top: 1px solid #3a1e5c; } .live-state { width: 100%; margin-left: 0; } }
 
   .switcher { position: absolute; top: 56px; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid #3a1e5c; border-radius: 12px; padding: 6px; z-index: 10; display: none; min-width: 220px; }
@@ -126,21 +133,26 @@
       <div class="trader-shell" aria-label="Live Deriv market workspace">
         <div class="trader-toolbar">
           <label for="market-select">Market</label>
-          <select id="market-select">
-            <option value="1HZ100V">Volatility 100 (1s)</option>
-            <option value="1HZ50V">Volatility 50 (1s)</option>
-            <option value="R_100">Volatility 100</option>
-            <option value="R_50">Volatility 50</option>
+          <select id="market-select" aria-label="Select volatility index">
+            <optgroup label="Volatility Indices (1s)">
+              <option value="1HZ10V">Volatility 10 (1s)</option><option value="1HZ25V">Volatility 25 (1s)</option><option value="1HZ50V">Volatility 50 (1s)</option><option value="1HZ75V">Volatility 75 (1s)</option><option value="1HZ100V" selected>Volatility 100 (1s)</option>
+            </optgroup>
+            <optgroup label="Volatility Indices">
+              <option value="R_10">Volatility 10</option><option value="R_25">Volatility 25</option><option value="R_50">Volatility 50</option><option value="R_75">Volatility 75</option><option value="R_100">Volatility 100</option>
+            </optgroup>
           </select>
-          <button type="button" id="connect-market-btn">Connect live</button>
-          <span class="live-state" id="market-state">Not connected</span>
+          <span class="live-state" id="market-state">Starting live feed…</span>
         </div>
         <div class="trader-grid">
           <div class="chart-wrap"><canvas id="price-chart" aria-label="Live price chart"></canvas></div>
           <aside class="quote-panel">
             <h3>Live quote</h3>
             <div class="quote-value" id="quote-value">—</div>
-            <div class="quote-meta" id="quote-meta">Choose Connect live to begin.</div>
+            <div class="quote-meta" id="quote-meta">Starting the live digit feed…</div>
+            <div class="digit-title">Last digits</div>
+            <div class="digit-strip" id="digit-strip" aria-live="polite"></div>
+            <div class="digit-title">Digit frequency</div>
+            <div class="digit-stats" id="digit-stats"></div>
             <div class="trade-disabled">Trade execution is intentionally disabled in this live preview. Use the official Deriv Trader when you are ready to place a trade.</div>
             <a class="official-link" href="https://app.deriv.com/dtrader" target="_blank" rel="noopener noreferrer">Open official Deriv Trader ↗</a>
           </aside>
@@ -182,14 +194,16 @@
 
     const PUBLIC_WS_URL = 'wss://api.derivws.com/trading/v1/options/ws/public';
     const marketSelect = document.getElementById('market-select');
-    const connectMarketBtn = document.getElementById('connect-market-btn');
     const marketState = document.getElementById('market-state');
     const quoteValue = document.getElementById('quote-value');
     const quoteMeta = document.getElementById('quote-meta');
+    const digitStrip = document.getElementById('digit-strip');
+    const digitStats = document.getElementById('digit-stats');
     const chart = document.getElementById('price-chart');
     const chartContext = chart.getContext('2d');
     let marketSocket;
     let prices = [];
+    let digits = [];
 
     function setMarketState(message, connected = false) {
       marketState.textContent = message;
@@ -224,14 +238,28 @@
       if (marketSocket) { marketSocket.close(); marketSocket = undefined; }
     }
 
+    function renderDigits() {
+      digitStrip.innerHTML = digits.slice(-24).map((digit, index, visible) =>
+        `<span class="digit-chip ${index === visible.length - 1 ? 'latest' : ''}">${digit}</span>`
+      ).join('');
+      const counts = Array(10).fill(0);
+      digits.forEach(digit => { counts[digit] += 1; });
+      const maximum = Math.max(...counts, 1);
+      digitStats.innerHTML = counts.map((count, digit) =>
+        `<span class="digit-stat">${digit}<i style="opacity:${count ? 0.45 + (count / maximum) * 0.55 : 0.2}"></i>${count}</span>`
+      ).join('');
+    }
+
     function connectToMarket() {
       closeMarketSocket();
       prices = [];
+      digits = [];
+      renderDigits();
       drawChart();
       const symbol = marketSelect.value;
       setMarketState('Connecting…');
       quoteValue.textContent = '—';
-      quoteMeta.textContent = `Waiting for ${symbol} ticks…`;
+      quoteMeta.textContent = `Waiting for live ${symbol} ticks…`;
       marketSocket = new WebSocket(PUBLIC_WS_URL);
       marketSocket.addEventListener('open', () => {
         setMarketState('Live', true);
@@ -245,6 +273,9 @@
           const price = Number(message.tick.quote);
           if (!Number.isFinite(price)) return;
           prices = [...prices, price].slice(-120);
+          const priceText = String(message.tick.quote);
+          const lastDigit = Number(priceText.replace(/[^0-9]/g, '').slice(-1));
+          if (Number.isInteger(lastDigit)) { digits = [...digits, lastDigit].slice(-100); renderDigits(); }
           quoteValue.textContent = price.toLocaleString(undefined, { maximumFractionDigits: 8 });
           quoteMeta.textContent = `${symbol} · ${new Date(Number(message.tick.epoch) * 1000).toLocaleTimeString()}`;
           drawChart();
@@ -258,8 +289,9 @@
       });
     }
 
-    connectMarketBtn.addEventListener('click', connectToMarket);
+    marketSelect.addEventListener('change', connectToMarket);
     window.addEventListener('resize', drawChart);
+    connectToMarket();
 
     function randomString(length) {
       const array = crypto.getRandomValues(new Uint8Array(length));
