@@ -46,6 +46,24 @@
   .feature-item { background: #1e0f33; border: 1px solid #3a1e5c; border-radius: 10px; padding: 16px; }
   .feature-item strong { display: block; margin-bottom: 6px; }
   .feature-item span { color: var(--muted); font-size: 13px; }
+  .trader-shell { background: #10091b; border: 1px solid #3a1e5c; border-radius: 14px; overflow: hidden; }
+  .trader-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px; background: #170a26; border-bottom: 1px solid #3a1e5c; }
+  .trader-toolbar label { color: var(--muted); font-size: 12px; }
+  .trader-toolbar select, .trader-toolbar button { background: #24123a; color: var(--text); border: 1px solid #553078; border-radius: 7px; padding: 8px 10px; }
+  .trader-toolbar button { cursor: pointer; font-weight: 600; }
+  .trader-toolbar button:hover { background: #342052; }
+  .live-state { margin-left: auto; font-size: 12px; color: var(--muted); }
+  .live-state.connected { color: var(--ok); }
+  .trader-grid { display: grid; grid-template-columns: minmax(0, 1fr) 260px; min-height: 360px; }
+  .chart-wrap { padding: 14px; min-width: 0; }
+  #price-chart { display: block; width: 100%; height: 300px; background: #0b0711; border: 1px solid #2b1547; border-radius: 8px; }
+  .quote-panel { padding: 18px; background: #170a26; border-left: 1px solid #3a1e5c; }
+  .quote-panel h3 { margin: 0 0 16px; }
+  .quote-value { font-size: 28px; font-weight: 700; color: var(--ok); word-break: break-all; }
+  .quote-meta { color: var(--muted); font-size: 13px; margin: 8px 0 20px; }
+  .trade-disabled { border-top: 1px solid #3a1e5c; padding-top: 14px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+  .official-link { display: inline-block; margin-top: 14px; color: #67e8f9; font-weight: 600; text-decoration: none; }
+  @media (max-width: 760px) { .trader-grid { grid-template-columns: 1fr; } .quote-panel { border-left: 0; border-top: 1px solid #3a1e5c; } .live-state { width: 100%; margin-left: 0; } }
 
   .switcher { position: absolute; top: 56px; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid #3a1e5c; border-radius: 12px; padding: 6px; z-index: 10; display: none; min-width: 220px; }
   .switcher.open { display: block; }
@@ -104,7 +122,30 @@
     </section>
 
     <section class="view-panel" data-panel="danalysis" hidden>
-      <div class="feature-card"><h2>Danalysis</h2><p>Analyze digit markets and recent outcomes from this workspace.</p></div>
+      <div class="feature-card"><h2>Danalysis</h2><p>Live Deriv market view with streaming prices. Select a market to start receiving live ticks.</p></div>
+      <div class="trader-shell" aria-label="Live Deriv market workspace">
+        <div class="trader-toolbar">
+          <label for="market-select">Market</label>
+          <select id="market-select">
+            <option value="1HZ100V">Volatility 100 (1s)</option>
+            <option value="1HZ50V">Volatility 50 (1s)</option>
+            <option value="R_100">Volatility 100</option>
+            <option value="R_50">Volatility 50</option>
+          </select>
+          <button type="button" id="connect-market-btn">Connect live</button>
+          <span class="live-state" id="market-state">Not connected</span>
+        </div>
+        <div class="trader-grid">
+          <div class="chart-wrap"><canvas id="price-chart" aria-label="Live price chart"></canvas></div>
+          <aside class="quote-panel">
+            <h3>Live quote</h3>
+            <div class="quote-value" id="quote-value">—</div>
+            <div class="quote-meta" id="quote-meta">Choose Connect live to begin.</div>
+            <div class="trade-disabled">Trade execution is intentionally disabled in this live preview. Use the official Deriv Trader when you are ready to place a trade.</div>
+            <a class="official-link" href="https://app.deriv.com/dtrader" target="_blank" rel="noopener noreferrer">Open official Deriv Trader ↗</a>
+          </aside>
+        </div>
+      </div>
     </section>
 
     <section class="view-panel" data-panel="auto-trades" hidden>
@@ -138,6 +179,87 @@
     window.addEventListener('popstate', () => showView(window.location.hash.slice(1), false));
     window.addEventListener('hashchange', () => showView(window.location.hash.slice(1), false));
     showView(window.location.hash.slice(1), false);
+
+    const PUBLIC_WS_URL = 'wss://api.derivws.com/trading/v1/options/ws/public';
+    const marketSelect = document.getElementById('market-select');
+    const connectMarketBtn = document.getElementById('connect-market-btn');
+    const marketState = document.getElementById('market-state');
+    const quoteValue = document.getElementById('quote-value');
+    const quoteMeta = document.getElementById('quote-meta');
+    const chart = document.getElementById('price-chart');
+    const chartContext = chart.getContext('2d');
+    let marketSocket;
+    let prices = [];
+
+    function setMarketState(message, connected = false) {
+      marketState.textContent = message;
+      marketState.classList.toggle('connected', connected);
+    }
+
+    function drawChart() {
+      const width = chart.clientWidth || 600;
+      const height = 300;
+      const ratio = window.devicePixelRatio || 1;
+      chart.width = width * ratio;
+      chart.height = height * ratio;
+      chartContext.setTransform(ratio, 0, 0, ratio, 0, 0);
+      chartContext.clearRect(0, 0, width, height);
+      chartContext.strokeStyle = '#2b1547';
+      chartContext.lineWidth = 1;
+      for (let y = 30; y < height; y += 54) {
+        chartContext.beginPath(); chartContext.moveTo(0, y); chartContext.lineTo(width, y); chartContext.stroke();
+      }
+      if (prices.length < 2) return;
+      const min = Math.min(...prices); const max = Math.max(...prices); const range = max - min || 1;
+      chartContext.strokeStyle = '#4ade80'; chartContext.lineWidth = 2; chartContext.beginPath();
+      prices.forEach((price, index) => {
+        const x = (index / (prices.length - 1)) * (width - 20) + 10;
+        const y = height - 20 - ((price - min) / range) * (height - 40);
+        if (index === 0) chartContext.moveTo(x, y); else chartContext.lineTo(x, y);
+      });
+      chartContext.stroke();
+    }
+
+    function closeMarketSocket() {
+      if (marketSocket) { marketSocket.close(); marketSocket = undefined; }
+    }
+
+    function connectToMarket() {
+      closeMarketSocket();
+      prices = [];
+      drawChart();
+      const symbol = marketSelect.value;
+      setMarketState('Connecting…');
+      quoteValue.textContent = '—';
+      quoteMeta.textContent = `Waiting for ${symbol} ticks…`;
+      marketSocket = new WebSocket(PUBLIC_WS_URL);
+      marketSocket.addEventListener('open', () => {
+        setMarketState('Live', true);
+        marketSocket.send(JSON.stringify({ ticks: symbol, subscribe: 1 }));
+      });
+      marketSocket.addEventListener('message', event => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message.error) throw new Error(message.error.message || 'Market stream error');
+          if (!message.tick) return;
+          const price = Number(message.tick.quote);
+          if (!Number.isFinite(price)) return;
+          prices = [...prices, price].slice(-120);
+          quoteValue.textContent = price.toLocaleString(undefined, { maximumFractionDigits: 8 });
+          quoteMeta.textContent = `${symbol} · ${new Date(Number(message.tick.epoch) * 1000).toLocaleTimeString()}`;
+          drawChart();
+        } catch (error) {
+          setMarketState(error.message || 'Stream error');
+        }
+      });
+      marketSocket.addEventListener('error', () => setMarketState('Connection error'));
+      marketSocket.addEventListener('close', () => {
+        if (marketState.classList.contains('connected')) setMarketState('Disconnected');
+      });
+    }
+
+    connectMarketBtn.addEventListener('click', connectToMarket);
+    window.addEventListener('resize', drawChart);
 
     function randomString(length) {
       const array = crypto.getRandomValues(new Uint8Array(length));
