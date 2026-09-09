@@ -4,7 +4,7 @@
 const DERIV_CONFIG = {
   clientId: "33NyIprKo3XAhtN4o99wt",       // Manoofx app ID (developers.deriv.com)
   redirectUri: "https://manoo-fx.vercel.app/dashboard.html", // must match EXACTLY what's registered
-  scope: "trade account_manage",
+  scope: "trade",
 };
 
 // Generates a random string for code_verifier / state

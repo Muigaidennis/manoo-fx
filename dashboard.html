@@ -103,7 +103,7 @@
       sessionStorage.setItem('oauth_state', state);
       const p = new URLSearchParams({
         response_type: 'code', client_id: CLIENT_ID, redirect_uri: REDIRECT_URI,
-        scope: 'trade account_manage', state, code_challenge: codeChallenge, code_challenge_method: 'S256',
+        scope: 'trade', state, code_challenge: codeChallenge, code_challenge_method: 'S256',
       });
       window.location.href = `https://auth.deriv.com/oauth2/auth?${p.toString()}`;
     }
@@ -114,14 +114,15 @@
       statusEl.textContent = '';
     }
 
-    // Fetches the user's Options accounts (real + demo) with live balances
+    // Fetches the user's Options accounts (real + demo) with live balances.
+    // OAuth bearer tokens do not require Deriv-App-ID; that header is for PATs.
     async function fetchAccounts(accessToken) {
       const res = await fetch(`${API_BASE}/accounts`, {
-        headers: { 'Deriv-App-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` },
+        headers: { 'Authorization': `Bearer ${accessToken}`, 'Accept': 'application/json' },
       });
-      const json = await res.json();
+      const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.errors?.[0]?.message || 'Failed to fetch accounts');
-      return Array.isArray(json.data) ? json.data : [json.data];
+      return Array.isArray(json.data) ? json.data.filter(Boolean) : [];
     }
 
     function formatBalance(value) {
@@ -199,12 +200,14 @@
     const code = params.get('code');
     const returnedState = params.get('state');
     const error = params.get('error');
+    const errorDescription = params.get('error_description');
     const savedState = sessionStorage.getItem('oauth_state');
     const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
     const existingToken = sessionStorage.getItem('deriv_access_token');
 
     if (error) {
-      statusEl.innerHTML = `<span class="err">Deriv returned an error: ${escapeHtml(error)}</span>`;
+      const detail = errorDescription ? ` — ${escapeHtml(errorDescription)}` : '';
+      statusEl.innerHTML = `<span class="err">Deriv returned an error: ${escapeHtml(error)}${detail}</span>`;
       showLoginPrompt();
     } else if (code) {
       if (!savedState || !returnedState || returnedState !== savedState) {
