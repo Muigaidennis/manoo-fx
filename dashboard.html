@@ -69,6 +69,7 @@
   .digit-title { margin-top: 18px; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
   .digit-stats { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; margin-top: 8px; }
   .digit-stat { text-align: center; font-size: 11px; color: var(--muted); }
+  .digit-stat strong { display: block; color: var(--text); font-size: 12px; margin-top: 3px; }
   .digit-stat i { display: block; height: 4px; margin-top: 4px; border-radius: 3px; background: #a21caf; }
   @media (max-width: 760px) { .trader-grid { grid-template-columns: 1fr; } .quote-panel { border-left: 0; border-top: 1px solid #3a1e5c; } .live-state { width: 100%; margin-left: 0; } }
 
@@ -245,8 +246,9 @@
       const counts = Array(10).fill(0);
       digits.forEach(digit => { counts[digit] += 1; });
       const maximum = Math.max(...counts, 1);
+      const total = digits.length;
       digitStats.innerHTML = counts.map((count, digit) =>
-        `<span class="digit-stat">${digit}<i style="opacity:${count ? 0.45 + (count / maximum) * 0.55 : 0.2}"></i>${count}</span>`
+        `<span class="digit-stat">${digit}<strong>${total ? ((count / total) * 100).toFixed(1) : '0.0'}%</strong><i style="opacity:${count ? 0.45 + (count / maximum) * 0.55 : 0.2}"></i></span>`
       ).join('');
     }
 
