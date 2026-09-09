@@ -46,6 +46,13 @@
   .feature-item { background: #1e0f33; border: 1px solid #3a1e5c; border-radius: 10px; padding: 16px; }
   .feature-item strong { display: block; margin-bottom: 6px; }
   .feature-item span { color: var(--muted); font-size: 13px; }
+  .bot-card { background: #1e0f33; border: 1px solid #553078; border-radius: 10px; padding: 18px; }
+  .bot-card h3 { margin: 0 0 7px; }
+  .bot-card p { margin: 6px 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+  .bot-settings { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin: 14px 0; }
+  .bot-setting { background: #24123a; border-radius: 7px; padding: 8px; color: var(--muted); font-size: 12px; }
+  .bot-setting strong { display: block; color: var(--text); margin-top: 3px; }
+  .download-btn { display: inline-block; padding: 9px 13px; border-radius: 7px; background: var(--gradient); color: white; font-size: 13px; font-weight: 700; text-decoration: none; }
   .trader-shell { background: #10091b; border: 1px solid #3a1e5c; border-radius: 14px; overflow: hidden; }
   .trader-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px; background: #170a26; border-bottom: 1px solid #3a1e5c; }
   .trader-toolbar label { color: var(--muted); font-size: 12px; }
@@ -124,8 +131,24 @@
     </section>
 
     <section class="view-panel" data-panel="best-bots" hidden>
-      <div class="feature-card"><h2>Best Bots</h2><p>Browse your saved strategies and choose a bot to configure before running it on a demo account.</p></div>
-      <div class="feature-grid"><div class="feature-item"><strong>Even/Odd Bot</strong><span>Digit strategy · Demo recommended</span></div><div class="feature-item"><strong>Rise/Fall Bot</strong><span>Trend strategy · Configure risk first</span></div><div class="feature-item"><strong>Last Digit Bot</strong><span>Digit strategy · Coming soon</span></div></div>
+      <div class="feature-card"><h2>Best Bots</h2><p>Download a strategy and import the XML into Deriv Bot. Test on a demo account first and review the risk settings before using real funds.</p></div>
+      <div class="feature-grid">
+        <article class="bot-card">
+          <h3>Volatility 10 Digit Over</h3>
+          <p>DIGITOVER strategy with prediction 5, one-tick duration, and stake progression after losses.</p>
+          <div class="bot-settings">
+            <div class="bot-setting">Market<strong>Volatility 10</strong></div>
+            <div class="bot-setting">Base stake<strong>0.35</strong></div>
+            <div class="bot-setting">Take profit<strong>+5</strong></div>
+            <div class="bot-setting">Stop loss<strong>-5</strong></div>
+            <div class="bot-setting">Loss limit<strong>5 consecutive</strong></div>
+            <div class="bot-setting">Duration<strong>1 tick</strong></div>
+          </div>
+          <a class="download-btn" href="bots/manoo-volatility10-digitover.xml" download>Download XML bot</a>
+        </article>
+        <div class="feature-item"><strong>Even/Odd Bot</strong><span>Digit strategy · Demo recommended</span></div>
+        <div class="feature-item"><strong>Rise/Fall Bot</strong><span>Trend strategy · Configure risk first</span></div>
+      </div>
     </section>
 
     <section class="view-panel" data-panel="bot-builder" hidden>
