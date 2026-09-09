@@ -28,6 +28,7 @@
   .tabnav::-webkit-scrollbar { display: none; }
   .tab { display: flex; align-items: center; gap: 6px; padding: 14px 16px; white-space: nowrap; color: rgba(255,255,255,0.75); font-size: 14px; font-weight: 600; background: none; border: none; cursor: pointer; }
   .tab.active { color: white; background: rgba(255,255,255,0.12); border-radius: 8px 8px 0 0; }
+  .tab:focus-visible { outline: 2px solid white; outline-offset: -2px; }
 
   .content { padding: 20px 16px; }
   .status-line { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
@@ -37,6 +38,14 @@
   .account-card p strong { color: var(--text); }
   .login-prompt { text-align: center; padding: 40px 16px; }
   .login-btn { display: inline-block; margin-top: 16px; background: var(--gradient); color: white; padding: 12px 28px; border-radius: 24px; font-weight: 700; text-decoration: none; font-size: 15px; }
+  .view-panel[hidden] { display: none; }
+  .feature-card { background: var(--panel); border: 1px solid #2b1547; border-radius: 14px; padding: 22px; margin-bottom: 12px; }
+  .feature-card h2 { margin: 0 0 8px; font-size: 20px; }
+  .feature-card p { margin: 8px 0; color: var(--muted); line-height: 1.5; }
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+  .feature-item { background: #1e0f33; border: 1px solid #3a1e5c; border-radius: 10px; padding: 16px; }
+  .feature-item strong { display: block; margin-bottom: 6px; }
+  .feature-item span { color: var(--muted); font-size: 13px; }
 
   .switcher { position: absolute; top: 56px; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid #3a1e5c; border-radius: 12px; padding: 6px; z-index: 10; display: none; min-width: 220px; }
   .switcher.open { display: block; }
@@ -63,21 +72,44 @@
   </div>
 
   <div class="tabnav">
-    <button class="tab active">📊 Dashboard</button>
-    <button class="tab">★ Best Bots</button>
-    <button class="tab">⚙ Bot Builder</button>
-    <button class="tab">📈 AI Analysis</button>
-    <button class="tab">📈 Danalysis</button>
-    <button class="tab">🔄 Auto Trades</button>
+    <button class="tab active" type="button" data-view="dashboard" aria-selected="true">📊 Dashboard</button>
+    <button class="tab" type="button" data-view="best-bots" aria-selected="false">★ Best Bots</button>
+    <button class="tab" type="button" data-view="bot-builder" aria-selected="false">⚙ Bot Builder</button>
+    <button class="tab" type="button" data-view="ai-analysis" aria-selected="false">📈 AI Analysis</button>
+    <button class="tab" type="button" data-view="danalysis" aria-selected="false">📈 Danalysis</button>
+    <button class="tab" type="button" data-view="auto-trades" aria-selected="false">🔄 Auto Trades</button>
   </div>
 
   <div class="content">
-    <p class="status-line" id="status">Checking login status...</p>
-    <div id="account-card-wrap"></div>
-    <div class="login-prompt" id="login-prompt" style="display:none;">
-      <p>You're not logged in yet.</p>
-      <a href="#" id="deriv-login-btn" class="login-btn">Login with Deriv</a>
-    </div>
+    <section class="view-panel" data-panel="dashboard">
+      <p class="status-line" id="status">Checking login status...</p>
+      <div id="account-card-wrap"></div>
+      <div class="login-prompt" id="login-prompt" style="display:none;">
+        <p>You're not logged in yet.</p>
+        <a href="#" id="deriv-login-btn" class="login-btn">Login with Deriv</a>
+      </div>
+    </section>
+
+    <section class="view-panel" data-panel="best-bots" hidden>
+      <div class="feature-card"><h2>Best Bots</h2><p>Browse your saved strategies and choose a bot to configure before running it on a demo account.</p></div>
+      <div class="feature-grid"><div class="feature-item"><strong>Even/Odd Bot</strong><span>Digit strategy · Demo recommended</span></div><div class="feature-item"><strong>Rise/Fall Bot</strong><span>Trend strategy · Configure risk first</span></div><div class="feature-item"><strong>Last Digit Bot</strong><span>Digit strategy · Coming soon</span></div></div>
+    </section>
+
+    <section class="view-panel" data-panel="bot-builder" hidden>
+      <div class="feature-card"><h2>Bot Builder</h2><p>Create a strategy by selecting a market, contract type, stake, and risk limits. Trading controls will be enabled after a bot is configured.</p></div>
+    </section>
+
+    <section class="view-panel" data-panel="ai-analysis" hidden>
+      <div class="feature-card"><h2>AI Analysis</h2><p>Review market observations and strategy suggestions here. Always verify signals yourself before trading.</p></div>
+    </section>
+
+    <section class="view-panel" data-panel="danalysis" hidden>
+      <div class="feature-card"><h2>Danalysis</h2><p>Analyze digit markets and recent outcomes from this workspace.</p></div>
+    </section>
+
+    <section class="view-panel" data-panel="auto-trades" hidden>
+      <div class="feature-card"><h2>Auto Trades</h2><p>Automation is paused by default. Select a demo account and configure strict stake and loss limits before enabling any strategy.</p></div>
+    </section>
   </div>
 
   <script>
@@ -86,6 +118,26 @@
     const API_BASE = 'https://api.derivws.com/trading/v1/options';
 
     const statusEl = document.getElementById('status');
+    const tabs = [...document.querySelectorAll('.tab[data-view]')];
+    const panels = [...document.querySelectorAll('.view-panel[data-panel]')];
+
+    function showView(view, updateUrl = true) {
+      const selectedView = tabs.some(tab => tab.dataset.view === view) ? view : 'dashboard';
+      tabs.forEach(tab => {
+        const selected = tab.dataset.view === selectedView;
+        tab.classList.toggle('active', selected);
+        tab.setAttribute('aria-selected', String(selected));
+      });
+      panels.forEach(panel => { panel.hidden = panel.dataset.panel !== selectedView; });
+      if (updateUrl && window.location.hash !== `#${selectedView}`) {
+        window.history.pushState({ view: selectedView }, '', `#${selectedView}`);
+      }
+    }
+
+    tabs.forEach(tab => tab.addEventListener('click', () => showView(tab.dataset.view)));
+    window.addEventListener('popstate', () => showView(window.location.hash.slice(1), false));
+    window.addEventListener('hashchange', () => showView(window.location.hash.slice(1), false));
+    showView(window.location.hash.slice(1), false);
 
     function randomString(length) {
       const array = crypto.getRandomValues(new Uint8Array(length));
