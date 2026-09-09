@@ -53,6 +53,11 @@
   .bot-setting { background: #24123a; border-radius: 7px; padding: 8px; color: var(--muted); font-size: 12px; }
   .bot-setting strong { display: block; color: var(--text); margin-top: 3px; }
   .download-btn { display: inline-block; padding: 9px 13px; border-radius: 7px; background: var(--gradient); color: white; font-size: 13px; font-weight: 700; text-decoration: none; }
+  .builder-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 16px; }
+  .builder-field { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: 12px; }
+  .builder-field input, .builder-field select { width: 100%; padding: 10px; color: var(--text); background: #10091b; border: 1px solid #553078; border-radius: 7px; }
+  .builder-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .builder-note { color: var(--muted); font-size: 13px; line-height: 1.45; margin-top: 10px; }
   .trader-shell { background: #10091b; border: 1px solid #3a1e5c; border-radius: 14px; overflow: hidden; }
   .trader-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px; background: #170a26; border-bottom: 1px solid #3a1e5c; }
   .trader-toolbar label { color: var(--muted); font-size: 12px; }
@@ -134,8 +139,8 @@
       <div class="feature-card"><h2>Best Bots</h2><p>Download a strategy and import the XML into Deriv Bot. Test on a demo account first and review the risk settings before using real funds.</p></div>
       <div class="feature-grid">
         <article class="bot-card">
-          <h3>Volatility 10 Digit Over</h3>
-          <p>DIGITOVER strategy with prediction 5, one-tick duration, and stake progression after losses.</p>
+          <h3>Manoo Over Under</h3>
+          <p>Editable DIGITOVER strategy with prediction 5, one-tick duration, and stake progression after losses.</p>
           <div class="bot-settings">
             <div class="bot-setting">Market<strong>Volatility 10</strong></div>
             <div class="bot-setting">Base stake<strong>0.35</strong></div>
@@ -144,7 +149,7 @@
             <div class="bot-setting">Loss limit<strong>5 consecutive</strong></div>
             <div class="bot-setting">Duration<strong>1 tick</strong></div>
           </div>
-          <a class="download-btn" href="bots/manoo-volatility10-digitover.xml" download>Download XML bot</a>
+          <div class="builder-actions"><button class="download-btn" type="button" data-open-builder>Open in Bot Builder</button><a class="download-btn" href="bots/manoo-volatility10-digitover.xml" download>Download XML bot</a></div>
         </article>
         <div class="feature-item"><strong>Even/Odd Bot</strong><span>Digit strategy · Demo recommended</span></div>
         <div class="feature-item"><strong>Rise/Fall Bot</strong><span>Trend strategy · Configure risk first</span></div>
@@ -152,7 +157,21 @@
     </section>
 
     <section class="view-panel" data-panel="bot-builder" hidden>
-      <div class="feature-card"><h2>Bot Builder</h2><p>Create a strategy by selecting a market, contract type, stake, and risk limits. Trading controls will be enabled after a bot is configured.</p></div>
+      <div class="feature-card">
+        <h2>Bot Builder</h2>
+        <p>Edit <strong>Manoo Over Under</strong> before exporting it for Deriv Bot. Changes here update the displayed configuration; test on a demo account before using real funds.</p>
+        <div class="builder-form">
+          <label class="builder-field">Market<select id="builder-market"><option value="R_10">Volatility 10</option><option value="R_25">Volatility 25</option><option value="R_50">Volatility 50</option><option value="R_75">Volatility 75</option><option value="R_100">Volatility 100</option></select></label>
+          <label class="builder-field">Contract<select id="builder-contract"><option value="DIGITOVER">Digit Over</option><option value="DIGITUNDER">Digit Under</option></select></label>
+          <label class="builder-field">Prediction<input id="builder-prediction" type="number" min="0" max="9" step="1" value="5"></label>
+          <label class="builder-field">Stake<input id="builder-stake" type="number" min="0.35" step="0.01" value="0.35"></label>
+          <label class="builder-field">Take profit<input id="builder-take-profit" type="number" min="0" step="0.01" value="5"></label>
+          <label class="builder-field">Stop loss<input id="builder-stop-loss" type="number" min="0" step="0.01" value="5"></label>
+          <label class="builder-field">Max consecutive losses<input id="builder-max-losses" type="number" min="1" step="1" value="5"></label>
+        </div>
+        <p class="builder-note" id="builder-summary">Manoo Over Under · Volatility 10 · Digit Over 5 · Stake 0.35 · TP 5 · SL 5 · Max losses 5</p>
+        <div class="builder-actions"><a class="download-btn" href="bots/manoo-volatility10-digitover.xml" download>Download base XML</a><button class="download-btn" type="button" id="save-builder">Save settings</button></div>
+      </div>
     </section>
 
     <section class="view-panel" data-panel="ai-analysis" hidden>
@@ -232,6 +251,37 @@
     window.addEventListener('popstate', () => showView(window.location.hash.slice(1), false));
     window.addEventListener('hashchange', () => showView(window.location.hash.slice(1), false));
     showView(window.location.hash.slice(1), false);
+
+    const builderFields = {
+      market: document.getElementById('builder-market'), contract: document.getElementById('builder-contract'),
+      prediction: document.getElementById('builder-prediction'), stake: document.getElementById('builder-stake'),
+      takeProfit: document.getElementById('builder-take-profit'), stopLoss: document.getElementById('builder-stop-loss'),
+      maxLosses: document.getElementById('builder-max-losses')
+    };
+    const builderSummary = document.getElementById('builder-summary');
+
+    function updateBuilderSummary() {
+      const contractName = builderFields.contract.value === 'DIGITUNDER' ? 'Digit Under' : 'Digit Over';
+      builderSummary.textContent = `Manoo Over Under · ${builderFields.market.options[builderFields.market.selectedIndex].text} · ${contractName} ${builderFields.prediction.value} · Stake ${builderFields.stake.value} · TP ${builderFields.takeProfit.value} · SL ${builderFields.stopLoss.value} · Max losses ${builderFields.maxLosses.value}`;
+    }
+
+    function loadBuilderSettings() {
+      const saved = JSON.parse(localStorage.getItem('manoo_over_under_settings') || 'null');
+      if (!saved) return;
+      Object.entries(builderFields).forEach(([key, field]) => { if (saved[key] !== undefined) field.value = saved[key]; });
+      updateBuilderSummary();
+    }
+
+    document.querySelectorAll('[data-open-builder]').forEach(button => button.addEventListener('click', () => showView('bot-builder')));
+    Object.values(builderFields).forEach(field => field.addEventListener('input', updateBuilderSummary));
+    document.getElementById('save-builder').addEventListener('click', () => {
+      const settings = Object.fromEntries(Object.entries(builderFields).map(([key, field]) => [key, field.value]));
+      localStorage.setItem('manoo_over_under_settings', JSON.stringify(settings));
+      updateBuilderSummary();
+      document.getElementById('save-builder').textContent = 'Settings saved ✓';
+      setTimeout(() => { document.getElementById('save-builder').textContent = 'Save settings'; }, 1800);
+    });
+    loadBuilderSettings();
 
     const PUBLIC_WS_URL = 'wss://api.derivws.com/trading/v1/options/ws/public';
     const marketSelect = document.getElementById('market-select');
