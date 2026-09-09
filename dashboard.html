@@ -71,6 +71,13 @@
   .digit-stat { text-align: center; font-size: 11px; color: var(--muted); }
   .digit-stat strong { display: block; color: var(--text); font-size: 12px; margin-top: 3px; }
   .digit-stat i { display: block; height: 4px; margin-top: 4px; border-radius: 3px; background: #a21caf; }
+  .digit-summary { display: flex; align-items: center; gap: 16px; padding: 12px; background: #10091b; border: 1px solid #3a1e5c; border-radius: 10px; }
+  .last-digit { width: 54px; height: 54px; display: grid; place-items: center; border-radius: 50%; background: #24123a; border: 2px solid var(--pink); color: white; font-size: 28px; font-weight: 800; }
+  .summary-copy strong { display: block; font-size: 15px; }
+  .summary-copy span { display: block; color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .group-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .group-stat { padding: 9px; background: #24123a; border-radius: 7px; font-size: 12px; color: var(--muted); }
+  .group-stat strong { display: block; color: var(--text); font-size: 14px; margin-top: 3px; }
   @media (max-width: 760px) { .trader-grid { grid-template-columns: 1fr; } .quote-panel { border-left: 0; border-top: 1px solid #3a1e5c; } .live-state { width: 100%; margin-left: 0; } }
 
   .switcher { position: absolute; top: 56px; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid #3a1e5c; border-radius: 12px; padding: 6px; z-index: 10; display: none; min-width: 220px; }
@@ -150,10 +157,20 @@
             <h3>Live quote</h3>
             <div class="quote-value" id="quote-value">—</div>
             <div class="quote-meta" id="quote-meta">Starting the live digit feed…</div>
+            <div class="digit-summary">
+              <div class="last-digit" id="last-digit">—</div>
+              <div class="summary-copy"><strong>Last digit</strong><span id="digit-window">Waiting for 100 ticks…</span></div>
+            </div>
             <div class="digit-title">Last digits</div>
             <div class="digit-strip" id="digit-strip" aria-live="polite"></div>
             <div class="digit-title">Digit frequency</div>
             <div class="digit-stats" id="digit-stats"></div>
+            <div class="group-stats">
+              <div class="group-stat">Even <strong id="even-percent">0.0%</strong></div>
+              <div class="group-stat">Odd <strong id="odd-percent">0.0%</strong></div>
+              <div class="group-stat">Over 4 <strong id="over-percent">0.0%</strong></div>
+              <div class="group-stat">Under 5 <strong id="under-percent">0.0%</strong></div>
+            </div>
             <div class="trade-disabled">Trade execution is intentionally disabled in this live preview. Use the official Deriv Trader when you are ready to place a trade.</div>
             <a class="official-link" href="https://app.deriv.com/dtrader" target="_blank" rel="noopener noreferrer">Open official Deriv Trader ↗</a>
           </aside>
@@ -198,8 +215,14 @@
     const marketState = document.getElementById('market-state');
     const quoteValue = document.getElementById('quote-value');
     const quoteMeta = document.getElementById('quote-meta');
+    const lastDigit = document.getElementById('last-digit');
+    const digitWindow = document.getElementById('digit-window');
     const digitStrip = document.getElementById('digit-strip');
     const digitStats = document.getElementById('digit-stats');
+    const evenPercent = document.getElementById('even-percent');
+    const oddPercent = document.getElementById('odd-percent');
+    const overPercent = document.getElementById('over-percent');
+    const underPercent = document.getElementById('under-percent');
     const chart = document.getElementById('price-chart');
     const chartContext = chart.getContext('2d');
     let marketSocket;
@@ -247,9 +270,18 @@
       digits.forEach(digit => { counts[digit] += 1; });
       const maximum = Math.max(...counts, 1);
       const total = digits.length;
+      const percentage = count => total ? `${((count / total) * 100).toFixed(1)}%` : '0.0%';
       digitStats.innerHTML = counts.map((count, digit) =>
-        `<span class="digit-stat">${digit}<strong>${total ? ((count / total) * 100).toFixed(1) : '0.0'}%</strong><i style="opacity:${count ? 0.45 + (count / maximum) * 0.55 : 0.2}"></i></span>`
+        `<span class="digit-stat">${digit}<strong>${percentage(count)}</strong><i style="opacity:${count ? 0.45 + (count / maximum) * 0.55 : 0.2}"></i></span>`
       ).join('');
+      const even = counts[0] + counts[2] + counts[4] + counts[6] + counts[8];
+      const over = counts[5] + counts[6] + counts[7] + counts[8] + counts[9];
+      evenPercent.textContent = percentage(even);
+      oddPercent.textContent = percentage(total - even);
+      overPercent.textContent = percentage(over);
+      underPercent.textContent = percentage(total - over);
+      digitWindow.textContent = `${total} of 100 recent ticks`;
+      if (digits.length) lastDigit.textContent = digits[digits.length - 1];
     }
 
     function lastDigitFromQuote(quote) {
