@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Manoo FX — Dashboard</title>
+<link rel="stylesheet" href="builder-terminal.css">
 <style>
   :root {
     --bg: #0d0614; --panel: #170a26; --gradient: linear-gradient(90deg, #6d28d9, #a21caf);
@@ -157,21 +158,14 @@
     </section>
 
     <section class="view-panel" data-panel="bot-builder" hidden>
-      <div class="feature-card">
-        <h2>Bot Builder</h2>
-        <p>Edit <strong>Manoo Over Under</strong> before exporting it for Deriv Bot. Changes here update the displayed configuration; test on a demo account before using real funds.</p>
-        <div class="builder-form">
-          <label class="builder-field">Market<select id="builder-market"><option value="R_10">Volatility 10</option><option value="R_25">Volatility 25</option><option value="R_50">Volatility 50</option><option value="R_75">Volatility 75</option><option value="R_100">Volatility 100</option></select></label>
-          <label class="builder-field">Contract<select id="builder-contract"><option value="DIGITOVER">Digit Over</option><option value="DIGITUNDER">Digit Under</option></select></label>
-          <label class="builder-field">Prediction<input id="builder-prediction" type="number" min="0" max="9" step="1" value="5"></label>
-          <label class="builder-field">Stake<input id="builder-stake" type="number" min="0.35" step="0.01" value="0.35"></label>
-          <label class="builder-field">Take profit<input id="builder-take-profit" type="number" min="0" step="0.01" value="5"></label>
-          <label class="builder-field">Stop loss<input id="builder-stop-loss" type="number" min="0" step="0.01" value="5"></label>
-          <label class="builder-field">Max consecutive losses<input id="builder-max-losses" type="number" min="1" step="1" value="5"></label>
-        </div>
-        <p class="builder-note" id="builder-summary">Manoo Over Under · Volatility 10 · Digit Over 5 · Stake 0.35 · TP 5 · SL 5 · Max losses 5</p>
-        <div class="builder-actions"><a class="download-btn" href="bots/manoo-volatility10-digitover.xml" download>Download base XML</a><button class="download-btn" type="button" id="save-builder">Save settings</button></div>
+      <div class="builder-head feature-card"><div><span class="builder-kicker">Strategy terminal</span><h2>Bot Builder</h2><p>Open a Manoo strategy, tune its rules, and monitor the live market context before starting a protected paper session.</p></div><div class="builder-mode"><span class="mode-dot"></span> DEMO-FIRST WORKSPACE</div></div>
+      <div class="bot-library"><button type="button" class="library-card selected" data-bot-template="under"><span class="library-status">READY</span><strong>Manoo Under Sniper</strong><small>Digit Under · Volatility 10 / 25</small><em>Open Bot →</em></button><button type="button" class="library-card" data-bot-template="over"><span class="library-status">READY</span><strong>Manoo Over/Under</strong><small>Digits · all Volatility Indices</small><em>Open Bot →</em></button><button type="button" class="library-card" data-bot-template="rise"><span class="library-status muted">BETA</span><strong>Manoo Rise &amp; Fall</strong><small>Rise/Fall · Volatility 50 / 75</small><em>Open Bot →</em></button><button type="button" class="library-card" data-bot-template="digit"><span class="library-status muted">BETA</span><strong>Manoo Digit Strategy</strong><small>Digit analysis · synthetic markets</small><em>Open Bot →</em></button></div>
+      <div class="builder-terminal">
+        <div class="builder-column config-column"><div class="column-title"><span>01</span> Configuration</div><p class="active-bot-name" id="active-bot-name">Manoo Under Sniper</p><div class="builder-form terminal-form"><label class="builder-field">Market<select id="builder-market"><option value="R_10">Volatility 10</option><option value="R_25">Volatility 25</option><option value="R_50">Volatility 50</option><option value="R_75">Volatility 75</option><option value="R_100">Volatility 100</option><option value="1HZ10V">Volatility 10 (1s)</option></select></label><label class="builder-field">Contract<select id="builder-contract"><option value="DIGITOVER">Digit Over</option><option value="DIGITUNDER">Digit Under</option></select></label><label class="builder-field">Prediction / entry<input id="builder-prediction" type="number" min="0" max="9" step="1" value="5"></label><label class="builder-field">Duration<select id="builder-duration"><option>1 tick</option><option>2 ticks</option><option>5 ticks</option></select></label><label class="builder-field">Base stake<input id="builder-stake" type="number" min="0.35" step="0.01" value="0.35"></label><label class="builder-field">Martingale ×<input id="builder-multiplier" type="number" min="1" max="5" step="0.1" value="2"></label><label class="builder-field">Max martingale level<input id="builder-martingale-level" type="number" min="0" max="10" step="1" value="3"></label><label class="builder-field">Take profit<input id="builder-take-profit" type="number" min="0" step="0.01" value="5"></label><label class="builder-field">Stop loss<input id="builder-stop-loss" type="number" min="0" step="0.01" value="5"></label><label class="builder-field">Max consecutive losses<input id="builder-max-losses" type="number" min="1" step="1" value="5"></label><label class="builder-field">Max daily loss<input id="builder-daily-loss" type="number" min="0" step="0.01" value="10"></label><label class="builder-field">Max number of trades<input id="builder-max-trades" type="number" min="1" step="1" value="100"></label></div><div class="toggle-row"><label><input type="checkbox" id="auto-stop-tp" checked> Auto-stop after TP</label><label><input type="checkbox" id="auto-stop-sl" checked> Auto-stop after SL</label><label><input type="checkbox" id="conservative-protection" checked> Conservative-loss protection</label></div><div class="builder-actions"><button class="download-btn" type="button" id="save-builder">Save settings</button><button class="ghost-btn" type="button" id="reset-builder">Reset</button></div></div>
+        <div class="builder-column activity-column"><div class="column-title"><span>02</span> Live activity</div><div class="activity-status"><span class="status-dot"></span><strong id="bot-state">WAITING FOR ENTRY</strong><small id="bot-state-detail">Select a bot and watch the market context</small></div><div class="live-digit-card"><div><span class="micro-label">CURRENT DIGIT</span><b id="builder-current-digit">—</b></div><div><span class="micro-label">NEXT POSSIBLE ENTRY</span><strong id="builder-entry">Waiting for signal</strong></div></div><div class="builder-stat-grid"><div><span>Live quote</span><b id="builder-quote">DATA UNAVAILABLE</b></div><div><span>Signal strength</span><b id="builder-strength">—</b></div><div><span>Current contract</span><b id="builder-contract-label">Digit Under 5</b></div><div><span>Current stake</span><b id="builder-current-stake">0.35</b></div></div><div class="activity-label">LAST DIGITS</div><div class="builder-digits" id="builder-digits"><span>DATA UNAVAILABLE</span></div><div class="activity-label">DIGIT FREQUENCY</div><div class="builder-frequency" id="builder-frequency"><span>Connect to DAnalysis for live statistics.</span></div><div class="entry-note"><span>i</span><p>Signals are observations, not guarantees. The workspace stops opening new paper entries when a risk limit is reached.</p></div></div>
+        <aside class="builder-column account-column"><div class="column-title"><span>03</span> Account &amp; session</div><div class="connection-card"><span class="status-dot" id="builder-connection-dot"></span><div><strong id="builder-connection">Deriv not connected</strong><small>Authorize your own account to load balance data</small></div><button type="button" id="builder-connect">CONNECT DERIV</button></div><div class="account-balance"><span>ACCOUNT BALANCE</span><b id="builder-balance">DATA UNAVAILABLE</b><small id="builder-account-mode">Select Demo or Real above</small></div><div class="session-stats"><div><span>Session P/L</span><b id="session-profit">0.00</b></div><div><span>Win rate</span><b id="session-win-rate">—</b></div><div><span>Wins / losses</span><b id="session-wins-losses">0 / 0</b></div><div><span>Consecutive losses</span><b id="session-consecutive">0</b></div></div><div class="builder-actions terminal-actions"><button class="start-btn" type="button" id="start-bot">START PAPER BOT</button><button class="pause-btn" type="button" id="pause-bot">PAUSE</button><button class="stop-btn" type="button" id="stop-bot">STOP BOT</button><button class="emergency-btn" type="button" id="emergency-stop">EMERGENCY STOP</button></div><p class="builder-disclaimer">This Vercel workspace displays live Deriv market data and runs a paper session. It does not submit real orders.</p></aside>
       </div>
+      <div class="trade-log feature-card"><div class="column-title"><span>04</span> Trade activity</div><div class="trade-table"><div class="trade-row trade-header"><span>TIME</span><span>MARKET</span><span>CONTRACT</span><span>STAKE</span><span>RESULT</span><span>P/L</span></div><div id="builder-trade-log"><div class="empty-trades">No paper entries yet. Start the bot after configuring your strategy.</div></div></div></div>
     </section>
 
     <section class="view-panel" data-panel="ai-analysis" hidden>
@@ -256,13 +250,38 @@
       market: document.getElementById('builder-market'), contract: document.getElementById('builder-contract'),
       prediction: document.getElementById('builder-prediction'), stake: document.getElementById('builder-stake'),
       takeProfit: document.getElementById('builder-take-profit'), stopLoss: document.getElementById('builder-stop-loss'),
-      maxLosses: document.getElementById('builder-max-losses')
+      maxLosses: document.getElementById('builder-max-losses'), duration: document.getElementById('builder-duration'),
+      multiplier: document.getElementById('builder-multiplier'), martingaleLevel: document.getElementById('builder-martingale-level'),
+      dailyLoss: document.getElementById('builder-daily-loss'), maxTrades: document.getElementById('builder-max-trades')
     };
     const builderSummary = document.getElementById('builder-summary');
+    const builderBotName = document.getElementById('active-bot-name');
+    const builderState = document.getElementById('bot-state');
+    const builderStateDetail = document.getElementById('bot-state-detail');
+    const builderCurrentDigit = document.getElementById('builder-current-digit');
+    const builderDigits = document.getElementById('builder-digits');
+    const builderFrequency = document.getElementById('builder-frequency');
+    const builderQuote = document.getElementById('builder-quote');
+    const builderEntry = document.getElementById('builder-entry');
+    const builderStrength = document.getElementById('builder-strength');
+    const builderContractLabel = document.getElementById('builder-contract-label');
+    const builderCurrentStake = document.getElementById('builder-current-stake');
+    const builderConnection = document.getElementById('builder-connection');
+    const builderConnectionDot = document.getElementById('builder-connection-dot');
+    const builderTradeLog = document.getElementById('builder-trade-log');
+    const builderTemplates = {
+      under: { name: 'Manoo Under Sniper', contract: 'DIGITUNDER', prediction: 5, market: 'R_10' },
+      over: { name: 'Manoo Over/Under', contract: 'DIGITOVER', prediction: 5, market: 'R_10' },
+      rise: { name: 'Manoo Rise & Fall', contract: 'DIGITOVER', prediction: 5, market: 'R_50' },
+      digit: { name: 'Manoo Digit Strategy', contract: 'DIGITUNDER', prediction: 5, market: 'R_25' }
+    };
+    let paperState = 'stopped';
 
     function updateBuilderSummary() {
       const contractName = builderFields.contract.value === 'DIGITUNDER' ? 'Digit Under' : 'Digit Over';
-      builderSummary.textContent = `Manoo Over Under · ${builderFields.market.options[builderFields.market.selectedIndex].text} · ${contractName} ${builderFields.prediction.value} · Stake ${builderFields.stake.value} · TP ${builderFields.takeProfit.value} · SL ${builderFields.stopLoss.value} · Max losses ${builderFields.maxLosses.value}`;
+      if (builderSummary) builderSummary.textContent = `${builderBotName?.textContent || 'Manoo strategy'} · ${builderFields.market.options[builderFields.market.selectedIndex].text} · ${contractName} ${builderFields.prediction.value} · Stake ${builderFields.stake.value} · TP ${builderFields.takeProfit.value} · SL ${builderFields.stopLoss.value} · Max losses ${builderFields.maxLosses.value}`;
+      if (builderContractLabel) builderContractLabel.textContent = `${contractName} ${builderFields.prediction.value}`;
+      if (builderCurrentStake) builderCurrentStake.textContent = Number(builderFields.stake.value || 0).toFixed(2);
     }
 
     function loadBuilderSettings() {
@@ -274,6 +293,17 @@
 
     document.querySelectorAll('[data-open-builder]').forEach(button => button.addEventListener('click', () => showView('bot-builder')));
     Object.values(builderFields).forEach(field => field.addEventListener('input', updateBuilderSummary));
+    document.querySelectorAll('[data-bot-template]').forEach(button => button.addEventListener('click', () => {
+      const template = builderTemplates[button.dataset.botTemplate];
+      if (!template) return;
+      document.querySelectorAll('[data-bot-template]').forEach(item => item.classList.toggle('selected', item === button));
+      builderBotName.textContent = template.name;
+      builderFields.market.value = template.market;
+      builderFields.contract.value = template.contract;
+      builderFields.prediction.value = template.prediction;
+      updateBuilderSummary();
+      showView('bot-builder');
+    }));
     document.getElementById('save-builder').addEventListener('click', () => {
       const settings = Object.fromEntries(Object.entries(builderFields).map(([key, field]) => [key, field.value]));
       localStorage.setItem('manoo_over_under_settings', JSON.stringify(settings));
@@ -281,7 +311,26 @@
       document.getElementById('save-builder').textContent = 'Settings saved ✓';
       setTimeout(() => { document.getElementById('save-builder').textContent = 'Save settings'; }, 1800);
     });
+    document.getElementById('reset-builder').addEventListener('click', () => { localStorage.removeItem('manoo_over_under_settings'); window.location.reload(); });
+    document.getElementById('builder-connect').addEventListener('click', () => { builderConnection.textContent = 'Opening Deriv authorization…'; loginWithDeriv(); });
+    document.getElementById('start-bot').addEventListener('click', () => { paperState = 'running'; builderState.textContent = 'SCANNING LIVE TICKS'; builderState.style.color = 'var(--ok)'; builderStateDetail.textContent = 'Waiting for the configured entry condition'; });
+    document.getElementById('pause-bot').addEventListener('click', () => { paperState = 'paused'; builderState.textContent = 'PAUSED'; builderState.style.color = '#fbbf24'; builderStateDetail.textContent = 'No new paper entries will be evaluated'; });
+    document.getElementById('stop-bot').addEventListener('click', () => { paperState = 'stopped'; builderState.textContent = 'STOPPED'; builderState.style.color = 'var(--err)'; builderStateDetail.textContent = 'Press Start Paper Bot to scan again'; });
+    document.getElementById('emergency-stop').addEventListener('click', () => { paperState = 'stopped'; builderState.textContent = 'EMERGENCY STOP'; builderState.style.color = 'var(--err)'; builderStateDetail.textContent = 'All new paper entries blocked until manual restart'; });
     loadBuilderSettings();
+
+    function renderBuilderActivity() {
+      if (!builderDigits || !builderFrequency) return;
+      builderDigits.innerHTML = digits.length ? digits.slice(-20).map((digit, index, list) => `<span class="digit-chip ${index === list.length - 1 ? 'latest' : ''}">${digit}</span>`).join('') : '<span>DATA UNAVAILABLE</span>';
+      const counts = Array(10).fill(0); digits.forEach(digit => { counts[digit] += 1; });
+      const maximum = Math.max(...counts, 1); const total = digits.length;
+      builderFrequency.innerHTML = total ? counts.map((count, digit) => `<span class="freq"><i style="opacity:${count ? .45 + count / maximum * .55 : .2}"></i>${digit}<b>${((count / total) * 100).toFixed(1)}%</b></span>`).join('') : '<span>Connect to DAnalysis for live statistics.</span>';
+      const current = digits[digits.length - 1];
+      if (builderCurrentDigit) builderCurrentDigit.textContent = current ?? '—';
+      if (builderQuote && quoteValue) builderQuote.textContent = quoteValue.textContent || 'DATA UNAVAILABLE';
+      if (builderStrength) builderStrength.textContent = total ? `${Math.max(...counts)}/${total}` : '—';
+      if (builderEntry) builderEntry.textContent = paperState === 'running' ? 'Evaluating signal…' : 'Waiting for signal';
+    }
 
     const PUBLIC_WS_URL = 'wss://api.derivws.com/trading/v1/options/ws/public';
     const marketSelect = document.getElementById('market-select');
@@ -370,6 +419,7 @@
       const digit = lastDigitFromQuote(quote);
       if (digit !== null) digits = [...digits, digit].slice(-100);
       renderDigits();
+      renderBuilderActivity();
       drawChart();
     }
 
@@ -386,6 +436,7 @@
       marketSocket = new WebSocket(PUBLIC_WS_URL);
       marketSocket.addEventListener('open', () => {
         setMarketState('Live', true);
+        if (builderConnection) builderConnection.textContent = 'Market data connected';
         // Seed the percentages from Deriv's own latest 100-tick history,
         // then keep the sample live with the tick subscription.
         marketSocket.send(JSON.stringify({ ticks_history: symbol, end: 'latest', count: 100, style: 'ticks' }));
