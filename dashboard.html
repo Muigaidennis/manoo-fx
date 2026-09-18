@@ -27,7 +27,7 @@
 
   .tabnav { display: flex; overflow-x: auto; background: var(--gradient); padding: 0 4px; }
   .tabnav::-webkit-scrollbar { display: none; }
-  .tab { display: flex; align-items: center; gap: 6px; padding: 14px 16px; white-space: nowrap; color: rgba(255,255,255,0.75); font-size: 14px; font-weight: 600; background: none; border: none; cursor: pointer; text-decoration: none; }
+  .tab { display: flex; align-items: center; gap: 6px; padding: 14px 16px; white-space: nowrap; color: rgba(255,255,255,0.75); font-size: 14px; font-weight: 600; background: none; border: none; cursor: pointer; }
   .tab.active { color: white; background: rgba(255,255,255,0.12); border-radius: 8px 8px 0 0; }
   .tab:focus-visible { outline: 2px solid white; outline-offset: -2px; }
 
@@ -159,18 +159,482 @@
 
     <section class="view-panel" data-panel="bot-builder" hidden>
       <div class="builder-head feature-card"><div><span class="builder-kicker">Strategy terminal</span><h2>Bot Builder</h2><p>Open a Manoo strategy, tune its rules, and monitor the live market context before starting a protected paper session.</p></div><div class="builder-mode"><span class="mode-dot"></span> DEMO-FIRST WORKSPACE</div></div>
-      <div class="bot-library"><button type="button" class="library-card selected" data-bot-template="under"><span class="library-status">READY</span><strong>Manoo Under Sniper</strong><small>Digit Under · Volatility 10 / 25</small><em>Open Bot →</em></button><button type="button" class="library-card" data-bot-template="over"><span class="library-status">READY</span><strong>Manoo Over/Under</strong><small>Digits · all Volatility Indices</small><em>Open Bot →</em></button><button type="button" class="library-card" data-bot-template="rise"><span class="library-status muted">BETA</span><strong>Manoo Rise & Fall</strong><small>Rise/Fall · Volatility 50 / 75</small><em>Open Bot →</em></button><button type="button" class="library-card" data-bot-template="digit"><span class="library-status muted">BETA</span><strong>Manoo Digit Strategy</strong><small>Digit analysis · synthetic markets</small><em>Open Bot →</em></button></div>
+      <div class="bot-library"><button type="button" class="library-card selected" data-bot-template="under"><span class="library-status">READY</span><strong>Manoo Under Sniper</strong><small>Digit Under · Volatility 10 / 25</small><em>Open Bot →</em></button><button type="button" class="library-card" data-bot-template="over"><span class="library-status">READY</span><strong>Manoo Over/Under</strong><small>Digits · all Volatility Indices</small><em>Open Bot →</em></button><button type="button" class="library-card" data-bot-template="rise"><span class="library-status muted">BETA</span><strong>Manoo Rise &amp; Fall</strong><small>Rise/Fall · Volatility 50 / 75</small><em>Open Bot →</em></button><button type="button" class="library-card" data-bot-template="digit"><span class="library-status muted">BETA</span><strong>Manoo Digit Strategy</strong><small>Digit analysis · synthetic markets</small><em>Open Bot →</em></button></div>
       <div class="builder-terminal">
         <div class="builder-column config-column"><div class="column-title"><span>01</span> Configuration</div><p class="active-bot-name" id="active-bot-name">Manoo Under Sniper</p><div class="builder-form terminal-form"><label class="builder-field">Market<select id="builder-market"><option value="R_10">Volatility 10</option><option value="R_25">Volatility 25</option><option value="R_50">Volatility 50</option><option value="R_75">Volatility 75</option><option value="R_100">Volatility 100</option><option value="1HZ10V">Volatility 10 (1s)</option></select></label><label class="builder-field">Contract<select id="builder-contract"><option value="DIGITOVER">Digit Over</option><option value="DIGITUNDER">Digit Under</option></select></label><label class="builder-field">Prediction / entry<input id="builder-prediction" type="number" min="0" max="9" step="1" value="5"></label><label class="builder-field">Duration<select id="builder-duration"><option>1 tick</option><option>2 ticks</option><option>5 ticks</option></select></label><label class="builder-field">Base stake<input id="builder-stake" type="number" min="0.35" step="0.01" value="0.35"></label><label class="builder-field">Martingale ×<input id="builder-multiplier" type="number" min="1" max="5" step="0.1" value="2"></label><label class="builder-field">Max martingale level<input id="builder-martingale-level" type="number" min="0" max="10" step="1" value="3"></label><label class="builder-field">Take profit<input id="builder-take-profit" type="number" min="0" step="0.01" value="5"></label><label class="builder-field">Stop loss<input id="builder-stop-loss" type="number" min="0" step="0.01" value="5"></label><label class="builder-field">Max consecutive losses<input id="builder-max-losses" type="number" min="1" step="1" value="5"></label><label class="builder-field">Max daily loss<input id="builder-daily-loss" type="number" min="0" step="0.01" value="10"></label><label class="builder-field">Max number of trades<input id="builder-max-trades" type="number" min="1" step="1" value="100"></label></div><div class="toggle-row"><label><input type="checkbox" id="auto-stop-tp" checked> Auto-stop after TP</label><label><input type="checkbox" id="auto-stop-sl" checked> Auto-stop after SL</label><label><input type="checkbox" id="conservative-protection" checked> Conservative-loss protection</label></div><div class="builder-actions"><button class="download-btn" type="button" id="save-builder">Save settings</button><button class="ghost-btn" type="button" id="reset-builder">Reset</button></div></div>
         <div class="builder-column activity-column"><div class="column-title"><span>02</span> Live activity</div><div class="activity-status"><span class="status-dot"></span><strong id="bot-state">WAITING FOR ENTRY</strong><small id="bot-state-detail">Select a bot and watch the market context</small></div><div class="live-digit-card"><div><span class="micro-label">CURRENT DIGIT</span><b id="builder-current-digit">—</b></div><div><span class="micro-label">NEXT POSSIBLE ENTRY</span><strong id="builder-entry">Waiting for signal</strong></div></div><div class="builder-stat-grid"><div><span>Live quote</span><b id="builder-quote">DATA UNAVAILABLE</b></div><div><span>Signal strength</span><b id="builder-strength">—</b></div><div><span>Current contract</span><b id="builder-contract-label">Digit Under 5</b></div><div><span>Current stake</span><b id="builder-current-stake">0.35</b></div></div><div class="activity-label">LAST DIGITS</div><div class="builder-digits" id="builder-digits"><span>DATA UNAVAILABLE</span></div><div class="activity-label">DIGIT FREQUENCY</div><div class="builder-frequency" id="builder-frequency"><span>Connect to DAnalysis for live statistics.</span></div><div class="entry-note"><span>i</span><p>Signals are observations, not guarantees. The workspace stops opening new paper entries when a risk limit is reached.</p></div></div>
-        <aside class="builder-column account-column"><div class="column-title"><span>03</span> Account & session</div><div class="connection-card"><span class="status-dot" id="builder-connection-dot"></span><div><strong id="builder-connection">Deriv not connected</strong><small>Authorize your own account to load balance data</small></div><button type="button" id="builder-connect">CONNECT DERIV</button></div><div class="account-balance"><span>ACCOUNT BALANCE</span><b id="builder-balance">DATA UNAVAILABLE</b><small id="builder-account-mode">Select Demo or Real above</small></div><div class="session-stats"><div><span>Session P/L</span><b id="session-profit">0.00</b></div><div><span>Win rate</span><b id="session-win-rate">—</b></div><div><span>Wins / losses</span><b id="session-wins-losses">0 / 0</b></div><div><span>Consecutive losses</span><b id="session-consecutive">0</b></div></div><div class="builder-actions terminal-actions"><button class="start-btn" type="button" id="start-bot">START PAPER BOT</button></div></aside>
+        <aside class="builder-column account-column"><div class="column-title"><span>03</span> Account &amp; session</div><div class="connection-card"><span class="status-dot" id="builder-connection-dot"></span><div><strong id="builder-connection">Deriv not connected</strong><small>Authorize your own account to load balance data</small></div><button type="button" id="builder-connect">CONNECT DERIV</button></div><div class="account-balance"><span>ACCOUNT BALANCE</span><b id="builder-balance">DATA UNAVAILABLE</b><small id="builder-account-mode">Select Demo or Real above</small></div><div class="session-stats"><div><span>Session P/L</span><b id="session-profit">0.00</b></div><div><span>Win rate</span><b id="session-win-rate">—</b></div><div><span>Wins / losses</span><b id="session-wins-losses">0 / 0</b></div><div><span>Consecutive losses</span><b id="session-consecutive">0</b></div></div><div class="builder-actions terminal-actions"><button class="start-btn" type="button" id="start-bot">START PAPER BOT</button><button class="pause-btn" type="button" id="pause-bot">PAUSE</button><button class="stop-btn" type="button" id="stop-bot">STOP BOT</button><button class="emergency-btn" type="button" id="emergency-stop">EMERGENCY STOP</button></div><p class="builder-disclaimer">This Vercel workspace displays live Deriv market data and runs a paper session. It does not submit real orders.</p></aside>
+      </div>
+      <div class="trade-log feature-card"><div class="column-title"><span>04</span> Trade activity</div><div class="trade-table"><div class="trade-row trade-header"><span>TIME</span><span>MARKET</span><span>CONTRACT</span><span>STAKE</span><span>RESULT</span><span>P/L</span></div><div id="builder-trade-log"><div class="empty-trades">No paper entries yet. Start the bot after configuring your strategy.</div></div></div></div>
+    </section>
+
+    <section class="view-panel" data-panel="ai-analysis" hidden>
+      <div class="feature-card"><h2>AI Analysis</h2><p>Review market observations and strategy suggestions here. Always verify signals yourself before trading.</p></div>
+    </section>
+
+    <section class="view-panel" data-panel="danalysis" hidden>
+      <div class="feature-card"><h2>Danalysis</h2><p>Live Deriv market view with streaming prices. Select a market to start receiving live ticks.</p></div>
+      <div class="trader-shell" aria-label="Live Deriv market workspace">
+        <div class="trader-toolbar">
+          <label for="market-select">Market</label>
+          <select id="market-select" aria-label="Select volatility index">
+            <optgroup label="Volatility Indices (1s)">
+              <option value="1HZ10V">Volatility 10 (1s)</option><option value="1HZ25V">Volatility 25 (1s)</option><option value="1HZ50V">Volatility 50 (1s)</option><option value="1HZ75V">Volatility 75 (1s)</option><option value="1HZ100V" selected>Volatility 100 (1s)</option>
+            </optgroup>
+            <optgroup label="Volatility Indices">
+              <option value="R_10">Volatility 10</option><option value="R_25">Volatility 25</option><option value="R_50">Volatility 50</option><option value="R_75">Volatility 75</option><option value="R_100">Volatility 100</option>
+            </optgroup>
+          </select>
+          <span class="live-state" id="market-state">Starting live feed…</span>
+        </div>
+        <div class="trader-grid">
+          <div class="chart-wrap"><canvas id="price-chart" aria-label="Live price chart"></canvas></div>
+          <aside class="quote-panel">
+            <h3>Live quote</h3>
+            <div class="quote-value" id="quote-value">—</div>
+            <div class="quote-meta" id="quote-meta">Starting the live digit feed…</div>
+            <div class="digit-summary">
+              <div class="last-digit" id="last-digit">—</div>
+              <div class="summary-copy"><strong>Last digit</strong><span id="digit-window">Waiting for 100 ticks…</span></div>
+            </div>
+            <div class="digit-title">Last digits</div>
+            <div class="digit-strip" id="digit-strip" aria-live="polite"></div>
+            <div class="digit-title">Digit frequency</div>
+            <div class="digit-stats" id="digit-stats"></div>
+            <div class="group-stats">
+              <div class="group-stat">Even <strong id="even-percent">0.0%</strong></div>
+              <div class="group-stat">Odd <strong id="odd-percent">0.0%</strong></div>
+              <div class="group-stat">Over 4 <strong id="over-percent">0.0%</strong></div>
+              <div class="group-stat">Under 5 <strong id="under-percent">0.0%</strong></div>
+            </div>
+            <div class="trade-disabled">Trade execution is intentionally disabled in this live preview. Use the official Deriv Trader when you are ready to place a trade.</div>
+            <a class="official-link" href="https://app.deriv.com/dtrader" target="_blank" rel="noopener noreferrer">Open official Deriv Trader ↗</a>
+          </aside>
+        </div>
       </div>
     </section>
 
-    <!-- Other sections remain as in original -->
+    <section class="view-panel" data-panel="auto-trades" hidden>
+      <div class="feature-card"><h2>Auto Trades</h2><p>Automation is paused by default. Select a demo account and configure strict stake and loss limits before enabling any strategy.</p></div>
+    </section>
   </div>
 
-  <script src="oauth.js"></script>
-  <script src="dashboard-auth.js"></script>
+  <script>
+    const CLIENT_ID = '33NyIprKo3XAhtN4o99wt';
+    const REDIRECT_URI = 'https://manoo-fx.vercel.app/dashboard.html';
+    const API_BASE = 'https://api.derivws.com/trading/v1/options';
+
+    const statusEl = document.getElementById('status');
+    const tabs = [...document.querySelectorAll('.tab[data-view]')];
+    const panels = [...document.querySelectorAll('.view-panel[data-panel]')];
+
+    function showView(view, updateUrl = true) {
+      const selectedView = tabs.some(tab => tab.dataset.view === view) ? view : 'dashboard';
+      tabs.forEach(tab => {
+        const selected = tab.dataset.view === selectedView;
+        tab.classList.toggle('active', selected);
+        tab.setAttribute('aria-selected', String(selected));
+      });
+      panels.forEach(panel => { panel.hidden = panel.dataset.panel !== selectedView; });
+      if (updateUrl && window.location.hash !== `#${selectedView}`) {
+        window.history.pushState({ view: selectedView }, '', `#${selectedView}`);
+      }
+    }
+
+    tabs.forEach(tab => tab.addEventListener('click', () => showView(tab.dataset.view)));
+    window.addEventListener('popstate', () => showView(window.location.hash.slice(1), false));
+    window.addEventListener('hashchange', () => showView(window.location.hash.slice(1), false));
+    showView(window.location.hash.slice(1), false);
+
+    const builderFields = {
+      market: document.getElementById('builder-market'), contract: document.getElementById('builder-contract'),
+      prediction: document.getElementById('builder-prediction'), stake: document.getElementById('builder-stake'),
+      takeProfit: document.getElementById('builder-take-profit'), stopLoss: document.getElementById('builder-stop-loss'),
+      maxLosses: document.getElementById('builder-max-losses'), duration: document.getElementById('builder-duration'),
+      multiplier: document.getElementById('builder-multiplier'), martingaleLevel: document.getElementById('builder-martingale-level'),
+      dailyLoss: document.getElementById('builder-daily-loss'), maxTrades: document.getElementById('builder-max-trades')
+    };
+    const builderSummary = document.getElementById('builder-summary');
+    const builderBotName = document.getElementById('active-bot-name');
+    const builderState = document.getElementById('bot-state');
+    const builderStateDetail = document.getElementById('bot-state-detail');
+    const builderCurrentDigit = document.getElementById('builder-current-digit');
+    const builderDigits = document.getElementById('builder-digits');
+    const builderFrequency = document.getElementById('builder-frequency');
+    const builderQuote = document.getElementById('builder-quote');
+    const builderEntry = document.getElementById('builder-entry');
+    const builderStrength = document.getElementById('builder-strength');
+    const builderContractLabel = document.getElementById('builder-contract-label');
+    const builderCurrentStake = document.getElementById('builder-current-stake');
+    const builderConnection = document.getElementById('builder-connection');
+    const builderConnectionDot = document.getElementById('builder-connection-dot');
+    const builderTradeLog = document.getElementById('builder-trade-log');
+    const builderTemplates = {
+      under: { name: 'Manoo Under Sniper', contract: 'DIGITUNDER', prediction: 5, market: 'R_10' },
+      over: { name: 'Manoo Over/Under', contract: 'DIGITOVER', prediction: 5, market: 'R_10' },
+      rise: { name: 'Manoo Rise & Fall', contract: 'DIGITOVER', prediction: 5, market: 'R_50' },
+      digit: { name: 'Manoo Digit Strategy', contract: 'DIGITUNDER', prediction: 5, market: 'R_25' }
+    };
+    let paperState = 'stopped';
+
+    function updateBuilderSummary() {
+      const contractName = builderFields.contract.value === 'DIGITUNDER' ? 'Digit Under' : 'Digit Over';
+      if (builderSummary) builderSummary.textContent = `${builderBotName?.textContent || 'Manoo strategy'} · ${builderFields.market.options[builderFields.market.selectedIndex].text} · ${contractName} ${builderFields.prediction.value} · Stake ${builderFields.stake.value} · TP ${builderFields.takeProfit.value} · SL ${builderFields.stopLoss.value} · Max losses ${builderFields.maxLosses.value}`;
+      if (builderContractLabel) builderContractLabel.textContent = `${contractName} ${builderFields.prediction.value}`;
+      if (builderCurrentStake) builderCurrentStake.textContent = Number(builderFields.stake.value || 0).toFixed(2);
+    }
+
+    function loadBuilderSettings() {
+      const saved = JSON.parse(localStorage.getItem('manoo_over_under_settings') || 'null');
+      if (!saved) return;
+      Object.entries(builderFields).forEach(([key, field]) => { if (saved[key] !== undefined) field.value = saved[key]; });
+      updateBuilderSummary();
+    }
+
+    document.querySelectorAll('[data-open-builder]').forEach(button => button.addEventListener('click', () => showView('bot-builder')));
+    Object.values(builderFields).forEach(field => field.addEventListener('input', updateBuilderSummary));
+    document.querySelectorAll('[data-bot-template]').forEach(button => button.addEventListener('click', () => {
+      const template = builderTemplates[button.dataset.botTemplate];
+      if (!template) return;
+      document.querySelectorAll('[data-bot-template]').forEach(item => item.classList.toggle('selected', item === button));
+      builderBotName.textContent = template.name;
+      builderFields.market.value = template.market;
+      builderFields.contract.value = template.contract;
+      builderFields.prediction.value = template.prediction;
+      updateBuilderSummary();
+      showView('bot-builder');
+    }));
+    document.getElementById('save-builder').addEventListener('click', () => {
+      const settings = Object.fromEntries(Object.entries(builderFields).map(([key, field]) => [key, field.value]));
+      localStorage.setItem('manoo_over_under_settings', JSON.stringify(settings));
+      updateBuilderSummary();
+      document.getElementById('save-builder').textContent = 'Settings saved ✓';
+      setTimeout(() => { document.getElementById('save-builder').textContent = 'Save settings'; }, 1800);
+    });
+    document.getElementById('reset-builder').addEventListener('click', () => { localStorage.removeItem('manoo_over_under_settings'); window.location.reload(); });
+    document.getElementById('builder-connect').addEventListener('click', () => { builderConnection.textContent = 'Opening Deriv authorization…'; loginWithDeriv(); });
+    document.getElementById('start-bot').addEventListener('click', () => { paperState = 'running'; builderState.textContent = 'SCANNING LIVE TICKS'; builderState.style.color = 'var(--ok)'; builderStateDetail.textContent = 'Waiting for the configured entry condition'; });
+    document.getElementById('pause-bot').addEventListener('click', () => { paperState = 'paused'; builderState.textContent = 'PAUSED'; builderState.style.color = '#fbbf24'; builderStateDetail.textContent = 'No new paper entries will be evaluated'; });
+    document.getElementById('stop-bot').addEventListener('click', () => { paperState = 'stopped'; builderState.textContent = 'STOPPED'; builderState.style.color = 'var(--err)'; builderStateDetail.textContent = 'Press Start Paper Bot to scan again'; });
+    document.getElementById('emergency-stop').addEventListener('click', () => { paperState = 'stopped'; builderState.textContent = 'EMERGENCY STOP'; builderState.style.color = 'var(--err)'; builderStateDetail.textContent = 'All new paper entries blocked until manual restart'; });
+    loadBuilderSettings();
+
+    function renderBuilderActivity() {
+      if (!builderDigits || !builderFrequency) return;
+      builderDigits.innerHTML = digits.length ? digits.slice(-20).map((digit, index, list) => `<span class="digit-chip ${index === list.length - 1 ? 'latest' : ''}">${digit}</span>`).join('') : '<span>DATA UNAVAILABLE</span>';
+      const counts = Array(10).fill(0); digits.forEach(digit => { counts[digit] += 1; });
+      const maximum = Math.max(...counts, 1); const total = digits.length;
+      builderFrequency.innerHTML = total ? counts.map((count, digit) => `<span class="freq"><i style="opacity:${count ? .45 + count / maximum * .55 : .2}"></i>${digit}<b>${((count / total) * 100).toFixed(1)}%</b></span>`).join('') : '<span>Connect to DAnalysis for live statistics.</span>';
+      const current = digits[digits.length - 1];
+      if (builderCurrentDigit) builderCurrentDigit.textContent = current ?? '—';
+      if (builderQuote && quoteValue) builderQuote.textContent = quoteValue.textContent || 'DATA UNAVAILABLE';
+      if (builderStrength) builderStrength.textContent = total ? `${Math.max(...counts)}/${total}` : '—';
+      if (builderEntry) builderEntry.textContent = paperState === 'running' ? 'Evaluating signal…' : 'Waiting for signal';
+    }
+
+    const PUBLIC_WS_URL = 'wss://api.derivws.com/trading/v1/options/ws/public';
+    const marketSelect = document.getElementById('market-select');
+    const marketState = document.getElementById('market-state');
+    const quoteValue = document.getElementById('quote-value');
+    const quoteMeta = document.getElementById('quote-meta');
+    const lastDigit = document.getElementById('last-digit');
+    const digitWindow = document.getElementById('digit-window');
+    const digitStrip = document.getElementById('digit-strip');
+    const digitStats = document.getElementById('digit-stats');
+    const evenPercent = document.getElementById('even-percent');
+    const oddPercent = document.getElementById('odd-percent');
+    const overPercent = document.getElementById('over-percent');
+    const underPercent = document.getElementById('under-percent');
+    const chart = document.getElementById('price-chart');
+    const chartContext = chart.getContext('2d');
+    let marketSocket;
+    let prices = [];
+    let digits = [];
+
+    function setMarketState(message, connected = false) {
+      marketState.textContent = message;
+      marketState.classList.toggle('connected', connected);
+    }
+
+    function drawChart() {
+      const width = chart.clientWidth || 600;
+      const height = 300;
+      const ratio = window.devicePixelRatio || 1;
+      chart.width = width * ratio;
+      chart.height = height * ratio;
+      chartContext.setTransform(ratio, 0, 0, ratio, 0, 0);
+      chartContext.clearRect(0, 0, width, height);
+      chartContext.strokeStyle = '#2b1547';
+      chartContext.lineWidth = 1;
+      for (let y = 30; y < height; y += 54) {
+        chartContext.beginPath(); chartContext.moveTo(0, y); chartContext.lineTo(width, y); chartContext.stroke();
+      }
+      if (prices.length < 2) return;
+      const min = Math.min(...prices); const max = Math.max(...prices); const range = max - min || 1;
+      chartContext.strokeStyle = '#4ade80'; chartContext.lineWidth = 2; chartContext.beginPath();
+      prices.forEach((price, index) => {
+        const x = (index / (prices.length - 1)) * (width - 20) + 10;
+        const y = height - 20 - ((price - min) / range) * (height - 40);
+        if (index === 0) chartContext.moveTo(x, y); else chartContext.lineTo(x, y);
+      });
+      chartContext.stroke();
+    }
+
+    function closeMarketSocket() {
+      if (marketSocket) { marketSocket.close(); marketSocket = undefined; }
+    }
+
+    function renderDigits() {
+      digitStrip.innerHTML = digits.slice(-24).map((digit, index, visible) =>
+        `<span class="digit-chip ${index === visible.length - 1 ? 'latest' : ''}">${digit}</span>`
+      ).join('');
+      const counts = Array(10).fill(0);
+      digits.forEach(digit => { counts[digit] += 1; });
+      const maximum = Math.max(...counts, 1);
+      const total = digits.length;
+      const percentage = count => total ? `${((count / total) * 100).toFixed(1)}%` : '0.0%';
+      digitStats.innerHTML = counts.map((count, digit) =>
+        `<span class="digit-stat">${digit}<strong>${percentage(count)}</strong><i style="opacity:${count ? 0.45 + (count / maximum) * 0.55 : 0.2}"></i></span>`
+      ).join('');
+      const even = counts[0] + counts[2] + counts[4] + counts[6] + counts[8];
+      const over = counts[5] + counts[6] + counts[7] + counts[8] + counts[9];
+      evenPercent.textContent = percentage(even);
+      oddPercent.textContent = percentage(total - even);
+      overPercent.textContent = percentage(over);
+      underPercent.textContent = percentage(total - over);
+      digitWindow.textContent = `${total} of 100 recent ticks`;
+      if (digits.length) lastDigit.textContent = digits[digits.length - 1];
+    }
+
+    function lastDigitFromQuote(quote) {
+      const text = String(quote);
+      const digit = Number(text.replace(/[^0-9]/g, '').slice(-1));
+      return Number.isInteger(digit) ? digit : null;
+    }
+
+    function addQuote(quote) {
+      const price = Number(quote);
+      if (!Number.isFinite(price)) return;
+      prices = [...prices, price].slice(-120);
+      const digit = lastDigitFromQuote(quote);
+      if (digit !== null) digits = [...digits, digit].slice(-100);
+      renderDigits();
+      renderBuilderActivity();
+      drawChart();
+    }
+
+    function connectToMarket() {
+      closeMarketSocket();
+      prices = [];
+      digits = [];
+      renderDigits();
+      drawChart();
+      const symbol = marketSelect.value;
+      setMarketState('Connecting…');
+      quoteValue.textContent = '—';
+      quoteMeta.textContent = `Waiting for live ${symbol} ticks…`;
+      marketSocket = new WebSocket(PUBLIC_WS_URL);
+      marketSocket.addEventListener('open', () => {
+        setMarketState('Live', true);
+        if (builderConnection) builderConnection.textContent = 'Market data connected';
+        // Seed the percentages from Deriv's own latest 100-tick history,
+        // then keep the sample live with the tick subscription.
+        marketSocket.send(JSON.stringify({ ticks_history: symbol, end: 'latest', count: 100, style: 'ticks' }));
+        marketSocket.send(JSON.stringify({ ticks: symbol, subscribe: 1 }));
+      });
+      marketSocket.addEventListener('message', event => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message.error) throw new Error(message.error.message || 'Market stream error');
+          if (message.history?.prices) {
+            prices = [];
+            digits = [];
+            message.history.prices.forEach(quote => addQuote(quote));
+            const latest = message.history.prices[message.history.prices.length - 1];
+            if (latest !== undefined) {
+              quoteValue.textContent = Number(latest).toLocaleString(undefined, { maximumFractionDigits: 8 });
+              quoteMeta.textContent = `${symbol} · Latest 100 ticks from Deriv`;
+            }
+            return;
+          }
+          if (!message.tick) return;
+          addQuote(message.tick.quote);
+          quoteValue.textContent = Number(message.tick.quote).toLocaleString(undefined, { maximumFractionDigits: 8 });
+          quoteMeta.textContent = `${symbol} · ${new Date(Number(message.tick.epoch) * 1000).toLocaleTimeString()}`;
+        } catch (error) {
+          setMarketState(error.message || 'Stream error');
+        }
+      });
+      marketSocket.addEventListener('error', () => setMarketState('Connection error'));
+      marketSocket.addEventListener('close', () => {
+        if (marketState.classList.contains('connected')) setMarketState('Disconnected');
+      });
+    }
+
+    marketSelect.addEventListener('change', connectToMarket);
+    window.addEventListener('resize', drawChart);
+    connectToMarket();
+
+    function randomString(length) {
+      const array = crypto.getRandomValues(new Uint8Array(length));
+      return Array.from(array).map(v => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~'[v % 66]).join('');
+    }
+    async function deriveCodeChallenge(verifier) {
+      const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
+      return btoa(String.fromCharCode(...new Uint8Array(hash))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+    async function loginWithDeriv() {
+      const codeVerifier = randomString(64);
+      const codeChallenge = await deriveCodeChallenge(codeVerifier);
+      const state = randomString(16);
+      sessionStorage.setItem('pkce_code_verifier', codeVerifier);
+      sessionStorage.setItem('oauth_state', state);
+      const p = new URLSearchParams({
+        response_type: 'code', client_id: CLIENT_ID, redirect_uri: REDIRECT_URI,
+        scope: 'trade', state, code_challenge: codeChallenge, code_challenge_method: 'S256',
+      });
+      window.location.href = `https://auth.deriv.com/oauth2/auth?${p.toString()}`;
+    }
+    document.getElementById('deriv-login-btn').addEventListener('click', (e) => { e.preventDefault(); loginWithDeriv(); });
+
+    function showLoginPrompt() {
+      document.getElementById('login-prompt').style.display = 'block';
+      statusEl.textContent = '';
+    }
+
+    // Fetches the user's Options accounts (real + demo) with live balances.
+    // OAuth bearer tokens do not require Deriv-App-ID; that header is for PATs.
+    async function fetchAccounts(accessToken) {
+      const res = await fetch(`${API_BASE}/accounts`, {
+        headers: { 'Authorization': `Bearer ${accessToken}`, 'Accept': 'application/json' },
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.errors?.[0]?.message || 'Failed to fetch accounts');
+      return Array.isArray(json.data) ? json.data.filter(Boolean) : [];
+    }
+
+    function formatBalance(value) {
+      const amount = Number(value);
+      return Number.isFinite(amount) ? amount.toLocaleString(undefined, { maximumFractionDigits: 8 }) : '—';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>'"]/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[char]));
+    }
+
+    function buildSwitcher(accounts, activeId) {
+      const switcher = document.getElementById('switcher');
+      switcher.innerHTML = accounts.map(acc => `
+        <div class="switcher-item ${acc.account_id === activeId ? 'current' : ''}" data-id="${acc.account_id}">
+          <span>${acc.account_type === 'demo' ? 'Demo' : 'Real'} · ${escapeHtml(acc.account_id)}</span>
+          <span>${formatBalance(acc.balance)} ${escapeHtml(acc.currency)}</span>
+        </div>
+      `).join('');
+      switcher.querySelectorAll('.switcher-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const chosen = accounts.find(a => a.account_id === item.dataset.id);
+          sessionStorage.setItem('deriv_active_account', chosen.account_id);
+          switcher.classList.remove('open');
+          renderAccount(chosen, accounts);
+        });
+      });
+    }
+    document.getElementById('switch-btn').addEventListener('click', () => {
+      document.getElementById('switcher').classList.toggle('open');
+    });
+
+    function renderAccount(account, allAccounts) {
+      const isReal = account.account_type !== 'demo';
+      document.getElementById('account-badge').textContent = isReal ? 'Real' : 'Demo';
+      document.getElementById('account-badge').className = 'badge' + (isReal ? ' real' : '');
+      document.getElementById('balance-amount').textContent = `${formatBalance(account.balance)} ${account.currency || ''}`.trim();
+      document.getElementById('account-card-wrap').innerHTML = `
+        <div class="account-card">
+          <p><strong>Account ID:</strong> ${escapeHtml(account.account_id)}</p>
+          <p><strong>Currency:</strong> ${escapeHtml(account.currency)}</p>
+          <p><strong>Account type:</strong> ${isReal ? 'Real money' : 'Demo (virtual funds)'}</p>
+          <p><strong>Status:</strong> ${escapeHtml(account.status)}</p>
+        </div>
+      `;
+      buildSwitcher(allAccounts, account.account_id);
+      statusEl.innerHTML = `<span class="ok">Account loaded ✓</span>`;
+    }
+
+    async function loadDashboard(accessToken) {
+      statusEl.textContent = 'Loading your accounts...';
+      try {
+        const accounts = await fetchAccounts(accessToken);
+        if (accounts.length === 0) { showLoginPrompt(); return; }
+        sessionStorage.setItem('deriv_accounts', JSON.stringify(accounts));
+
+        const lastUsedId = sessionStorage.getItem('deriv_active_account');
+        const preferred = accounts.find(a => a.account_id === lastUsedId)
+          || accounts.find(a => a.account_type !== 'demo')
+          || accounts[0];
+
+        sessionStorage.setItem('deriv_active_account', preferred.account_id);
+        renderAccount(preferred, accounts);
+      } catch (err) {
+        statusEl.innerHTML = `<span class="err">${err.message}</span>`;
+        sessionStorage.removeItem('deriv_access_token');
+        showLoginPrompt();
+      }
+    }
+
+    // --- Entry point ---
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const returnedState = params.get('state');
+    const error = params.get('error');
+    const errorDescription = params.get('error_description');
+    const savedState = sessionStorage.getItem('oauth_state');
+    const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
+    const existingToken = sessionStorage.getItem('deriv_access_token');
+
+    if (error) {
+      const detail = errorDescription ? ` — ${escapeHtml(errorDescription)}` : '';
+      statusEl.innerHTML = `<span class="err">Deriv returned an error: ${escapeHtml(error)}${detail}</span>`;
+      showLoginPrompt();
+    } else if (code) {
+      if (!savedState || !returnedState || returnedState !== savedState) {
+        statusEl.innerHTML = '<span class="err">Invalid OAuth state — login aborted for your safety.</span>';
+        showLoginPrompt();
+      } else if (!codeVerifier) {
+        statusEl.innerHTML = `<span class="err">Session data missing — make sure login opens in the same tab, not a new one.</span>`;
+        showLoginPrompt();
+      } else {
+        statusEl.textContent = 'Exchanging code for access token...';
+        sessionStorage.removeItem('oauth_state');
+
+        fetch('/api/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, code_verifier: codeVerifier }),
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.access_token) {
+              sessionStorage.setItem('deriv_access_token', data.access_token);
+              sessionStorage.removeItem('pkce_code_verifier');
+              window.history.replaceState({}, '', '/dashboard.html');
+              loadDashboard(data.access_token);
+            } else {
+              statusEl.innerHTML = `<span class="err">Token exchange failed: ${escapeHtml(data.error || 'Unknown error')}</span>`;
+              showLoginPrompt();
+            }
+          })
+          .catch(err => {
+            statusEl.innerHTML = `<span class="err">Network error: ${err.message}</span>`;
+            showLoginPrompt();
+          });
+      }
+    } else if (existingToken) {
+      loadDashboard(existingToken);
+    } else {
+      showLoginPrompt();
+    }
+  </script>
 </body>
 </html>
