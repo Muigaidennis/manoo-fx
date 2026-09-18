@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connecting Deriv — Manoo FX</title>
+  <style>body{font:16px system-ui;background:#0c0614;color:#f5f3ff;display:grid;place-items:center;min-height:100vh;margin:0}.card{max-width:32rem;padding:2rem;text-align:center;background:#1b0d2b;border:1px solid #5f2a85;border-radius:16px}p{color:#c8b8d8}.error{color:#ff8d9b}</style>
+</head>
+<body>
+  <main class="card"><h1>Connecting Deriv</h1><p id="message">Preparing secure authorization…</p></main>
+  <script>
+    (() => {
+      const CLIENT_ID = '33NyIprKo3XAhtN4o99wt';
+      const REDIRECT_URI = 'https://manoo-fx.vercel.app/oauth-bridge.html';
+      const ALLOWED_ORIGIN = 'https://trading-bot-template-ten.vercel.app';
+      const message = document.getElementById('message');
+      const setMessage = (text, error = false) => { message.textContent = text; message.className = error ? 'error' : ''; };
+      const random = length => {
+        const bytes = crypto.getRandomValues(new Uint8Array(length));
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+        return Array.from(bytes, value => alphabet[value % alphabet.length]).join('');
+      };
+      const challenge = async verifier => {
+        const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
+        return btoa(String.fromCharCode(...new Uint8Array(hash))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      };
+      const closeWithError = error => {
+        setMessage(error, true);
+        if (window.opener) window.opener.postMessage({ type: 'manoo-deriv-auth-error', error }, ALLOWED_ORIGIN);
+      };
+      const exchange = async (code, returnedState) => {
+        const state = sessionStorage.getItem('manoo_bridge_state');
+        const verifier = sessionStorage.getItem('manoo_bridge_verifier');
+        if (!state || state !== returnedState || !verifier) return closeWithError('The secure authorization session expired. Please try again.');
+        setMessage('Completing secure authorization…');
+        const response = await fetch('/api/token', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ code, code_verifier: verifier, redirect_uri: REDIRECT_URI }) });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.access_token) return closeWithError(data.error || 'Deriv authorization failed.');
+        const authInfo = { access_token: data.access_token, token_type: data.token_type || 'bearer', expires_in: data.expires_in || 3600, expires_at: Date.now() + (data.expires_in || 3600) * 1000, scope: data.scope };
+        if (!window.opener) return closeWithError('Open Bot Builder login from the linked Bot Builder window.');
+        window.opener.postMessage({ type: 'manoo-deriv-auth', authInfo }, ALLOWED_ORIGIN);
+        setMessage('Authorized. You can return to Bot Builder.');
+        setTimeout(() => window.close(), 700);
+      };
+      const params = new URLSearchParams(location.search);
+      if (params.get('error')) return closeWithError(params.get('error_description') || params.get('error'));
+      if (params.get('code')) return exchange(params.get('code'), params.get('state')).catch(() => closeWithError('Unable to complete Deriv authorization.'));
+      const verifier = random(64);
+      const state = random(24);
+      sessionStorage.setItem('manoo_bridge_verifier', verifier);
+      sessionStorage.setItem('manoo_bridge_state', state);
+      challenge(verifier).then(codeChallenge => {
+        const query = new URLSearchParams({ response_type: 'code', client_id: CLIENT_ID, redirect_uri: REDIRECT_URI, scope: 'trade', state, code_challenge: codeChallenge, code_challenge_method: 'S256' });
+        location.replace(`https://auth.deriv.com/oauth2/auth?${query}`);
+      }).catch(() => closeWithError('Your browser could not start secure authorization.'));
+    })();
+  </script>
+</body>
+</html>
