@@ -57,56 +57,30 @@ button.pill svg.chev{transition:transform .15s}button.pill[aria-expanded=true] s
 .mi:hover,.mi.sel{background:#203b46}
 .mid{display:flex;flex-direction:column;gap:3px;flex:1;font-size:13px;align-items:flex-start}
 .mb{font-weight:700;font-variant-numeric:tabular-nums;font-size:14px}
+[hidden]{display:none!important}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+button.tab{flex:1;background:var(--panel);color:var(--mute);border:1px solid var(--line)}
+button.tab.on{background:#ff444f;color:#fff;border-color:#ff444f}
+button.bc{display:block;width:100%;text-align:left;background:var(--panel);color:var(--ink);border:1px solid var(--line);margin-bottom:8px;border-radius:12px;padding:12px;font-weight:700}
+button.bc small{display:block;font-weight:400;color:var(--mute);margin-top:2px}
+button.bc.on{border-color:#ff444f;box-shadow:0 0 0 1px #ff444f inset}
+button:disabled{opacity:.4;cursor:not-allowed}
 </style>
 </head>
 <body>
 <div class="top"><div class="logo"><span>M</span><h1>Manoo Tick Lab</h1></div>
 <div><div id="out" class="tr" style="margin:0"><button id="login" class="brand">Log in with Deriv</button></div>
 <div id="in" class="tr" style="margin:0;display:none"><div class="acc"><button id="accbtn" class="pill" aria-haspopup="listbox" aria-expanded="false" aria-label="Switch account"><span id="flag"></span><span id="hbal">–</span><i id="tag" class="tag"></i><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div id="accmenu" class="menu" role="listbox"></div></div><select id="accsel" hidden aria-hidden="true"></select><button id="logout" class="alt">Log out</button></div></div></div>
-<p class="sub">Live Deriv ticks: digit frequency, even/odd, rise/fall and entry signals.</p>
+<p class="sub">Auto trades and Manoo free bots for Deriv.</p>
+<div class="bar"><select id="sym" aria-label="Market"><option value="R_10">Volatility 10</option><option value="R_25">Volatility 25</option><option value="R_50">Volatility 50</option><option value="R_75">Volatility 75</option><option value="R_100" selected>Volatility 100</option><option value="1HZ10V">Volatility 10 (1s)</option><option value="1HZ15V">Volatility 15 (1s)</option><option value="1HZ25V">Volatility 25 (1s)</option><option value="1HZ30V">Volatility 30 (1s)</option><option value="1HZ50V">Volatility 50 (1s)</option><option value="1HZ75V">Volatility 75 (1s)</option><option value="1HZ90V">Volatility 90 (1s)</option><option value="1HZ100V">Volatility 100 (1s)</option><option value="1HZ150V">Volatility 150 (1s)</option><option value="1HZ250V">Volatility 250 (1s)</option><option value="1HZ300V">Volatility 300 (1s)</option></select><select id="win" hidden><option selected>200</option></select><span class="status" id="st">Connecting…</span></div>
+<div class="price"><div><div class="note" id="symname"></div><b id="px">—</b></div><div class="ld" id="ld">–</div></div>
 
-<div class="bar">
-  <select id="sym" aria-label="Market"><option value="R_10">Volatility 10</option><option value="R_25">Volatility 25</option><option value="R_50">Volatility 50</option><option value="R_75">Volatility 75</option><option value="R_100" selected>Volatility 100</option><option value="1HZ10V">Volatility 10 (1s)</option><option value="1HZ15V">Volatility 15 (1s)</option><option value="1HZ25V">Volatility 25 (1s)</option><option value="1HZ30V">Volatility 30 (1s)</option><option value="1HZ50V">Volatility 50 (1s)</option><option value="1HZ75V">Volatility 75 (1s)</option><option value="1HZ90V">Volatility 90 (1s)</option><option value="1HZ100V">Volatility 100 (1s)</option><option value="1HZ150V">Volatility 150 (1s)</option><option value="1HZ250V">Volatility 250 (1s)</option><option value="1HZ300V">Volatility 300 (1s)</option><option value="JD10">Jump 10</option><option value="JD25">Jump 25</option><option value="JD50">Jump 50</option><option value="JD75">Jump 75</option><option value="JD100">Jump 100</option><option value="RDBULL">Bull Market</option><option value="RDBEAR">Bear Market</option></select>
-  <select id="win" aria-label="Ticks to analyse">
-    <option>50</option><option>100</option><option selected>200</option><option>500</option><option>1000</option>
-  </select>
-  <button id="reset">Clear</button>
-  <span class="status" id="st">Connecting…</span>
-</div>
+<div class="tabs" role="tablist"><button id="t1" class="tab on">Auto trades</button><button id="t2" class="tab">Free bots</button></div>
 
-<div class="price">
-  <div><div class="note" id="symname"></div><b id="px">—</b></div>
-  <div class="ld" id="ld">–</div>
-</div>
-
-<div class="tape" id="tape" aria-label="Last 20 digits"></div>
-<div class="digits" id="digits"></div>
-
-<div class="grid">
-  <div class="card"><h3>Even / Odd</h3>
-    <div class="split"><div id="evb" style="background:var(--cool);width:50%"></div><div id="odb" style="background:var(--hot);width:50%"></div></div>
-    <div class="row"><span>Even <b id="ev">0%</b></span><span>Odd <b id="od">0%</b></span></div>
-  </div>
-  <div class="card"><h3>Rise / Fall</h3>
-    <div class="split"><div id="rib" style="background:var(--up);width:50%"></div><div id="fab" style="background:var(--down);width:50%"></div></div>
-    <div class="row"><span>Rise <b id="ri">0%</b></span><span>Fall <b id="fa">0%</b></span></div>
-  </div>
-  <div class="card"><h3>Over / Under (barrier)</h3>
-    <div class="bar" style="margin:0 0 6px"><select id="bar" aria-label="Barrier digit"></select></div>
-    <div class="row"><span>Over <b id="ov">0%</b></span><span>Under <b id="un">0%</b></span><span>Equal <b id="eq">0%</b></span></div>
-  </div>
-  <div class="card"><h3>Streaks</h3>
-    <div class="row"><span>Parity run</span><b id="sp">–</b></div>
-    <div class="row"><span>Direction run</span><b id="sd">–</b></div>
-    <div class="row"><span>Same digit run</span><b id="ss">–</b></div>
-  </div>
-</div>
-
-<div class="card" style="margin-bottom:12px"><h3>Trading (log in with Deriv, top right)</h3>
-
-<div class="note" id="acct">Not logged in. Log in with Deriv, and pick your demo account first.</div>
+<div id="p1"><div class="card" style="margin-bottom:12px"><h3>Auto trades</h3>
 <div class="tr">
 <label class="f">Contract<select id="ctype"><option value="DIGITOVER">Over</option><option value="DIGITUNDER">Under</option><option value="DIGITEVEN">Even</option><option value="DIGITODD">Odd</option><option value="DIGITMATCH">Matches</option><option value="DIGITDIFF">Differs</option><option value="CALL">Rise</option><option value="PUT">Fall</option></select></label>
+<label class="f">Barrier digit<select id="bar"></select></label>
 <label class="f">Stake<input id="stk" type="number" value="1" min="0.35" step="0.01"></label>
 <label class="f">Ticks<input id="dur" type="number" value="1" min="1" max="10"></label>
 <label class="f">Martingale x<input id="mult" type="number" value="2" min="1" step="0.1"></label>
@@ -114,12 +88,31 @@ button.pill svg.chev{transition:transform .15s}button.pill[aria-expanded=true] s
 <label class="f">Take profit<input id="tp" type="number" value="10" min="0"></label>
 <label class="f">Stop loss<input id="sl" type="number" value="20" min="0"></label>
 </div>
-<div class="note">Over/Under/Matches/Differs use the barrier digit chosen above.</div>
-<div class="tr"><button id="buy">Buy once</button><button id="auto" class="alt">Start auto</button><button id="stop" class="stop">Stop</button><button id="treset" class="alt">Reset</button></div>
-<div class="row"><span>Balance <b id="bal">–</b></span><span>P/L <b id="pnl">0.00</b></span><span>W/L <b id="wl">0/0</b></span><span>Next <b id="nx">–</b></span></div>
+<div class="note">The barrier digit is used by Over, Under, Matches and Differs.</div>
+<div class="tr"><button id="buy">Buy once</button><button id="auto" class="alt">Start auto</button></div>
+</div></div>
+
+<div id="p2" hidden>
+<div id="bgrid"></div>
+<div class="card" id="bcfg" style="margin-bottom:12px" hidden><h3 id="bname"></h3>
+<div class="tr">
+<label class="f">Stake<input id="b_base" type="number" value="1" min="0.35" step="0.01"></label>
+<label class="f">Take profit<input id="b_tp" type="number" value="10" min="0"></label>
+<label class="f">Stop loss<input id="b_sl" type="number" value="20" min="0"></label>
+<label class="f">Max stake<input id="b_max" type="number" value="50" min="1"></label>
+<label class="f">Loss cap<input id="b_cap" type="number" value="3" min="0"></label>
+</div>
+<div class="tr" id="bfields"></div>
+<div class="tr"><button id="bgo">Start bot</button></div>
+</div></div>
+
+<div class="card" style="margin-bottom:12px">
+<div class="note" id="acct">Not logged in. Log in with Deriv and pick your demo account first.</div>
+<div class="row" style="margin-top:6px"><span>Balance <b id="bal">–</b></span><span>P/L <b id="pnl">0.00</b></span><span>W/L <b id="wl">0/0</b></span><span>Next <b id="nx">–</b></span></div>
+<div class="note" id="wst">Idle</div>
+<div class="tr"><button id="stop" class="stop">Stop</button><button id="treset" class="alt">Reset</button></div>
 <div id="log"></div></div>
-<div class="sig"><b>Signals</b><ul id="sigs"><li>Waiting for ticks…</li></ul></div>
-<p class="note">Analysis tool only. Past ticks do not predict the next tick, and trading carries real risk of loss. Never trade money you can't afford to lose.</p>
+<p class="note">Only one strategy runs at a time. Past ticks do not predict the next tick, and trading carries real risk of loss. Never trade money you can't afford to lose.</p>
 
 <script>
 (function(){
@@ -127,43 +120,141 @@ button.pill svg.chev{transition:transform .15s}button.pill[aria-expanded=true] s
   var $=function(i){return document.getElementById(i)};
   var symSel=$('sym'), winSel=$('win'), barSel=$('bar');
   for(var i=0;i<10;i++){var o=document.createElement('option');o.value=i;o.textContent='Barrier '+i;if(i===4)o.selected=true;barSel.appendChild(o)}
-  var dg=$('digits');
-  for(i=0;i<10;i++){dg.insertAdjacentHTML('beforeend','<div class="col" id="c'+i+'"><b id="p'+i+'">0%</b><i id="b'+i+'" style="height:2px"></i>'+i+'</div>')}
 
   var API='https://api.derivws.com',PUB='wss://api.derivws.com/trading/v1/options/ws/public',SCOPE='trade account_manage';
-  var access=null,refresh=null,acc=null,accts=[],cur='USD',busy=false,auto=false,stk=1,s0=1,pnl=0,W=0,L=0,done={},skipNext=false;
+  var access=null,refresh=null,acc=null,accts=[],cur='USD',busy=false,auto=false,stk=1,s0=1,pnl=0,W=0,L=0,done={},skipNext=false,lastReq=null,rtry=0;
   function ss(k,v){try{if(v===undefined)return sessionStorage.getItem(k);if(v===null)sessionStorage.removeItem(k);else sessionStorage.setItem(k,v)}catch(e){return null}}
   function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
-  function log(t,c){var l=$('log');l.insertAdjacentHTML('afterbegin','<div class="'+(c||'')+'">'+new Date().toLocaleTimeString()+' '+t+'</div>');while(l.children.length>40)l.removeChild(l.lastChild)}
-  function setAuto(v){auto=v;$('auto').textContent=v?'Auto running':'Start auto';$('auto').className=v?'':'alt'}
-  function show(){$('pnl').textContent=pnl.toFixed(2);$('wl').textContent=W+'/'+L;$('nx').textContent=stk.toFixed(2)}
-  function buy(){
+  function log(t,c){var l=$('log');l.insertAdjacentHTML('afterbegin','<div class="'+(c||'')+'">'+new Date().toLocaleTimeString()+' '+t+'</div>');while(l.children.length>60)l.removeChild(l.lastChild)}
+  var eng=null,ratio={};
+  function setAuto(v){if(!v)endEng('')}
+  function show(){$('pnl').textContent=pnl.toFixed(2);$('wl').textContent=W+'/'+L;$('nx').textContent=eng&&eng.next!=null?(+eng.next).toFixed(2):'–';
+    $('wst').textContent=eng?(eng.phase==='idle'&&eng.wait?eng.name+' · waiting for entry':eng.name+' · running'):'Idle'}
+  function ui(){var on=!!eng;['buy','auto','bgo'].forEach(function(i){$(i).disabled=on});$('stop').disabled=!on;show()}
+  function endEng(msg){if(eng){eng=null;if(msg)log(msg)}ui()}
+  function freq(n){var a=digits.slice(-n),c=[0,0,0,0,0,0,0,0,0,0];a.forEach(function(x){c[x]++});return c.map(function(x){return a.length?x/a.length*100:0})}
+  function R(t,b){var k=t+(b==null?'':b);if(ratio[k])return ratio[k];
+    var p={DIGITOVER:(9-b)/10,DIGITUNDER:b/10,DIGITEVEN:.5,DIGITODD:.5,DIGITMATCH:.1,DIGITDIFF:.9,CALL:.5,PUT:.5}[t]||.5;return .955/p-1}
+  function recStake(st,c,t,b){return st.loss>0?(st.loss+c.base)/R(t,b):c.base}
+  function recRes(st,c,p){
+    if(p>0){st.loss=Math.max(0,st.loss-p);st.n=0;if(st.loss<=0.005){st.loss=0}}
+    else{st.loss+=-p;st.n=(st.n||0)+1;if(c.cap&&st.n>=c.cap){log('Loss cap reached: stakes reset','l');st.loss=0;st.n=0}}}
+  function capRes(st,c,p){if(p>0)st.n=0;else{st.n++;if(c.cap&&st.n>=c.cap){log('Loss cap reached: stakes reset','l');st.n=0}}}
+  function chk(t,b){
+    if(/DIGIT/.test(t)&&/^(JD|RDBULL|RDBEAR|stp)/i.test(symSel.value))return 'This market has no digit contracts. Pick a Volatility index.';
+    if(t==='DIGITOVER'&&b>8)return 'Over 9 is impossible. Choose barrier 0 to 8.';
+    if(t==='DIGITUNDER'&&b<1)return 'Under 0 is impossible. Choose barrier 1 to 9.';
+    return null}
+  var AUTO={name:'Auto trades',dg:false,init:function(c){return{s:c.base}},
+    check:function(c){return chk(c.ctype,+c.bar)},
+    next:function(st,c){var t=c.ctype,dg=/DIGIT(OVER|UNDER|MATCH|DIFF)/.test(t),rf=(t==='CALL'||t==='PUT');return{legs:[{t:t,b:dg?+c.bar:undefined,a:st.s,d:rf?Math.max(5,c.dur):Math.max(1,c.dur)}]}},
+    result:function(st,c,p){st.s=p>0?c.base:Math.min(st.s*Math.max(1,c.mult),c.maxst)}};
+  function ou(id,name,d,ob,rb){return{id:id,name:name,d:d,init:function(){return{loss:0,n:0}},
+    next:function(st,c){return st.loss<=0?{legs:[{t:'DIGITOVER',b:ob,a:c.base}]}:{legs:[{t:'DIGITUNDER',b:rb,a:recStake(st,c,'DIGITUNDER',rb)}]}},result:recRes}}
+  var BOTS=[
+    ou('o1u6','Manoo Over 1 · Under 6','Trades Over 1. After a loss it recovers with Under 6, sized to recover the loss.',1,6),
+    ou('o2u6','Manoo Over 2 · Under 6','Trades Over 2. After a loss it recovers with Under 6, sized to recover the loss.',2,6),
+    {id:'o1s',name:'Manoo Over 1 · Smart Recovery',d:'Trades Over 1. After a loss it picks Over 5 or Under 5 from the latest digits and sizes the stake to recover.',
+      init:function(){return{loss:0,n:0}},
+      next:function(st,c){if(st.loss<=0)return{legs:[{t:'DIGITOVER',b:1,a:c.base}]};
+        var f=freq(100),o=f[6]+f[7]+f[8]+f[9],u=f[0]+f[1]+f[2]+f[3]+f[4],t=(o/40>=u/50)?'DIGITOVER':'DIGITUNDER';
+        return{legs:[{t:t,b:5,a:recStake(st,c,t,5)}]}},result:recRes},
+    {id:'o123',name:'Manoo Over 1-2-3 Martingale',d:'Cycles Over 1, 2 and 3. Waits until recent digits favor the entry, then trades. Martingale recovers losses.',
+      init:function(){return{loss:0,n:0,i:0}},
+      next:function(st,c){var b=[1,2,3][st.i%3],f=freq(50),lose=0,k;for(k=0;k<=b;k++)lose+=f[k];
+        if(digits.length<50||lose>=(b+1)*10)return null;return{legs:[{t:'DIGITOVER',b:b,a:recStake(st,c,'DIGITOVER',b)}]}},
+      result:function(st,c,p){st.i++;recRes(st,c,p)}},
+    {id:'spd',name:'Manoo Speedy Over/Under',d:'Fast 1-tick Over or Under on your digit. Martingale on losses with a loss cap.',
+      f:[{k:'dir',l:'Direction',o:['Over','Under'],v:'Over'},{k:'dig',l:'Digit',o:[0,1,2,3,4,5,6,7,8,9],v:3},{k:'mult',l:'Martingale ×',v:2}],
+      init:function(){return{n:0}},
+      check:function(c){return c.dir==='Over'&&+c.dig>8?'Over 9 is impossible. Choose a digit 0 to 8.':(c.dir==='Under'&&+c.dig<1?'Under 0 is impossible. Choose a digit 1 to 9.':null)},
+      next:function(st,c){return{legs:[{t:c.dir==='Over'?'DIGITOVER':'DIGITUNDER',b:+c.dig,a:c.base*Math.pow(Math.max(1,c.mult),st.n)}]}},result:capRes},
+    {id:'eof',name:'Manoo Even/Odd Flip',d:'Starts on Odd. A loss flips the side, a win keeps it. Martingale recovery with a loss cap.',
+      init:function(){return{loss:0,n:0,side:'DIGITODD'}},
+      next:function(st,c){return{legs:[{t:st.side,a:recStake(st,c,st.side)}]}},
+      result:function(st,c,p){if(p<=0)st.side=st.side==='DIGITODD'?'DIGITEVEN':'DIGITODD';recRes(st,c,p)}},
+    {id:'eoa',name:'Manoo Even/Odd Analyzed',d:'Waits until Even or Odd leads the last 30 digits by your threshold, then trades the leading side. Gentle Oscar\'s Grind stakes.',
+      f:[{k:'thr',l:'Imbalance %',v:60}],
+      init:function(c){return{cyc:0,s:c.base,n:0}},
+      next:function(st,c){if(digits.length<30)return null;var a=digits.slice(-30),e=a.filter(function(x){return x%2===0}).length/30*100,o=100-e,
+        side=e>=c.thr?'DIGITEVEN':(o>=c.thr?'DIGITODD':null);if(!side)return null;return{legs:[{t:side,a:st.s}]}},
+      result:function(st,c,p){st.cyc+=p;
+        if(st.cyc>=c.base*0.99){st.cyc=0;st.s=c.base;st.n=0;return}
+        if(p>0){st.n=0;st.s=Math.max(.35,Math.min(st.s+c.base,(c.base-st.cyc)/R('DIGITEVEN')))}
+        else{st.n++;if(c.cap&&st.n>=c.cap){log('Loss cap reached: stakes reset','l');st.cyc=0;st.s=c.base;st.n=0}}}},
+    {id:'mat',name:'Manoo Matches Analyzer',d:'Matches only. Each round it picks the most frequent digit of the last 100 ticks. Flat stake.',
+      init:function(){return{}},
+      next:function(st,c){if(digits.length<50)return null;var f=freq(100),b=0;f.forEach(function(x,i){if(x>f[b])b=i});return{legs:[{t:'DIGITMATCH',b:b,a:c.base}]}},
+      result:function(){}},
+    {id:'rfs',name:'Manoo Rise/Fall Scalper',dg:false,d:'Rapid Rise trades. After a loss it switches to Fall with a stake sized to recover; a win returns to Rise.',
+      f:[{k:'dur',l:'Ticks',v:5}],
+      init:function(){return{loss:0,n:0}},
+      next:function(st,c){var t=st.loss>0?'PUT':'CALL';return{legs:[{t:t,a:recStake(st,c,t),d:Math.max(5,c.dur)}]}},result:recRes},
+    {id:'hl',name:'Manoo Higher/Lower Hedge',dg:false,d:'Opens Higher and Lower together at your barrier offset. Martingale after a losing round.',
+      f:[{k:'off',l:'Offset',v:0.5},{k:'dur',l:'Ticks',v:5},{k:'mult',l:'Martingale ×',v:2}],
+      init:function(){return{n:0}},
+      next:function(st,c){var a=c.base*Math.pow(Math.max(1,c.mult),st.n),o=(+c.off).toFixed(2),d=Math.max(5,c.dur);
+        return{legs:[{t:'CALL',b:'+'+o,a:a,d:d},{t:'PUT',b:'-'+o,a:a,d:d}]}},result:capRes}
+  ];
+  function startEng(def,c,once){
+    if(eng){log('Stop the running strategy first','l');return}
     if(!acc){log('Log in with Deriv first','l');return}
-    if(busy)return;
-    var t=$('ctype').value,rf=(t==='CALL'||t==='PUT');
-    var p={proposal:1,amount:+stk.toFixed(2),basis:'stake',contract_type:t,currency:cur,duration:rf?Math.max(5,+$('dur').value):Math.max(1,+$('dur').value),duration_unit:'t',underlying_symbol:symSel.value};
-    if(/DIGIT(OVER|UNDER|MATCH|DIFF)/.test(t))p.barrier=String(barSel.value);
-    busy=true;send(p);
+    if(!(c.base>=0.35)){log('Minimum stake is 0.35','l');return}
+    if(def.dg!==false&&/^(JD|RDBULL|RDBEAR|stp)/i.test(symSel.value)){log('This market has no digit contracts. Pick a Volatility index.','l');return}
+    var bad=def.check&&def.check(c);if(bad){log(bad,'l');return}
+    pnl=0;W=0;L=0;done={};
+    eng={def:def,name:def.name,cfg:c,st:def.init?def.init(c):{},once:once,wait:true,phase:'idle',open:{},rtry:0,next:c.base,legs:[],idx:0,rp:0,left:0};
+    log('Started: '+def.name);ui();tryStart();
+  }
+  function tryStart(){
+    if(!eng||eng.phase!=='idle')return;
+    var r=eng.def.next(eng.st,eng.cfg);
+    if(!r){eng.wait=true;show();return}
+    eng.wait=false;eng.legs=r.legs;eng.idx=0;eng.rp=0;eng.left=r.legs.length;eng.phase='quote';eng.next=r.legs[0].a;show();sendQuote();
+  }
+  function tickHook(){if(eng&&eng.phase==='idle'&&eng.wait)tryStart()}
+  function sendQuote(){
+    var l=eng.legs[eng.idx],amt=Math.max(0.35,Math.min(+l.a,eng.cfg.maxst||1e9));
+    var p={proposal:1,amount:+amt.toFixed(2),basis:'stake',contract_type:l.t,currency:cur,duration:l.d||1,duration_unit:'t',underlying_symbol:symSel.value};
+    if(l.b!=null)p.barrier=String(l.b);
+    eng.q=p;eng.stakeUsed=p.amount;send(p);
+  }
+  function roundDone(){
+    var e=eng,p=e.rp;pnl+=p;if(p>0)W++;else L++;
+    log((p>0?'WIN +':'LOSS ')+p.toFixed(2),p>0?'w':'l');
+    e.def.result(e.st,e.cfg,p);e.phase='idle';setTimeout(pollBals,1500);show();
+    var tp=e.cfg.tp,sl=e.cfg.sl;
+    if((tp&&pnl>=tp)||(sl&&pnl<=-sl)){endEng('Stopped: '+(pnl>0?'take profit':'stop loss')+' reached ('+pnl.toFixed(2)+')');return}
+    if(e.once){endEng('');return}
+    setTimeout(function(){if(eng===e)tryStart()},400);
   }
   function onTrade(d){
     var m=d.msg_type;
-    if(d.error){log(d.error.message,'l');if(m==='proposal'||m==='buy'||m==='proposal_open_contract'){busy=false;setAuto(false)}return}
+    if(d.error){
+      if(!eng){log(d.error.message,'l');return}
+      if(m==='buy'&&/unknown contract proposal/i.test(d.error.message||'')&&eng.rtry<3){eng.rtry++;eng.phase='quote';log('Price quote expired, retrying ('+eng.rtry+'/3)');send(eng.q);return}
+      if(m==='proposal'||m==='buy'||m==='proposal_open_contract'){
+        var q=eng.q,ctx=q?' ['+q.underlying_symbol+' · '+q.contract_type+(q.barrier!=null?' '+q.barrier:'')+' · '+q.duration+' tick]':'';
+        log(d.error.message+ctx+(/unknown contract/i.test(d.error.message)?'. This market may not offer this contract.':''),'l');endEng('Stopped after an error');
+      }else log(d.error.message,'l');
+      return}
     if(m==='balance'){var bb=bv(d.balance);if(acc&&bb!=null){acc.bal=bb;hb(bb);var o=$('accsel').options[accts.indexOf(acc)];if(o)o.text=optText(acc)}}
-    else if(m==='proposal'&&busy){send({buy:d.proposal.id,price:+d.proposal.ask_price})}
-    else if(m==='buy'){log('Bought '+$('ctype').selectedOptions[0].text+' @ '+stk.toFixed(2));send({proposal_open_contract:1,contract_id:d.buy.contract_id,subscribe:1})}
+    else if(m==='proposal'&&eng&&eng.phase==='quote'){
+      var pr=d.proposal;if(pr.payout&&pr.ask_price)ratio[eng.q.contract_type+(eng.q.barrier!=null?eng.q.barrier:'')]=pr.payout/pr.ask_price-1;
+      eng.phase='buy';send({buy:pr.id,price:+pr.ask_price})}
+    else if(m==='buy'&&eng){
+      var cid=d.buy.contract_id;eng.rtry=0;eng.open[cid]=1;
+      log('Bought '+eng.q.contract_type.replace('DIGIT','')+(eng.q.barrier!=null?' '+eng.q.barrier:'')+' @ '+eng.stakeUsed.toFixed(2));
+      send({proposal_open_contract:1,contract_id:cid,subscribe:1});
+      eng.idx++;if(eng.idx<eng.legs.length){eng.phase='quote';sendQuote()}else eng.phase='open'}
     else if(m==='proposal_open_contract'){
       var c=d.proposal_open_contract;
       if(c.is_sold&&!done[c.contract_id]){
         done[c.contract_id]=1;if(d.subscription)send({forget:d.subscription.id});
-        if(skipNext){skipNext=false;busy=false;setTimeout(pollBals,1500);return}
-        var pr=+c.profit;pnl+=pr;
-        if(pr>0){W++;stk=s0}else{L++;stk=Math.min(stk*Math.max(1,+$('mult').value),+$('maxst').value)}
-        log((pr>0?'WIN +':'LOSS ')+pr.toFixed(2),pr>0?'w':'l');show();busy=false;setTimeout(pollBals,1500);
-        var tp=+$('tp').value,sl=+$('sl').value;
-        if(auto&&((tp&&pnl>=tp)||(sl&&pnl<=-sl))){setAuto(false);log('Auto stopped: '+(pnl>0?'take profit':'stop loss')+' reached')}
-        if(auto)setTimeout(function(){if(auto&&!busy)buy()},400);
-      }
-    }
+        if(!eng||!eng.open[c.contract_id])return;
+        delete eng.open[c.contract_id];eng.rp+=(+c.profit);eng.left--;
+        if(eng.left===0&&eng.idx>=eng.legs.length)roundDone();
+      }}
   }
   function bv(b){if(b==null)return null;if(typeof b==='object')b=b.balance!=null?b.balance:b.amount;var n=+b;return isNaN(n)?null:n}
   function optText(a){return a.id+' · '+a.cur+(a.demo?' · Demo':' · Real')+(a.bal!=null?' · '+fmt(a.bal):'')}
@@ -234,11 +325,25 @@ button.pill svg.chev{transition:transform .15s}button.pill[aria-expanded=true] s
   $('login').onclick=login;
   $('accsel').onchange=function(){var a=accts[+this.value];ss('mtl_sel',a.id);setAuto(false);pnl=0;W=0;L=0;stk=s0=+$('stk').value;show();$('bal').textContent='–';renderAuth();connect()};
   $('logout').onclick=function(){['mtl_a','mtl_r','mtl_sel'].forEach(function(k){ss(k,null)});access=refresh=null;accts=[];setAuto(false);renderAuth();$('acct').textContent='Logged out.';$('bal').textContent='–';connect()};
-  $('buy').onclick=function(){s0=stk=+$('stk').value;show();buy()};
-  $('auto').onclick=function(){if(!acc){log('Log in with Deriv first','l');return}
-    if(auto)return;s0=stk=+$('stk').value;pnl=0;W=0;L=0;show();setAuto(true);log('Auto started');buy()};
-  $('treset').onclick=function(){setAuto(false);skipNext=busy;pnl=0;W=0;L=0;stk=s0=+$('stk').value;show();$('log').innerHTML='';log('Reset: stats and trade log cleared')};
-  $('stop').onclick=function(){setAuto(false);log('Stopped')};
+  function cfgAuto(){return{base:+$('stk').value,ctype:$('ctype').value,dur:+$('dur').value,mult:+$('mult').value,maxst:+$('maxst').value,tp:+$('tp').value,sl:+$('sl').value,bar:$('bar').value}}
+  $('buy').onclick=function(){startEng(AUTO,cfgAuto(),true)};
+  $('auto').onclick=function(){startEng(AUTO,cfgAuto(),false)};
+  $('stop').onclick=function(){endEng('Stopped')};
+  $('treset').onclick=function(){endEng('');pnl=0;W=0;L=0;done={};show();$('log').innerHTML='';log('Reset: stats and trade log cleared')};
+  [].forEach.call(document.querySelectorAll('.tab'),function(b){b.onclick=function(){
+    [].forEach.call(document.querySelectorAll('.tab'),function(x){x.classList.toggle('on',x===b)});
+    $('p1').hidden=b.id!=='t1';$('p2').hidden=b.id!=='t2'}});
+  var selBot=null,bg=$('bgrid');
+  bg.innerHTML=BOTS.map(function(b,i){return '<button class="bc" data-i="'+i+'">'+b.name+'<small>'+b.d+'</small></button>'}).join('');
+  bg.onclick=function(e){var el=e.target.closest('.bc');if(!el)return;selBot=BOTS[+el.getAttribute('data-i')];
+    [].forEach.call(bg.children,function(x){x.classList.toggle('on',x===el)});
+    $('bfields').innerHTML=(selBot.f||[]).map(function(f){return '<label class="f">'+f.l+(f.o?'<select id="f_'+f.k+'">'+f.o.map(function(o){return '<option'+(o==f.v?' selected':'')+'>'+o+'</option>'}).join('')+'</select>':'<input id="f_'+f.k+'" type="number" step="any" value="'+f.v+'">')+'</label>'}).join('');
+    $('bname').textContent=selBot.name;$('bcfg').hidden=false};
+  $('bgo').onclick=function(){if(!selBot)return;
+    var c={base:+$('b_base').value,tp:+$('b_tp').value,sl:+$('b_sl').value,maxst:+$('b_max').value,cap:+$('b_cap').value};
+    (selBot.f||[]).forEach(function(f){var v=$('f_'+f.k).value;c[f.k]=f.o?v:+v});startEng(selBot,c,false)};
+  ui();
+
 
   /* ---------- Connection (public feed, or OTP-authenticated demo/real) ---------- */
   async function wsUrl(){
@@ -266,7 +371,7 @@ button.pill svg.chev{transition:transform .15s}button.pill[aria-expanded=true] s
       onTrade(d);
       if(d.error){if(!/proposal|buy/.test(d.msg_type||''))$('st').textContent='Error: '+d.error.message;return}
       if(d.active_symbols){
-        var g={},cv=symSel.value,list=d.active_symbols.filter(function(x){return x.market==='synthetic_index'&&x.is_trading_suspended!==1&&x.exchange_is_open!==0});
+        var g={},cv=symSel.value,list=d.active_symbols.filter(function(x){return x.market==='synthetic_index'&&/^(R_\d+|1HZ\d+V)$/.test(x.underlying_symbol||x.symbol)&&x.is_trading_suspended!==1&&x.exchange_is_open!==0});
         list.forEach(function(x){var k=x.submarket_display_name||'Synthetic';(g[k]=g[k]||[]).push(x)});
         var h='';Object.keys(g).forEach(function(k){h+='<optgroup label="'+k+'">'+g[k].map(function(x){var sy=x.underlying_symbol||x.symbol;return '<option value="'+sy+'">'+(x.underlying_symbol_name||x.display_name||sy)+'</option>'}).join('')+'</optgroup>'});
         if(h){symSel.innerHTML=h;symSel.value=cv;if(symSel.value!==cv){symSel.selectedIndex=0;connect()}}
@@ -277,9 +382,9 @@ button.pill svg.chev{transition:transform .15s}button.pill[aria-expanded=true] s
         dec=d.pip_size||Math.max.apply(null,d.history.prices.map(function(p){return (String(p).split('.')[1]||'').length}))||2;
         d.history.prices.forEach(function(p){add(+p,true)});render();
       }
-      if(d.tick){if(d.tick.pip_size)dec=d.tick.pip_size;add(+d.tick.quote,false);render()}
+      if(d.tick){if(d.tick.pip_size)dec=d.tick.pip_size;add(+d.tick.quote,false);render();tickHook()}
     };
-    ws.onclose=function(){alive=false;if(auto){setAuto(false);log('Connection lost: auto stopped','l')}busy=false;$('st').textContent='Reconnecting…';setTimeout(connect,Math.min(1000*++retry,8000))};
+    ws.onclose=function(){alive=false;if(eng)endEng('Connection lost: strategy stopped');busy=false;$('st').textContent='Reconnecting…';setTimeout(connect,Math.min(1000*++retry,8000))};
     ws.onerror=function(){try{ws.close()}catch(e){}};
   }
   async function init(){
@@ -299,46 +404,9 @@ button.pill svg.chev{transition:transform .15s}button.pill[aria-expanded=true] s
   function pct(n,t){return t?(n/t*100):0}
   function run(arr){var n=0,last=arr[arr.length-1];for(var i=arr.length-1;i>=0&&arr[i]===last;i--)n++;return {v:last,n:n}}
 
-  function render(){
-    var n=digits.length;if(!n)return;
-    var last=digits[n-1];
-    $('px').textContent=prices[n-1].toFixed(dec);
-    $('ld').textContent=last;
-    $('tape').innerHTML=digits.slice(-20).map(function(x,i,a){
-      var dr=dirs[n-a.length+i];return '<span class="'+(dr>0?'u':dr<0?'d':'')+'">'+x+'</span>'}).join('');
-    var cnt=Array(10).fill(0);digits.forEach(function(x){cnt[x]++});
-    var mx=Math.max.apply(null,cnt),mn=Math.min.apply(null,cnt);
-    for(var i=0;i<10;i++){
-      var c=$('c'+i);c.className='col'+(cnt[i]===mx?' hi':cnt[i]===mn?' lo':'')+(i===last?' cur':'');
-      $('b'+i).style.height=Math.max(2,cnt[i]/mx*100)+'%';
-      $('p'+i).textContent=pct(cnt[i],n).toFixed(1)+'%';
-    }
-    var ev=digits.filter(function(x){return x%2===0}).length;
-    $('ev').textContent=pct(ev,n).toFixed(1)+'%';$('od').textContent=pct(n-ev,n).toFixed(1)+'%';
-    $('evb').style.width=pct(ev,n)+'%';$('odb').style.width=pct(n-ev,n)+'%';
-    var d=dirs.slice(1),ri=d.filter(function(x){return x>0}).length,fa=d.filter(function(x){return x<0}).length,tt=ri+fa;
-    $('ri').textContent=pct(ri,tt).toFixed(1)+'%';$('fa').textContent=pct(fa,tt).toFixed(1)+'%';
-    $('rib').style.width=pct(ri,tt)+'%';$('fab').style.width=pct(fa,tt)+'%';
-    var b=+barSel.value,ov=digits.filter(function(x){return x>b}).length,un=digits.filter(function(x){return x<b}).length;
-    $('ov').textContent=pct(ov,n).toFixed(1)+'%';$('un').textContent=pct(un,n).toFixed(1)+'%';$('eq').textContent=pct(n-ov-un,n).toFixed(1)+'%';
-    var pr=run(digits.map(function(x){return x%2})),dr=run(dirs.slice(1)),sd=run(digits);
-    $('sp').textContent=pr.n+'× '+(pr.v?'odd':'even');
-    $('sd').textContent=dr.n+'× '+(dr.v>0?'rise':dr.v<0?'fall':'flat');
-    $('ss').textContent=sd.n+'× digit '+sd.v;
-    var s=[];
-    var top=cnt.indexOf(mx),low=cnt.indexOf(mn);
-    s.push('Most frequent digit: <b>'+top+'</b> ('+pct(mx,n).toFixed(1)+'%). Least frequent: <b>'+low+'</b> ('+pct(mn,n).toFixed(1)+'%).');
-    if(Math.abs(pct(ev,n)-50)>=6)s.push((ev>n/2?'Even':'Odd')+' is leading by '+Math.abs(pct(ev,n)-50).toFixed(1)+' points over the window.');
-    if(pr.n>=4)s.push('Parity has repeated '+pr.n+' times in a row ('+(pr.v?'odd':'even')+').');
-    if(dr.n>=4&&dr.v)s.push('Price has '+(dr.v>0?'risen':'fallen')+' '+dr.n+' ticks in a row.');
-    if(sd.n>=3)s.push('Digit '+sd.v+' has repeated '+sd.n+' times.');
-    var ovp=pct(ov,n);if(Math.abs(ovp-(b<9?(9-b)*10:0))>=7&&b<9)s.push('Over '+b+' is hitting '+ovp.toFixed(1)+'% vs a fair '+((9-b)*10)+'%.');
-    $('sigs').innerHTML=s.map(function(x){return '<li>'+x+'</li>'}).join('');
-  }
+  function render(){var n=digits.length;if(!n)return;$('px').textContent=prices[n-1].toFixed(dec);$('ld').textContent=digits[n-1]}
   symSel.onchange=function(){connect()};
   winSel.onchange=function(){connect()};
-  barSel.onchange=render;
-  $('reset').onclick=function(){connect()};
   init();
 })();
 </script>
