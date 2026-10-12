@@ -57,13 +57,14 @@ button.pill svg.chev{transition:transform .15s}button.pill[aria-expanded=true] s
 .mi:hover,.mi.sel{background:#203b46}
 .mid{display:flex;flex-direction:column;gap:3px;flex:1;font-size:13px;align-items:flex-start}
 .mb{font-weight:700;font-variant-numeric:tabular-nums;font-size:14px}
+#log .g{color:var(--mute);word-break:break-all}
 </style>
 </head>
 <body>
 <div class="top"><div class="logo"><span>M</span><h1>Manoo Tick Lab</h1></div>
 <div><div id="out" class="tr" style="margin:0"><button id="login" class="brand">Log in with Deriv</button></div>
 <div id="in" class="tr" style="margin:0;display:none"><div class="acc"><button id="accbtn" class="pill" aria-haspopup="listbox" aria-expanded="false" aria-label="Switch account"><span id="flag"></span><span id="hbal">–</span><i id="tag" class="tag"></i><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div id="accmenu" class="menu" role="listbox"></div></div><select id="accsel" hidden aria-hidden="true"></select><button id="logout" class="alt">Log out</button></div></div></div>
-<p class="sub">Live Deriv ticks: digit frequency, even/odd, rise/fall and entry signals.</p>
+<p class="sub">Live Deriv ticks: digit frequency, even/odd, rise/fall and entry signals. <b style="color:var(--hot)">Build 8</b></p>
 
 <div class="bar">
   <select id="sym" aria-label="Market"><option value="R_10">Volatility 10</option><option value="R_25">Volatility 25</option><option value="R_50">Volatility 50</option><option value="R_75">Volatility 75</option><option value="R_100" selected>Volatility 100</option><option value="1HZ10V">Volatility 10 (1s)</option><option value="1HZ15V">Volatility 15 (1s)</option><option value="1HZ25V">Volatility 25 (1s)</option><option value="1HZ30V">Volatility 30 (1s)</option><option value="1HZ50V">Volatility 50 (1s)</option><option value="1HZ75V">Volatility 75 (1s)</option><option value="1HZ90V">Volatility 90 (1s)</option><option value="1HZ100V">Volatility 100 (1s)</option><option value="1HZ150V">Volatility 150 (1s)</option><option value="1HZ250V">Volatility 250 (1s)</option><option value="1HZ300V">Volatility 300 (1s)</option></select>
@@ -107,6 +108,7 @@ button.pill svg.chev{transition:transform .15s}button.pill[aria-expanded=true] s
 <div class="note" id="acct">Not logged in. Log in with Deriv, and pick your demo account first.</div>
 <div class="tr">
 <label class="f">Contract<select id="ctype"><option value="DIGITOVER">Over</option><option value="DIGITUNDER">Under</option><option value="DIGITEVEN">Even</option><option value="DIGITODD">Odd</option><option value="DIGITMATCH">Matches</option><option value="DIGITDIFF">Differs</option><option value="CALL">Rise</option><option value="PUT">Fall</option></select></label>
+<label class="f">Trade method<select id="tmode"><option value="auto">Auto</option><option value="classic">Classic</option><option value="onestep">One-step</option></select></label>
 <label class="f">Stake<input id="stk" type="number" value="1" min="0.35" step="0.01"></label>
 <label class="f">Ticks<input id="dur" type="number" value="1" min="1" max="10"></label>
 <label class="f">Martingale x<input id="mult" type="number" value="2" min="1" step="0.1"></label>
@@ -114,7 +116,8 @@ button.pill svg.chev{transition:transform .15s}button.pill[aria-expanded=true] s
 <label class="f">Take profit<input id="tp" type="number" value="10" min="0"></label>
 <label class="f">Stop loss<input id="sl" type="number" value="20" min="0"></label>
 </div>
-<div class="note">Over/Under/Matches/Differs use the barrier digit chosen above.</div>
+<div class="note">Over/Under/Matches/Differs use the barrier digit chosen above. Trade method: Classic = quote then buy (how Rise/Fall traded before). One-step = single request. Auto = Classic for 5+ ticks, One-step for shorter trades.</div>
+<div class="tr"><label class="note" style="display:flex;align-items:center;gap:6px"><input id="dbg" type="checkbox" style="width:auto"> Debug log (shows exactly what is sent to Deriv and what it answers)</label></div>
 <div class="tr"><button id="buy">Buy once</button><button id="auto" class="alt">Start auto</button><button id="stop" class="stop">Stop</button><button id="treset" class="alt">Reset</button></div>
 <div class="row"><span>Balance <b id="bal">–</b></span><span>P/L <b id="pnl">0.00</b></span><span>W/L <b id="wl">0/0</b></span><span>Next <b id="nx">–</b></span></div>
 <div id="log"></div></div>
@@ -131,15 +134,19 @@ button.pill svg.chev{transition:transform .15s}button.pill[aria-expanded=true] s
   for(i=0;i<10;i++){dg.insertAdjacentHTML('beforeend','<div class="col" id="c'+i+'"><b id="p'+i+'">0%</b><i id="b'+i+'" style="height:2px"></i>'+i+'</div>')}
 
   var API='https://api.derivws.com',PUB='wss://api.derivws.com/trading/v1/options/ws/public',SCOPE='trade account_manage';
-  var access=null,refresh=null,acc=null,accts=[],cur='USD',busy=false,auto=false,stk=1,s0=1,pnl=0,W=0,L=0,done={},skipNext=false,lastReq=null,rtry=0,useDirect=true,directSent=false;
+  var access=null,refresh=null,acc=null,accts=[],cur='USD',busy=false,auto=false,stk=1,s0=1,pnl=0,W=0,L=0,done={},skipNext=false,lastReq=null,rtry=0,useDirect=true,directSent=false,subMode=false,quoteDone=false,qsub=null,lastDirect=true,wsReady=false,resumeOrder=false,freshTried=false;
   function ss(k,v){try{if(v===undefined)return sessionStorage.getItem(k);if(v===null)sessionStorage.removeItem(k);else sessionStorage.setItem(k,v)}catch(e){return null}}
-  function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
+  var tSend=0;
+  function dbg(){var e=$('dbg');return e&&e.checked}
+  function send(o){
+    if(dbg()&&(o.proposal||o.buy||o.forget)){tSend=performance.now();log('→ '+JSON.stringify(o).slice(0,380),'g')}
+    if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
   function log(t,c){var l=$('log');l.insertAdjacentHTML('afterbegin','<div class="'+(c||'')+'">'+new Date().toLocaleTimeString()+' '+t+'</div>');while(l.children.length>40)l.removeChild(l.lastChild)}
   function setAuto(v){auto=v;$('auto').textContent=v?'Auto running':'Start auto';$('auto').className=v?'':'alt'}
   function show(){$('pnl').textContent=pnl.toFixed(2);$('wl').textContent=W+'/'+L;$('nx').textContent=stk.toFixed(2)}
   function sendOrder(){
-    if(useDirect){var dp={},k;for(k in lastReq)if(k!=='proposal')dp[k]=lastReq[k];directSent=true;send({buy:'1',price:lastReq.amount,parameters:dp})}
-    else{directSent=false;send(lastReq)}
+    if(useDirect&&lastDirect){var dp={},k;for(k in lastReq)if(k!=='proposal'&&k!=='subscribe')dp[k]=lastReq[k];directSent=true;send({buy:'1',price:lastReq.amount,parameters:dp})}
+    else{directSent=false;quoteDone=false;send(lastReq)}
   }
   function buy(){
     if(!acc){log('Log in with Deriv first','l');return}
@@ -152,18 +159,28 @@ button.pill svg.chev{transition:transform .15s}button.pill[aria-expanded=true] s
     else if(t==='DIGITOVER'&&+barSel.value>8)bad='Over 9 is impossible. Choose barrier 0 to 8.';
     else if(t==='DIGITUNDER'&&+barSel.value<1)bad='Under 0 is impossible. Choose barrier 1 to 9.';
     if(bad){log(bad,'l');setAuto(false);return}
+    if(subMode)p.subscribe=1;
+    freshTried=false;var tm=$('tmode').value;lastDirect=(tm==='onestep')||(tm==='auto'&&p.duration<5);
     lastReq=p;rtry=0;busy=true;sendOrder();
   }
   function onTrade(d){
     var m=d.msg_type;
     if(d.error){
-      if(m==='buy'&&directSent&&busy){useDirect=false;directSent=false;log('Direct buy was refused ('+d.error.message+'). Switching to price quotes.','l');sendOrder();return}
-      if(m==='buy'&&/unknown contract proposal/i.test(d.error.message||'')&&lastReq&&rtry<3){rtry++;log('Price quote expired, retrying ('+rtry+'/3)');send(lastReq);return}
+      if(m==='buy'&&directSent&&busy){useDirect=false;directSent=false;log('Direct buy was refused ('+d.error.message+(d.error.code?' / '+d.error.code:'')+'). Switching to price quotes.','l');sendOrder();return}
+      if(m==='buy'&&/unknown contract proposal/i.test(d.error.message||'')&&lastReq){
+        if(qsub){send({forget:qsub});qsub=null}
+        if(rtry<3){rtry++;log('Price quote expired, retrying ('+rtry+'/3)');quoteDone=false;send(lastReq);return}
+        if(!subMode){subMode=true;lastReq.subscribe=1;rtry=0;quoteDone=false;log('Switching to streamed quotes');send(lastReq);return}
+        if(!freshTried){freshTried=true;subMode=false;delete lastReq.subscribe;useDirect=true;rtry=0;quoteDone=false;resumeOrder=true;log('Opening a fresh trading session and trying again');connect();return}
+      }
       var ctx=(lastReq&&(m==='proposal'||m==='buy'))?' ['+lastReq.underlying_symbol+' · '+lastReq.contract_type+(lastReq.barrier!=null?' '+lastReq.barrier:'')+' · '+lastReq.duration+' tick]':'';
-      log(d.error.message+ctx+(/unknown contract/i.test(d.error.message)?'. This market may not offer this contract. Try a Volatility index.':''),'l');if(m==='proposal'||m==='buy'||m==='proposal_open_contract'){busy=false;setAuto(false)}return}
+      log(d.error.message+(d.error.code?' ('+d.error.code+')':'')+ctx,'l');if(m==='proposal'||m==='buy'||m==='proposal_open_contract'){busy=false;setAuto(false)}return}
     if(m==='balance'){var bb=bv(d.balance);if(acc&&bb!=null){acc.bal=bb;hb(bb);var o=$('accsel').options[accts.indexOf(acc)];if(o)o.text=optText(acc)}}
-    else if(m==='proposal'&&busy){send({buy:d.proposal.id,price:+d.proposal.ask_price})}
-    else if(m==='buy'){rtry=0;directSent=false;log('Bought '+$('ctype').selectedOptions[0].text+' @ '+stk.toFixed(2));send({proposal_open_contract:1,contract_id:d.buy.contract_id,subscribe:1})}
+    else if(m==='proposal'&&busy){
+      if(quoteDone)return;quoteDone=true;if(d.subscription)qsub=d.subscription.id;
+      send({buy:d.proposal.id,price:+d.proposal.ask_price})}
+    else if(m==='buy'){rtry=0;directSent=false;if(qsub){send({forget:qsub});qsub=null}
+      log('Bought '+$('ctype').selectedOptions[0].text+' @ '+stk.toFixed(2));send({proposal_open_contract:1,contract_id:d.buy.contract_id,subscribe:1})}
     else if(m==='proposal_open_contract'){
       var c=d.proposal_open_contract;
       if(c.is_sold&&!done[c.contract_id]){
@@ -247,9 +264,14 @@ button.pill svg.chev{transition:transform .15s}button.pill[aria-expanded=true] s
   $('login').onclick=login;
   $('accsel').onchange=function(){var a=accts[+this.value];ss('mtl_sel',a.id);setAuto(false);pnl=0;W=0;L=0;stk=s0=+$('stk').value;show();$('bal').textContent='–';renderAuth();connect()};
   $('logout').onclick=function(){['mtl_a','mtl_r','mtl_sel'].forEach(function(k){ss(k,null)});access=refresh=null;accts=[];setAuto(false);renderAuth();$('acct').textContent='Logged out.';$('bal').textContent='–';connect()};
-  $('buy').onclick=function(){s0=stk=+$('stk').value;show();buy()};
+  function freshBuy(){
+    if(!acc){buy();return}
+    log('Opening a fresh trading session…','g');connect();var t0=Date.now();
+    (function w(){if(wsReady||Date.now()-t0>7000){buy();return}setTimeout(w,150)})();
+  }
+  $('buy').onclick=function(){s0=stk=+$('stk').value;show();freshBuy()};
   $('auto').onclick=function(){if(!acc){log('Log in with Deriv first','l');return}
-    if(auto)return;s0=stk=+$('stk').value;pnl=0;W=0;L=0;show();setAuto(true);log('Auto started');buy()};
+    if(auto)return;s0=stk=+$('stk').value;pnl=0;W=0;L=0;show();setAuto(true);log('Auto started');freshBuy()};
   $('treset').onclick=function(){setAuto(false);skipNext=busy;pnl=0;W=0;L=0;stk=s0=+$('stk').value;show();$('log').innerHTML='';log('Reset: stats and trade log cleared')};
   $('stop').onclick=function(){setAuto(false);log('Stopped')};
 
@@ -263,19 +285,21 @@ button.pill svg.chev{transition:transform .15s}button.pill[aria-expanded=true] s
   }
   async function connect(){
     if(ws){try{ws.onclose=null;ws.close()}catch(e){}}
-    var my=++gen;$('st').textContent='Connecting…';
+    wsReady=false;var my=++gen;$('st').textContent='Connecting…';
     var url;try{url=await wsUrl()}catch(e){$('st').textContent=e.message;$('acct').textContent=e.message;return}
     if(my!==gen)return;
     ws=new WebSocket(url);
     ws.onopen=function(){
-      retry=0;alive=true;busy=false;$('st').textContent=acc?'Live (trading session)':'Live (market data)';
+      retry=0;alive=true;busy=false;wsReady=true;$('st').textContent=acc?'Live (trading session)':'Live (market data)';
       $('symname').textContent=symSel.options[symSel.selectedIndex].text;
       send({active_symbols:'brief'});
       if(acc)send({balance:1,subscribe:1});
       send({ticks_history:symSel.value,count:+winSel.value,end:'latest',style:'ticks',subscribe:1});
+      if(resumeOrder){resumeOrder=false;busy=true;sendOrder()}
     };
     ws.onmessage=function(m){
       var d=JSON.parse(m.data);
+      if(dbg()&&(d.msg_type==='proposal'||d.msg_type==='buy'))log('← '+Math.round(performance.now()-tSend)+' ms · '+JSON.stringify(d).slice(0,380),'g');
       onTrade(d);
       if(d.error){if(!/proposal|buy/.test(d.msg_type||''))$('st').textContent='Error: '+d.error.message;return}
       if(d.active_symbols){
