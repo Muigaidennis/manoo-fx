@@ -44,16 +44,29 @@ button.alt{background:var(--panel);color:var(--ink);border:1px solid var(--line)
 .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:2px solid #ff444f;padding-bottom:10px;margin-bottom:12px}
 .logo{display:flex;align-items:center;gap:10px}.logo span{width:36px;height:36px;border-radius:8px;background:#ff444f;color:#fff;display:grid;place-items:center;font-weight:800;font-size:20px}
 button.brand{background:#ff444f;color:#fff}#appid{width:110px}
+.acc{position:relative}
+button.pill{display:flex;align-items:center;gap:8px;background:#f2f3f4;color:#181c25;border:0;border-radius:999px;padding:6px 12px 6px 8px;font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
+button.pill svg.chev{transition:transform .15s}button.pill[aria-expanded=true] svg.chev{transform:rotate(180deg)}
+.flag{display:inline-block;width:24px;height:24px;border-radius:50%;overflow:hidden;flex:none}.flag svg{display:block;width:100%;height:100%}
+.flag.gen{background:#2b3f8f;color:#fff;display:inline-grid;place-items:center;font-size:12px;font-weight:700}
+.tag{font-style:normal;font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:2px 6px;border-radius:999px}
+.tag.d{background:#d9e8ff;color:#1d4f9c}.tag.r{background:#ffd9dc;color:#b3202c}
+.menu{display:none;position:absolute;right:0;top:calc(100% + 8px);min-width:270px;max-width:92vw;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px;z-index:30;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.menu.open{display:block}
+.mi{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer}
+.mi:hover,.mi.sel{background:#203b46}
+.mid{display:flex;flex-direction:column;gap:3px;flex:1;font-size:13px;align-items:flex-start}
+.mb{font-weight:700;font-variant-numeric:tabular-nums;font-size:14px}
 </style>
 </head>
 <body>
 <div class="top"><div class="logo"><span>M</span><h1>Manoo Tick Lab</h1></div>
 <div><div id="out" class="tr" style="margin:0"><button id="login" class="brand">Log in with Deriv</button></div>
-<div id="in" class="tr" style="margin:0;display:none"><select id="accsel" aria-label="Account"></select><button id="logout" class="alt">Log out</button></div></div></div>
+<div id="in" class="tr" style="margin:0;display:none"><div class="acc"><button id="accbtn" class="pill" aria-haspopup="listbox" aria-expanded="false" aria-label="Switch account"><span id="flag"></span><span id="hbal">–</span><i id="tag" class="tag"></i><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div id="accmenu" class="menu" role="listbox"></div></div><select id="accsel" hidden aria-hidden="true"></select><button id="logout" class="alt">Log out</button></div></div></div>
 <p class="sub">Live Deriv ticks: digit frequency, even/odd, rise/fall and entry signals.</p>
 
 <div class="bar">
-  <select id="sym" aria-label="Market"><option value="R_10">Volatility 10</option><option value="R_25">Volatility 25</option><option value="R_50">Volatility 50</option><option value="R_75">Volatility 75</option><option value="R_100" selected>Volatility 100</option><option value="1HZ10V">Volatility 10 (1s)</option><option value="1HZ15V">Volatility 15 (1s)</option><option value="1HZ25V">Volatility 25 (1s)</option><option value="1HZ30V">Volatility 30 (1s)</option><option value="1HZ50V">Volatility 50 (1s)</option><option value="1HZ75V">Volatility 75 (1s)</option><option value="1HZ90V">Volatility 90 (1s)</option><option value="1HZ100V">Volatility 100 (1s)</option><option value="1HZ150V">Volatility 150 (1s)</option><option value="1HZ250V">Volatility 250 (1s)</option><option value="1HZ300V">Volatility 300 (1s)</option><option value="JD10">Jump 10</option><option value="JD25">Jump 25</option><option value="JD50">Jump 50</option><option value="JD75">Jump 75</option><option value="JD100">Jump 100</option><option value="RDBULL">Bull Market</option><option value="RDBEAR">Bear Market</option></select>
+  <select id="sym" aria-label="Market"><option value="R_10">Volatility 10</option><option value="R_25">Volatility 25</option><option value="R_50">Volatility 50</option><option value="R_75">Volatility 75</option><option value="R_100" selected>Volatility 100</option><option value="1HZ10V">Volatility 10 (1s)</option><option value="1HZ15V">Volatility 15 (1s)</option><option value="1HZ25V">Volatility 25 (1s)</option><option value="1HZ30V">Volatility 30 (1s)</option><option value="1HZ50V">Volatility 50 (1s)</option><option value="1HZ75V">Volatility 75 (1s)</option><option value="1HZ90V">Volatility 90 (1s)</option><option value="1HZ100V">Volatility 100 (1s)</option><option value="1HZ150V">Volatility 150 (1s)</option><option value="1HZ250V">Volatility 250 (1s)</option><option value="1HZ300V">Volatility 300 (1s)</option></select>
   <select id="win" aria-label="Ticks to analyse">
     <option>50</option><option>100</option><option selected>200</option><option>500</option><option>1000</option>
   </select>
@@ -102,7 +115,7 @@ button.brand{background:#ff444f;color:#fff}#appid{width:110px}
 <label class="f">Stop loss<input id="sl" type="number" value="20" min="0"></label>
 </div>
 <div class="note">Over/Under/Matches/Differs use the barrier digit chosen above.</div>
-<div class="tr"><button id="buy">Buy once</button><button id="auto" class="alt">Start auto</button><button id="stop" class="stop">Stop</button></div>
+<div class="tr"><button id="buy">Buy once</button><button id="auto" class="alt">Start auto</button><button id="stop" class="stop">Stop</button><button id="treset" class="alt">Reset</button></div>
 <div class="row"><span>Balance <b id="bal">–</b></span><span>P/L <b id="pnl">0.00</b></span><span>W/L <b id="wl">0/0</b></span><span>Next <b id="nx">–</b></span></div>
 <div id="log"></div></div>
 <div class="sig"><b>Signals</b><ul id="sigs"><li>Waiting for ticks…</li></ul></div>
@@ -118,38 +131,75 @@ button.brand{background:#ff444f;color:#fff}#appid{width:110px}
   for(i=0;i<10;i++){dg.insertAdjacentHTML('beforeend','<div class="col" id="c'+i+'"><b id="p'+i+'">0%</b><i id="b'+i+'" style="height:2px"></i>'+i+'</div>')}
 
   var API='https://api.derivws.com',PUB='wss://api.derivws.com/trading/v1/options/ws/public',SCOPE='trade account_manage';
-  var access=null,refresh=null,acc=null,accts=[],cur='USD',busy=false,auto=false,stk=1,s0=1,pnl=0,W=0,L=0,done={};
+  var access=null,refresh=null,acc=null,accts=[],cur='USD',busy=false,auto=false,stk=1,s0=1,pnl=0,W=0,L=0,done={},skipNext=false,lastReq=null,rtry=0,useDirect=true,directSent=false;
   function ss(k,v){try{if(v===undefined)return sessionStorage.getItem(k);if(v===null)sessionStorage.removeItem(k);else sessionStorage.setItem(k,v)}catch(e){return null}}
   function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
   function log(t,c){var l=$('log');l.insertAdjacentHTML('afterbegin','<div class="'+(c||'')+'">'+new Date().toLocaleTimeString()+' '+t+'</div>');while(l.children.length>40)l.removeChild(l.lastChild)}
   function setAuto(v){auto=v;$('auto').textContent=v?'Auto running':'Start auto';$('auto').className=v?'':'alt'}
   function show(){$('pnl').textContent=pnl.toFixed(2);$('wl').textContent=W+'/'+L;$('nx').textContent=stk.toFixed(2)}
+  function sendOrder(){
+    if(useDirect){var dp={},k;for(k in lastReq)if(k!=='proposal')dp[k]=lastReq[k];directSent=true;send({buy:'1',price:lastReq.amount,parameters:dp})}
+    else{directSent=false;send(lastReq)}
+  }
   function buy(){
     if(!acc){log('Log in with Deriv first','l');return}
     if(busy)return;
     var t=$('ctype').value,rf=(t==='CALL'||t==='PUT');
     var p={proposal:1,amount:+stk.toFixed(2),basis:'stake',contract_type:t,currency:cur,duration:rf?Math.max(5,+$('dur').value):Math.max(1,+$('dur').value),duration_unit:'t',underlying_symbol:symSel.value};
     if(/DIGIT(OVER|UNDER|MATCH|DIFF)/.test(t))p.barrier=String(barSel.value);
-    busy=true;send(p);
+    var bad=null;
+    if(/DIGIT/.test(t)&&/^(JD|RDBULL|RDBEAR|stp)/i.test(symSel.value))bad='This market has no digit contracts. Pick a Volatility index.';
+    else if(t==='DIGITOVER'&&+barSel.value>8)bad='Over 9 is impossible. Choose barrier 0 to 8.';
+    else if(t==='DIGITUNDER'&&+barSel.value<1)bad='Under 0 is impossible. Choose barrier 1 to 9.';
+    if(bad){log(bad,'l');setAuto(false);return}
+    lastReq=p;rtry=0;busy=true;sendOrder();
   }
   function onTrade(d){
     var m=d.msg_type;
-    if(d.error){log(d.error.message,'l');if(m==='proposal'||m==='buy'||m==='proposal_open_contract'){busy=false;setAuto(false)}return}
-    if(m==='balance'){$('bal').textContent=(+d.balance.balance).toFixed(2)+' '+(d.balance.currency||'')}
+    if(d.error){
+      if(m==='buy'&&directSent&&busy){useDirect=false;directSent=false;log('Direct buy was refused ('+d.error.message+'). Switching to price quotes.','l');sendOrder();return}
+      if(m==='buy'&&/unknown contract proposal/i.test(d.error.message||'')&&lastReq&&rtry<3){rtry++;log('Price quote expired, retrying ('+rtry+'/3)');send(lastReq);return}
+      var ctx=(lastReq&&(m==='proposal'||m==='buy'))?' ['+lastReq.underlying_symbol+' · '+lastReq.contract_type+(lastReq.barrier!=null?' '+lastReq.barrier:'')+' · '+lastReq.duration+' tick]':'';
+      log(d.error.message+ctx+(/unknown contract/i.test(d.error.message)?'. This market may not offer this contract. Try a Volatility index.':''),'l');if(m==='proposal'||m==='buy'||m==='proposal_open_contract'){busy=false;setAuto(false)}return}
+    if(m==='balance'){var bb=bv(d.balance);if(acc&&bb!=null){acc.bal=bb;hb(bb);var o=$('accsel').options[accts.indexOf(acc)];if(o)o.text=optText(acc)}}
     else if(m==='proposal'&&busy){send({buy:d.proposal.id,price:+d.proposal.ask_price})}
-    else if(m==='buy'){log('Bought '+$('ctype').selectedOptions[0].text+' @ '+stk.toFixed(2));send({proposal_open_contract:1,contract_id:d.buy.contract_id,subscribe:1})}
+    else if(m==='buy'){rtry=0;directSent=false;log('Bought '+$('ctype').selectedOptions[0].text+' @ '+stk.toFixed(2));send({proposal_open_contract:1,contract_id:d.buy.contract_id,subscribe:1})}
     else if(m==='proposal_open_contract'){
       var c=d.proposal_open_contract;
       if(c.is_sold&&!done[c.contract_id]){
         done[c.contract_id]=1;if(d.subscription)send({forget:d.subscription.id});
+        if(skipNext){skipNext=false;busy=false;setTimeout(pollBals,1500);return}
         var pr=+c.profit;pnl+=pr;
         if(pr>0){W++;stk=s0}else{L++;stk=Math.min(stk*Math.max(1,+$('mult').value),+$('maxst').value)}
-        log((pr>0?'WIN +':'LOSS ')+pr.toFixed(2),pr>0?'w':'l');show();busy=false;
+        log((pr>0?'WIN +':'LOSS ')+pr.toFixed(2),pr>0?'w':'l');show();busy=false;setTimeout(pollBals,1500);
         var tp=+$('tp').value,sl=+$('sl').value;
         if(auto&&((tp&&pnl>=tp)||(sl&&pnl<=-sl))){setAuto(false);log('Auto stopped: '+(pnl>0?'take profit':'stop loss')+' reached')}
         if(auto)setTimeout(function(){if(auto&&!busy)buy()},400);
       }
     }
+  }
+  function bv(b){if(b==null)return null;if(typeof b==='object')b=b.balance!=null?b.balance:b.amount;var n=+b;return isNaN(n)?null:n}
+  function optText(a){return a.id+' · '+a.cur+(a.demo?' · Demo':' · Real')+(a.bal!=null?' · '+fmt(a.bal):'')}
+  function fmt(n){return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+  function flag(c){var i,r='',g='';
+    if(c==='USD'){for(i=0;i<13;i+=2)r+='<rect y="'+(i*24/13).toFixed(2)+'" width="24" height="'+(24/13).toFixed(2)+'" fill="#d22f3c"/>';
+      for(i=0;i<9;i++)g+='<circle cx="'+(2+(i%3)*3.6)+'" cy="'+(2.4+Math.floor(i/3)*3.6)+'" r=".6" fill="#fff"/>';
+      return '<span class="flag"><svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#fff"/>'+r+'<rect width="11" height="12.9" fill="#2b3f8f"/>'+g+'</svg></span>'}
+    return '<span class="flag gen">'+String(c||'?').slice(0,1)+'</span>'}
+  function hb(v){
+    var t=v==null?'–':fmt(v)+' '+(acc?acc.cur:'');
+    $('bal').textContent=t;$('hbal').textContent=t;
+    if(acc){$('flag').innerHTML=flag(acc.cur);$('tag').textContent=acc.demo?'Demo':'Real';$('tag').className='tag '+(acc.demo?'d':'r')}
+    $('accmenu').innerHTML=accts.map(function(a,i){return '<div class="mi'+(acc&&a.id===acc.id?' sel':'')+'" role="option" data-i="'+i+'">'+flag(a.cur)+'<span class="mid"><b>'+a.id+'</b><i class="tag '+(a.demo?'d':'r')+'">'+(a.demo?'Demo':'Real')+'</i></span><span class="mb">'+(a.bal!=null?fmt(a.bal)+' '+a.cur:'–')+'</span></div>'}).join('');
+  }
+  $('accbtn').onclick=function(e){e.stopPropagation();var o=$('accmenu').classList.toggle('open');this.setAttribute('aria-expanded',o)};
+  $('accmenu').onclick=function(e){var el=e.target.closest('.mi');if(!el)return;var sel=$('accsel');sel.value=el.getAttribute('data-i');sel.onchange.call(sel)};
+  document.addEventListener('click',function(){$('accmenu').classList.remove('open');$('accbtn').setAttribute('aria-expanded','false')});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){$('accmenu').classList.remove('open');$('accbtn').setAttribute('aria-expanded','false')}});
+  async function pollBals(){
+    if(!access||!acc)return;
+    try{var id=acc.id;await loadAccts();var sel=$('accsel');
+      accts.forEach(function(a,i){if(sel.options[i])sel.options[i].text=optText(a);if(a.id===id)acc=a});hb(acc.bal)}catch(e){}
   }
   /* ---------- Deriv OAuth2 (Authorization Code + PKCE) ---------- */
   function b64(buf){return btoa(String.fromCharCode.apply(null,new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
@@ -185,14 +235,14 @@ button.brand{background:#ff444f;color:#fff}#appid{width:110px}
     if(r.status===401&&await doRefresh())return loadAccts();
     if(!r.ok)throw new Error('Could not load accounts ('+r.status+')');
     var j=await r.json(),a=j.data||j.accounts||[];if(!Array.isArray(a))a=a.accounts||[];
-    accts=a.map(function(x){var id=x.account_id||x.id||x.loginid,t=String(x.account_type||x.type||(x.is_virtual?'demo':'real')).toLowerCase();return{id:id,demo:t.indexOf('demo')>-1||/^VR/i.test(id),cur:x.currency||'USD'}}).filter(function(x){return x.id});
+    accts=a.map(function(x){var id=x.account_id||x.id||x.loginid,t=String(x.account_type||x.type||(x.is_virtual?'demo':'real')).toLowerCase();return{id:id,demo:t.indexOf('demo')>-1||/^VR/i.test(id),cur:x.currency||'USD',bal:bv(x.balance)}}).filter(function(x){return x.id});
   }
   function renderAuth(){
     var on=!!access&&accts.length>0;$('out').style.display=on?'none':'flex';$('in').style.display=on?'flex':'none';
-    $('accsel').innerHTML=accts.map(function(a,i){return '<option value="'+i+'">'+a.id+' · '+a.cur+(a.demo?' · Demo':' · Real')+'</option>'}).join('');
+    $('accsel').innerHTML=accts.map(function(a,i){return '<option value="'+i+'">'+optText(a)+'</option>'}).join('');
     acc=null;
     if(on){var sv=ss('mtl_sel'),i=accts.findIndex(function(a){return a.id===sv});if(i<0)i=accts.findIndex(function(a){return a.demo});if(i<0)i=0;
-      $('accsel').value=i;acc=accts[i];cur=acc.cur;$('acct').textContent=acc.id+(acc.demo?' (demo)':' (REAL MONEY)')+' · '+cur}
+      $('accsel').value=i;acc=accts[i];cur=acc.cur;hb(acc.bal);$('acct').textContent=acc.id+(acc.demo?' (demo)':' (REAL MONEY)')+' · '+cur}
   }
   $('login').onclick=login;
   $('accsel').onchange=function(){var a=accts[+this.value];ss('mtl_sel',a.id);setAuto(false);pnl=0;W=0;L=0;stk=s0=+$('stk').value;show();$('bal').textContent='–';renderAuth();connect()};
@@ -200,6 +250,7 @@ button.brand{background:#ff444f;color:#fff}#appid{width:110px}
   $('buy').onclick=function(){s0=stk=+$('stk').value;show();buy()};
   $('auto').onclick=function(){if(!acc){log('Log in with Deriv first','l');return}
     if(auto)return;s0=stk=+$('stk').value;pnl=0;W=0;L=0;show();setAuto(true);log('Auto started');buy()};
+  $('treset').onclick=function(){setAuto(false);skipNext=busy;pnl=0;W=0;L=0;stk=s0=+$('stk').value;show();$('log').innerHTML='';log('Reset: stats and trade log cleared')};
   $('stop').onclick=function(){setAuto(false);log('Stopped')};
 
   /* ---------- Connection (public feed, or OTP-authenticated demo/real) ---------- */
@@ -228,7 +279,7 @@ button.brand{background:#ff444f;color:#fff}#appid{width:110px}
       onTrade(d);
       if(d.error){if(!/proposal|buy/.test(d.msg_type||''))$('st').textContent='Error: '+d.error.message;return}
       if(d.active_symbols){
-        var g={},cv=symSel.value,list=d.active_symbols.filter(function(x){return x.market==='synthetic_index'&&x.is_trading_suspended!==1&&x.exchange_is_open!==0});
+        var g={},cv=symSel.value,list=d.active_symbols.filter(function(x){return x.market==='synthetic_index'&&/^(R_\d+|1HZ\d+V)$/.test(x.underlying_symbol||x.symbol)&&x.is_trading_suspended!==1&&x.exchange_is_open!==0});
         list.forEach(function(x){var k=x.submarket_display_name||'Synthetic';(g[k]=g[k]||[]).push(x)});
         var h='';Object.keys(g).forEach(function(k){h+='<optgroup label="'+k+'">'+g[k].map(function(x){var sy=x.underlying_symbol||x.symbol;return '<option value="'+sy+'">'+(x.underlying_symbol_name||x.display_name||sy)+'</option>'}).join('')+'</optgroup>'});
         if(h){symSel.innerHTML=h;symSel.value=cv;if(symSel.value!==cv){symSel.selectedIndex=0;connect()}}
@@ -248,7 +299,7 @@ button.brand{background:#ff444f;color:#fff}#appid{width:110px}
     access=ss('mtl_a');refresh=ss('mtl_r');
     await callback();
     if(access){try{await loadAccts()}catch(e){$('acct').textContent=e.message;access=null}}
-    renderAuth();connect();
+    renderAuth();connect();setInterval(pollBals,15000);
   }
   function add(p,quiet){
     var prev=prices.length?prices[prices.length-1]:null;
