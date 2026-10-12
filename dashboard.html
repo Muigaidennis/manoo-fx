@@ -44,12 +44,25 @@ button.alt{background:var(--panel);color:var(--ink);border:1px solid var(--line)
 .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:2px solid #ff444f;padding-bottom:10px;margin-bottom:12px}
 .logo{display:flex;align-items:center;gap:10px}.logo span{width:36px;height:36px;border-radius:8px;background:#ff444f;color:#fff;display:grid;place-items:center;font-weight:800;font-size:20px}
 button.brand{background:#ff444f;color:#fff}#appid{width:110px}
+.acc{position:relative}
+button.pill{display:flex;align-items:center;gap:8px;background:#f2f3f4;color:#181c25;border:0;border-radius:999px;padding:6px 12px 6px 8px;font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
+button.pill svg.chev{transition:transform .15s}button.pill[aria-expanded=true] svg.chev{transform:rotate(180deg)}
+.flag{display:inline-block;width:24px;height:24px;border-radius:50%;overflow:hidden;flex:none}.flag svg{display:block;width:100%;height:100%}
+.flag.gen{background:#2b3f8f;color:#fff;display:inline-grid;place-items:center;font-size:12px;font-weight:700}
+.tag{font-style:normal;font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:2px 6px;border-radius:999px}
+.tag.d{background:#d9e8ff;color:#1d4f9c}.tag.r{background:#ffd9dc;color:#b3202c}
+.menu{display:none;position:absolute;right:0;top:calc(100% + 8px);min-width:270px;max-width:92vw;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px;z-index:30;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.menu.open{display:block}
+.mi{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer}
+.mi:hover,.mi.sel{background:#203b46}
+.mid{display:flex;flex-direction:column;gap:3px;flex:1;font-size:13px;align-items:flex-start}
+.mb{font-weight:700;font-variant-numeric:tabular-nums;font-size:14px}
 </style>
 </head>
 <body>
 <div class="top"><div class="logo"><span>M</span><h1>Manoo Tick Lab</h1></div>
 <div><div id="out" class="tr" style="margin:0"><button id="login" class="brand">Log in with Deriv</button></div>
-<div id="in" class="tr" style="margin:0;display:none"><b id="hbal" style="align-self:center;font-variant-numeric:tabular-nums"></b><select id="accsel" aria-label="Account"></select><button id="logout" class="alt">Log out</button></div></div></div>
+<div id="in" class="tr" style="margin:0;display:none"><div class="acc"><button id="accbtn" class="pill" aria-haspopup="listbox" aria-expanded="false" aria-label="Switch account"><span id="flag"></span><span id="hbal">–</span><i id="tag" class="tag"></i><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div id="accmenu" class="menu" role="listbox"></div></div><select id="accsel" hidden aria-hidden="true"></select><button id="logout" class="alt">Log out</button></div></div></div>
 <p class="sub">Live Deriv ticks: digit frequency, even/odd, rise/fall and entry signals.</p>
 
 <div class="bar">
@@ -102,7 +115,7 @@ button.brand{background:#ff444f;color:#fff}#appid{width:110px}
 <label class="f">Stop loss<input id="sl" type="number" value="20" min="0"></label>
 </div>
 <div class="note">Over/Under/Matches/Differs use the barrier digit chosen above.</div>
-<div class="tr"><button id="buy">Buy once</button><button id="auto" class="alt">Start auto</button><button id="stop" class="stop">Stop</button></div>
+<div class="tr"><button id="buy">Buy once</button><button id="auto" class="alt">Start auto</button><button id="stop" class="stop">Stop</button><button id="treset" class="alt">Reset</button></div>
 <div class="row"><span>Balance <b id="bal">–</b></span><span>P/L <b id="pnl">0.00</b></span><span>W/L <b id="wl">0/0</b></span><span>Next <b id="nx">–</b></span></div>
 <div id="log"></div></div>
 <div class="sig"><b>Signals</b><ul id="sigs"><li>Waiting for ticks…</li></ul></div>
@@ -118,7 +131,7 @@ button.brand{background:#ff444f;color:#fff}#appid{width:110px}
   for(i=0;i<10;i++){dg.insertAdjacentHTML('beforeend','<div class="col" id="c'+i+'"><b id="p'+i+'">0%</b><i id="b'+i+'" style="height:2px"></i>'+i+'</div>')}
 
   var API='https://api.derivws.com',PUB='wss://api.derivws.com/trading/v1/options/ws/public',SCOPE='trade account_manage';
-  var access=null,refresh=null,acc=null,accts=[],cur='USD',busy=false,auto=false,stk=1,s0=1,pnl=0,W=0,L=0,done={};
+  var access=null,refresh=null,acc=null,accts=[],cur='USD',busy=false,auto=false,stk=1,s0=1,pnl=0,W=0,L=0,done={},skipNext=false;
   function ss(k,v){try{if(v===undefined)return sessionStorage.getItem(k);if(v===null)sessionStorage.removeItem(k);else sessionStorage.setItem(k,v)}catch(e){return null}}
   function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
   function log(t,c){var l=$('log');l.insertAdjacentHTML('afterbegin','<div class="'+(c||'')+'">'+new Date().toLocaleTimeString()+' '+t+'</div>');while(l.children.length>40)l.removeChild(l.lastChild)}
@@ -142,6 +155,7 @@ button.brand{background:#ff444f;color:#fff}#appid{width:110px}
       var c=d.proposal_open_contract;
       if(c.is_sold&&!done[c.contract_id]){
         done[c.contract_id]=1;if(d.subscription)send({forget:d.subscription.id});
+        if(skipNext){skipNext=false;busy=false;setTimeout(pollBals,1500);return}
         var pr=+c.profit;pnl+=pr;
         if(pr>0){W++;stk=s0}else{L++;stk=Math.min(stk*Math.max(1,+$('mult').value),+$('maxst').value)}
         log((pr>0?'WIN +':'LOSS ')+pr.toFixed(2),pr>0?'w':'l');show();busy=false;setTimeout(pollBals,1500);
@@ -152,8 +166,23 @@ button.brand{background:#ff444f;color:#fff}#appid{width:110px}
     }
   }
   function bv(b){if(b==null)return null;if(typeof b==='object')b=b.balance!=null?b.balance:b.amount;var n=+b;return isNaN(n)?null:n}
-  function optText(a){return a.id+' · '+a.cur+(a.demo?' · Demo':' · Real')+(a.bal!=null?' · '+a.bal.toFixed(2):'')}
-  function hb(v){var t=v==null?'–':v.toFixed(2)+' '+(acc?acc.cur:'');$('bal').textContent=t;$('hbal').textContent=t}
+  function optText(a){return a.id+' · '+a.cur+(a.demo?' · Demo':' · Real')+(a.bal!=null?' · '+fmt(a.bal):'')}
+  function fmt(n){return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+  function flag(c){var i,r='',g='';
+    if(c==='USD'){for(i=0;i<13;i+=2)r+='<rect y="'+(i*24/13).toFixed(2)+'" width="24" height="'+(24/13).toFixed(2)+'" fill="#d22f3c"/>';
+      for(i=0;i<9;i++)g+='<circle cx="'+(2+(i%3)*3.6)+'" cy="'+(2.4+Math.floor(i/3)*3.6)+'" r=".6" fill="#fff"/>';
+      return '<span class="flag"><svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#fff"/>'+r+'<rect width="11" height="12.9" fill="#2b3f8f"/>'+g+'</svg></span>'}
+    return '<span class="flag gen">'+String(c||'?').slice(0,1)+'</span>'}
+  function hb(v){
+    var t=v==null?'–':fmt(v)+' '+(acc?acc.cur:'');
+    $('bal').textContent=t;$('hbal').textContent=t;
+    if(acc){$('flag').innerHTML=flag(acc.cur);$('tag').textContent=acc.demo?'Demo':'Real';$('tag').className='tag '+(acc.demo?'d':'r')}
+    $('accmenu').innerHTML=accts.map(function(a,i){return '<div class="mi'+(acc&&a.id===acc.id?' sel':'')+'" role="option" data-i="'+i+'">'+flag(a.cur)+'<span class="mid"><b>'+a.id+'</b><i class="tag '+(a.demo?'d':'r')+'">'+(a.demo?'Demo':'Real')+'</i></span><span class="mb">'+(a.bal!=null?fmt(a.bal)+' '+a.cur:'–')+'</span></div>'}).join('');
+  }
+  $('accbtn').onclick=function(e){e.stopPropagation();var o=$('accmenu').classList.toggle('open');this.setAttribute('aria-expanded',o)};
+  $('accmenu').onclick=function(e){var el=e.target.closest('.mi');if(!el)return;var sel=$('accsel');sel.value=el.getAttribute('data-i');sel.onchange.call(sel)};
+  document.addEventListener('click',function(){$('accmenu').classList.remove('open');$('accbtn').setAttribute('aria-expanded','false')});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){$('accmenu').classList.remove('open');$('accbtn').setAttribute('aria-expanded','false')}});
   async function pollBals(){
     if(!access||!acc)return;
     try{var id=acc.id;await loadAccts();var sel=$('accsel');
@@ -208,6 +237,7 @@ button.brand{background:#ff444f;color:#fff}#appid{width:110px}
   $('buy').onclick=function(){s0=stk=+$('stk').value;show();buy()};
   $('auto').onclick=function(){if(!acc){log('Log in with Deriv first','l');return}
     if(auto)return;s0=stk=+$('stk').value;pnl=0;W=0;L=0;show();setAuto(true);log('Auto started');buy()};
+  $('treset').onclick=function(){setAuto(false);skipNext=busy;pnl=0;W=0;L=0;stk=s0=+$('stk').value;show();$('log').innerHTML='';log('Reset: stats and trade log cleared')};
   $('stop').onclick=function(){setAuto(false);log('Stopped')};
 
   /* ---------- Connection (public feed, or OTP-authenticated demo/real) ---------- */
