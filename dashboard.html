@@ -80,7 +80,7 @@ button.fab.run{animation:pulse 1.6s infinite}
 </style>
 </head>
 <body>
-<div class="top"><div class="logo"><span>M</span><h1>Manoo Tick Lab</h1><small style="color:var(--hot);font-weight:700;align-self:flex-end">Build 11</small></div>
+<div class="top"><div class="logo"><span>M</span><h1>Manoo Tick Lab</h1><small style="color:var(--hot);font-weight:700;align-self:flex-end">Build 15</small></div>
 <div><div id="out" class="tr" style="margin:0"><button id="login" class="brand">Log in with Deriv</button><a id="signup" class="signup" href="https://t.deriv.link?t=ZMDRX7S994PX" target="_blank" rel="noopener noreferrer sponsored">Sign up</a></div>
 <div id="in" class="tr" style="margin:0;display:none"><div class="acc"><button id="accbtn" class="pill" aria-haspopup="listbox" aria-expanded="false" aria-label="Switch account"><span id="flag"></span><span id="hbal">–</span><i id="tag" class="tag"></i><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div id="accmenu" class="menu" role="listbox"></div></div><select id="accsel" hidden aria-hidden="true"></select><button id="logout" class="alt">Log out</button></div></div></div>
 <div class="tabs" role="tablist"><button id="t1" class="tab on">Auto trades</button><button id="t2" class="tab">Free bots</button><button id="t3" class="tab">Bot builder</button></div>
@@ -183,11 +183,11 @@ button.fab.run{animation:pulse 1.6s infinite}
 <div id="scnPanel" class="sheet" hidden role="dialog" aria-label="Manoo Scanner">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h3 style="margin:0;color:var(--ink);font-size:17px">Manoo Scanner</h3><button id="scnX" class="alt" aria-label="Close">✕</button></div>
 <div class="note" id="sst" style="margin:6px 0">Idle</div>
-<div class="tr"><label class="f">Stake<input id="s_base" type="number" value="1" min="0.35" step="0.01"></label><label class="f">Take profit<input id="s_tp" type="number" value="10" min="0"></label><label class="f">Loss cap<input id="s_cap" type="number" value="20" min="0"></label></div>
+<div class="tr"><label class="f">Stake<input id="s_base" type="number" value="0.35" min="0.35" step="0.01"></label><label class="f">Take profit<input id="s_tp" type="number" value="1" min="0"></label><label class="f">Loss cap<input id="s_cap" type="number" value="3" min="0"></label></div>
 <div class="row"><span>P/L <b id="spnl">0.00</b></span><span>W/L <b id="swl">0/0</b></span></div>
-<div class="tr"><button id="sgo" class="brand">Start scanning</button><button id="sstop" class="stop">Stop</button></div>
+<div class="tr"><button id="sgo" class="brand">Start scanning</button><button id="sstop" class="stop">Stop</button><button id="sreset" class="alt">Reset</button></div>
 <div id="slog"></div>
-<div class="note">Scans every Volatility market, picks the strongest recent digit pattern and trades it with your flat stake. Loss cap = it stops once total losses reach that amount. It cannot predict ticks. Try it on the demo account first.</div>
+<div class="note">Scans every Volatility market and trades only higher-probability contracts (Even/Odd, Over 1-4, Under 5-8) when a pattern clearly beats the fair rate. Flat stake, no martingale. Loss cap = it stops once total losses reach that amount. It cannot predict ticks. Try it on the demo account first.</div>
 </div>
 <script>
 (function(){
@@ -247,13 +247,13 @@ button.fab.run{animation:pulse 1.6s infinite}
       send({buy:d.proposal.id,price:+d.proposal.ask_price})}
     else if(m==='buy'){rtry=0;directSent=false;if(qsub){send({forget:qsub});qsub=null}
       if(d.buy.payout&&d.buy.buy_price&&lastReq)ratio[lastReq.contract_type+(lastReq.barrier!=null?lastReq.barrier:'')]=d.buy.payout/d.buy.buy_price-1;
-      if(bot){botOpen[d.buy.contract_id]=1;log('Bought '+lastReq.contract_type.replace('DIGIT','')+(lastReq.barrier!=null?' '+lastReq.barrier:'')+' @ '+lastReq.amount.toFixed(2));send({proposal_open_contract:1,contract_id:d.buy.contract_id,subscribe:1});bot.idx++;if(bot.idx<bot.legs.length)botLeg();else bot.phase='open';return}
+      if(bot){botOpen[d.buy.contract_id]=bot;log('Bought '+lastReq.contract_type.replace('DIGIT','')+(lastReq.barrier!=null?' '+lastReq.barrier:'')+' @ '+lastReq.amount.toFixed(2));send({proposal_open_contract:1,contract_id:d.buy.contract_id,subscribe:1});bot.idx++;if(bot.idx<bot.legs.length)botLeg();else bot.phase='open';return}
       log('Bought '+$('ctype').selectedOptions[0].text+' @ '+stk.toFixed(2));send({proposal_open_contract:1,contract_id:d.buy.contract_id,subscribe:1})}
     else if(m==='proposal_open_contract'){
       var c=d.proposal_open_contract;
       if(c.is_sold&&!done[c.contract_id]){
         done[c.contract_id]=1;if(d.subscription)send({forget:d.subscription.id});
-        if(botOpen[c.contract_id]){delete botOpen[c.contract_id];if(bot)botSold(+c.profit);return}
+        if(botOpen[c.contract_id]){var ob=botOpen[c.contract_id];delete botOpen[c.contract_id];if(bot&&ob===bot)botSold(+c.profit);return}
         if(skipNext){skipNext=false;busy=false;setTimeout(pollBals,1500);return}
         var pr=+c.profit;pnl+=pr;
         if(pr>0){W++;stk=s0}else{L++;stk=Math.min(stk*Math.max(1,+$('mult').value),+$('maxst').value)}
@@ -336,7 +336,10 @@ button.fab.run{animation:pulse 1.6s infinite}
   function freshBuy(fn){
     fn=fn||buy;if(!acc){fn();return}
     log('Opening a fresh trading session…','g');connect();var t0=Date.now();
-    (function w(){if(wsReady||Date.now()-t0>7000){fn();return}setTimeout(w,150)})();
+    (function w(){
+      if(wsReady&&ws&&ws.readyState===1){fn();return}
+      if(Date.now()-t0>8000){log('Could not open a trading session. Check your connection and try again.','l');if(bot)botStop('');setAuto(false);return}
+      setTimeout(w,150)})();
   }
   $('buy').onclick=function(){if(bot){logTo('log','Another strategy is running. Stop it first.','l');return}s0=stk=+$('stk').value;show();freshBuy()};
   $('auto').onclick=function(){if(bot){logTo('log','Another strategy is running. Stop it first.','l');return}if(!acc){log('Log in with Deriv first','l');return}
@@ -424,9 +427,9 @@ button.fab.run{animation:pulse 1.6s infinite}
     if(!acc){logTo(def.scanner?'slog':'blog','Log in with Deriv first','l');return}
     if(!(c.base>=0.35)){logTo(def.scanner?'slog':'blog','Minimum stake is 0.35','l');return}
     var bad=def.check&&def.check(c);if(bad){logTo(def.scanner?'slog':'blog',bad,'l');return}
-    var ow=def.scanner?'s':'b';BS[ow]={p:0,W:0,L:0};botOpen={};
-    bot={o:ow,def:def,cfg:c,st:def.init?def.init(c):{},wait:true,phase:'idle',legs:[],idx:0,rp:0,left:0,next:c.base};
-    log('Started: '+def.name);botUi();freshBuy(botTry);
+    var ow=def.scanner?'s':'b';BS[ow]={p:0,W:0,L:0};
+    bot={ready:false,o:ow,def:def,cfg:c,st:def.init?def.init(c):{},wait:true,phase:'idle',legs:[],idx:0,rp:0,left:0,next:c.base};
+    log('Started: '+def.name);botUi();freshBuy(function(){if(bot){bot.ready=true;botTry()}});
   }
   function botTry(){
     if(!bot||bot.phase!=='idle')return;
@@ -434,7 +437,7 @@ button.fab.run{animation:pulse 1.6s infinite}
     if(!r){bot.wait=true;botUi();return}
     bot.wait=false;bot.legs=r.legs;bot.idx=0;bot.rp=0;bot.left=r.legs.length;bot.phase='order';bot.next=r.legs[0].a;botUi();botLeg();
   }
-  function botTick(){if(bot&&bot.phase==='idle'&&bot.wait)botTry()}
+  function botTick(){if(bot&&bot.ready&&bot.phase==='idle'&&bot.wait)botTry()}
   function botLeg(){
     var l=bot.legs[bot.idx],amt=Math.max(0.35,Math.min(+l.a,bot.cfg.maxst||1e9));
     var p={proposal:1,amount:+amt.toFixed(2),basis:'stake',contract_type:l.t,currency:cur,duration:l.d||1,duration_unit:'t',underlying_symbol:l.s||symSel.value};
@@ -459,13 +462,15 @@ button.fab.run{animation:pulse 1.6s infinite}
   function mlabel(sy){var o=[].filter.call(symSel.options,function(x){return x.value===sy})[0];return o?o.text:sy}
   function digitsOf(d){var pr=d.history.prices,dec=d.pip_size||Math.max.apply(null,pr.map(function(p){return (String(p).split('.')[1]||'').length}))||2;return pr.map(function(p){return +(+p).toFixed(dec).slice(-1)})}
   function zs(D,fn,p){var a=D.slice(-300),b=D.slice(-100),fa=a.filter(fn).length/a.length,fb=b.filter(fn).length/b.length,q=Math.sqrt(p*(1-p));
-    return{z:Math.min((fa-p)/(q/Math.sqrt(a.length)),(fb-p)/(q/Math.sqrt(b.length))),f:fb}}
+    return{z:Math.min((fa-p)/(q/Math.sqrt(a.length)),(fb-p)/(q/Math.sqrt(b.length))),f:fb,edge:Math.min(fa-p,fb-p)}}
+  /* small-account rules: only contracts that win at least half the time (Even/Odd, Over 1-4, Under 5-8), never Matches or long shots,
+     and the pattern must beat the fair rate by 6+ points in both the last 300 and last 100 ticks */
   function bestOf(D,sym){
     var best=null,b;
-    function tc(t,bb,name,fn,p){var r=zs(D,fn,p);if(!best||r.z>best.z)best={z:r.z,s:sym,t:t,b:bb,msg:mlabel(sym)+' · '+name+' won '+Math.round(r.f*100)+'% of the last 100 ticks (fair '+Math.round(p*100)+'%)'}}
-    for(b=1;b<=8;b++){(function(b){tc('DIGITOVER',b,'Over '+b,function(x){return x>b},(9-b)/10);tc('DIGITUNDER',b,'Under '+b,function(x){return x<b},b/10)})(b)}
+    function tc(t,bb,name,fn,p){var r=zs(D,fn,p);if(r.edge<0.06)return;if(!best||r.z>best.z)best={z:r.z,s:sym,t:t,b:bb,msg:mlabel(sym)+' · '+name+' won '+Math.round(r.f*100)+'% of the last 100 ticks (fair '+Math.round(p*100)+'%)'}}
+    for(b=1;b<=4;b++){(function(b){tc('DIGITOVER',b,'Over '+b,function(x){return x>b},(9-b)/10)})(b)}
+    for(b=5;b<=8;b++){(function(b){tc('DIGITUNDER',b,'Under '+b,function(x){return x<b},b/10)})(b)}
     tc('DIGITEVEN',undefined,'Even',function(x){return x%2===0},.5);tc('DIGITODD',undefined,'Odd',function(x){return x%2===1},.5);
-    for(b=0;b<10;b++){(function(b){tc('DIGITMATCH',b,'Matches '+b,function(x){return x===b},.1)})(b)}
     return best}
   function runScan(st,cb){
     var syms=[].map.call(symSel.options,function(o){return o.value}),i=0,best=null,tmo=null,w=null,fin=false;
@@ -495,6 +500,7 @@ button.fab.run{animation:pulse 1.6s infinite}
     result:function(){}};
   $('sgo').onclick=function(){startBot(SCAN,{base:+$('s_base').value,tp:+$('s_tp').value,sl:+$('s_cap').value,maxst:+$('s_base').value,cap:0})};
   $('sstop').onclick=function(){botStop('Stopped')};
+  $('sreset').onclick=function(){if(bot&&bot.o==='s')botStop('');BS.s={p:0,W:0,L:0};botUi();$('slog').innerHTML='';logTo('slog','Reset: stats and journal cleared')};
   /* floating button: drag anywhere, tap to open */
   (function(){
     var f=$('scnBtn'),drag=false,moved=false,sx=0,sy=0,ox=0,oy=0;
@@ -528,7 +534,7 @@ button.fab.run{animation:pulse 1.6s infinite}
     var c={base:+$('b_base').value,tp:+$('b_tp').value,sl:+$('b_sl').value,maxst:+$('b_max').value,cap:+$('b_cap').value};
     (selBot.f||[]).forEach(function(f){var v=$('f_'+f.k).value;c[f.k]=f.o?v:+v});startBot(selBot,c)};
   $('bstop').onclick=function(){botStop('Stopped')};
-  $('breset').onclick=function(){botStop('');BS.b={p:0,W:0,L:0};botOpen={};botUi();$('blog').innerHTML='';logTo('blog','Reset: stats and journal cleared')};
+  $('breset').onclick=function(){botStop('');BS.b={p:0,W:0,L:0};botUi();$('blog').innerHTML='';logTo('blog','Reset: stats and journal cleared')};
   $('bsym').innerHTML=symSel.innerHTML;$('bsym').value=symSel.value;
   botUi();
 
@@ -547,6 +553,7 @@ button.fab.run{animation:pulse 1.6s infinite}
     if(my!==gen)return;
     ws=new WebSocket(url);
     ws.onopen=function(){
+      if(ws!==this)return;
       retry=0;alive=true;busy=false;wsReady=true;$('st').textContent=acc?'Live (trading session)':'Live (market data)';
       $('symname').textContent=symSel.options[symSel.selectedIndex].text;
       send({active_symbols:'brief'});
