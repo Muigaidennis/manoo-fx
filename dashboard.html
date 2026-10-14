@@ -69,10 +69,18 @@ button:disabled{opacity:.4;cursor:not-allowed}
 #blog{max-height:160px;overflow:auto;font-size:12px;margin-top:6px}#blog .w{color:var(--up)}#blog .l{color:var(--down)}#blog .g{color:var(--mute);word-break:break-all}
 a.signup{display:inline-flex;align-items:center;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 14px;font-weight:700;text-decoration:none}
 a.signup:hover{border-color:#ff444f}
+button.fab{position:fixed;right:16px;bottom:96px;width:60px;height:60px;border-radius:50%;border:0;z-index:60;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;
+ background:radial-gradient(circle at 32% 28%,#ffc266,#ff6a3d 55%,#ff444f);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;line-height:1;box-shadow:0 6px 18px rgba(0,0,0,.5)}
+button.fab span{font-size:20px}button.fab small{font-size:9px;font-weight:800;letter-spacing:.8px}
+button.fab.run{animation:pulse 1.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,106,61,.7)}100%{box-shadow:0 0 0 18px rgba(255,106,61,0)}}
+@media(prefers-reduced-motion:reduce){button.fab.run{animation:none;outline:3px solid #ffc266}}
+.sheet{position:fixed;left:12px;right:12px;bottom:12px;max-width:420px;margin:auto;z-index:70;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;max-height:82vh;overflow:auto;box-shadow:0 12px 36px rgba(0,0,0,.6)}
+#slog{max-height:130px;overflow:auto;font-size:12px;margin:8px 0}#slog .w{color:var(--up)}#slog .l{color:var(--down)}#slog .g{color:var(--mute)}
 </style>
 </head>
 <body>
-<div class="top"><div class="logo"><span>M</span><h1>Manoo Tick Lab</h1><small style="color:var(--hot);font-weight:700;align-self:flex-end">Build 10</small></div>
+<div class="top"><div class="logo"><span>M</span><h1>Manoo Tick Lab</h1><small style="color:var(--hot);font-weight:700;align-self:flex-end">Build 11</small></div>
 <div><div id="out" class="tr" style="margin:0"><button id="login" class="brand">Log in with Deriv</button><a id="signup" class="signup" href="https://t.deriv.link?t=ZMDRX7S994PX" target="_blank" rel="noopener noreferrer sponsored">Sign up</a></div>
 <div id="in" class="tr" style="margin:0;display:none"><div class="acc"><button id="accbtn" class="pill" aria-haspopup="listbox" aria-expanded="false" aria-label="Switch account"><span id="flag"></span><span id="hbal">–</span><i id="tag" class="tag"></i><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div id="accmenu" class="menu" role="listbox"></div></div><select id="accsel" hidden aria-hidden="true"></select><button id="logout" class="alt">Log out</button></div></div></div>
 <div class="tabs" role="tablist"><button id="t1" class="tab on">Auto trades</button><button id="t2" class="tab">Free bots</button><button id="t3" class="tab">Bot builder</button></div>
@@ -171,6 +179,16 @@ a.signup:hover{border-color:#ff444f}
 </div>
 
 
+<button id="scnBtn" class="fab" aria-label="Manoo Scanner. Drag to move, tap to open." title="Manoo Scanner (drag to move)"><span>✦</span><small>SCAN</small></button>
+<div id="scnPanel" class="sheet" hidden role="dialog" aria-label="Manoo Scanner">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h3 style="margin:0;color:var(--ink);font-size:17px">Manoo Scanner</h3><button id="scnX" class="alt" aria-label="Close">✕</button></div>
+<div class="note" id="sst" style="margin:6px 0">Idle</div>
+<div class="tr"><label class="f">Stake<input id="s_base" type="number" value="1" min="0.35" step="0.01"></label><label class="f">Take profit<input id="s_tp" type="number" value="10" min="0"></label><label class="f">Loss cap<input id="s_cap" type="number" value="20" min="0"></label></div>
+<div class="row"><span>P/L <b id="spnl">0.00</b></span><span>W/L <b id="swl">0/0</b></span></div>
+<div class="tr"><button id="sgo" class="brand">Start scanning</button><button id="sstop" class="stop">Stop</button></div>
+<div id="slog"></div>
+<div class="note">Scans every Volatility market, picks the strongest recent digit pattern and trades it with your flat stake. Loss cap = it stops once total losses reach that amount. It cannot predict ticks. Try it on the demo account first.</div>
+</div>
 <script>
 (function(){
   var APP_ID="33NyIprKo3XAhtN4o99wt",REDIRECT="https://manoo-fx.vercel.app/dashboard.html", ws=null, prices=[], digits=[], dirs=[], dec=2, retry=0, alive=false, gen=0;
@@ -183,13 +201,13 @@ a.signup:hover{border-color:#ff444f}
   var API='https://api.derivws.com',PUB='wss://api.derivws.com/trading/v1/options/ws/public',SCOPE='trade account_manage';
   var access=null,refresh=null,acc=null,accts=[],cur='USD',busy=false,auto=false,stk=1,s0=1,pnl=0,W=0,L=0,done={},skipNext=false,lastReq=null,rtry=0,useDirect=true,directSent=false,subMode=false,quoteDone=false,qsub=null,lastDirect=true,wsReady=false,resumeOrder=false,freshTried=false;
   function ss(k,v){try{if(v===undefined)return sessionStorage.getItem(k);if(v===null)sessionStorage.removeItem(k);else sessionStorage.setItem(k,v)}catch(e){return null}}
-  var tSend=0,bot=null,botOpen={},hdig=[],ratio={},bpnl=0,bW=0,bL=0;
+  var tSend=0,bot=null,botOpen={},hdig=[],ratio={},BS={b:{p:0,W:0,L:0},s:{p:0,W:0,L:0}};
   function dbg(){var e=$('dbg');return e&&e.checked}
   function send(o){
     if(dbg()&&(o.proposal||o.buy||o.forget)){tSend=performance.now();log('→ '+JSON.stringify(o).slice(0,380),'g')}
     if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
   function logTo(id,t,c){var l=$(id);l.insertAdjacentHTML('afterbegin','<div class="'+(c||'')+'">'+new Date().toLocaleTimeString()+' '+t+'</div>');while(l.children.length>60)l.removeChild(l.lastChild)}
-  function log(t,c){logTo(bot?'blog':'log',t,c)}
+  function log(t,c){logTo(bot?(bot.o==='s'?'slog':'blog'):'log',t,c)}
   function setAuto(v){auto=v;$('auto').textContent=v?'Auto running':'Start auto';$('auto').className=v?'':'alt'}
   function show(){$('pnl').textContent=pnl.toFixed(2);$('wl').textContent=W+'/'+L;$('nx').textContent=stk.toFixed(2)}
   function sendOrder(){
@@ -391,18 +409,23 @@ a.signup:hover{border-color:#ff444f}
       next:function(st,c){var a=c.base*Math.pow(Math.max(1,c.mult),st.n),o=(+c.off).toFixed(2),d=Math.max(5,c.dur);
         return{legs:[{t:'CALL',b:'+'+o,a:a,d:d},{t:'PUT',b:'-'+o,a:a,d:d}]}},result:capRes}
   ];
-  function botUi(){var on=!!bot;$('bgo').disabled=on;$('bstop').disabled=!on;
-    $('bwst').textContent=on?(bot.def.name+(bot.wait&&bot.phase==='idle'?' · waiting for entry':' · running')):'Idle';
-    $('bpnl').textContent=bpnl.toFixed(2);$('bwl').textContent=bW+'/'+bL;$('bnx').textContent=on&&bot.next!=null?(+bot.next).toFixed(2):'–'}
-  function botStop(msg){if(bot){if(msg)log(msg);bot=null;busy=false}botUi()}
+  function botUi(){
+    var on=!!bot,ob=on&&bot.o==='b',os=on&&bot.o==='s';
+    $('bgo').disabled=on;$('bstop').disabled=!ob;$('sgo').disabled=on;$('sstop').disabled=!os;
+    $('bwst').textContent=ob?(bot.def.name+(bot.wait&&bot.phase==='idle'?' · waiting for entry':' · running')):'Idle';
+    $('bpnl').textContent=BS.b.p.toFixed(2);$('bwl').textContent=BS.b.W+'/'+BS.b.L;$('bnx').textContent=ob&&bot.next!=null?(+bot.next).toFixed(2):'–';
+    $('spnl').textContent=BS.s.p.toFixed(2);$('swl').textContent=BS.s.W+'/'+BS.s.L;
+    if(!os)sst('Idle');$('scnBtn').classList.toggle('run',os)}
+  function sst(t){$('sst').textContent=t}
+  function botStop(msg){if(bot){if(msg)log(msg);if(bot.st)bot.st.dead=true;bot=null;busy=false}botUi()}
   function startBot(def,c){
     if(bot)return;
-    if(auto||busy){logTo('blog','Another strategy is running. Stop it first.','l');return}
-    if(!acc){logTo('blog','Log in with Deriv first','l');return}
-    if(!(c.base>=0.35)){logTo('blog','Minimum stake is 0.35','l');return}
-    var bad=def.check&&def.check(c);if(bad){logTo('blog',bad,'l');return}
-    bpnl=0;bW=0;bL=0;botOpen={};
-    bot={def:def,cfg:c,st:def.init?def.init(c):{},wait:true,phase:'idle',legs:[],idx:0,rp:0,left:0,next:c.base};
+    if(auto||busy){logTo(def.scanner?'slog':'blog','Another strategy is running. Stop it first.','l');return}
+    if(!acc){logTo(def.scanner?'slog':'blog','Log in with Deriv first','l');return}
+    if(!(c.base>=0.35)){logTo(def.scanner?'slog':'blog','Minimum stake is 0.35','l');return}
+    var bad=def.check&&def.check(c);if(bad){logTo(def.scanner?'slog':'blog',bad,'l');return}
+    var ow=def.scanner?'s':'b';BS[ow]={p:0,W:0,L:0};botOpen={};
+    bot={o:ow,def:def,cfg:c,st:def.init?def.init(c):{},wait:true,phase:'idle',legs:[],idx:0,rp:0,left:0,next:c.base};
     log('Started: '+def.name);botUi();freshBuy(botTry);
   }
   function botTry(){
@@ -414,7 +437,7 @@ a.signup:hover{border-color:#ff444f}
   function botTick(){if(bot&&bot.phase==='idle'&&bot.wait)botTry()}
   function botLeg(){
     var l=bot.legs[bot.idx],amt=Math.max(0.35,Math.min(+l.a,bot.cfg.maxst||1e9));
-    var p={proposal:1,amount:+amt.toFixed(2),basis:'stake',contract_type:l.t,currency:cur,duration:l.d||1,duration_unit:'t',underlying_symbol:symSel.value};
+    var p={proposal:1,amount:+amt.toFixed(2),basis:'stake',contract_type:l.t,currency:cur,duration:l.d||1,duration_unit:'t',underlying_symbol:l.s||symSel.value};
     if(l.b!=null)p.barrier=String(l.b);
     if(subMode)p.subscribe=1;
     freshTried=false;lastDirect=p.duration<5;lastReq=p;rtry=0;busy=true;sendOrder();
@@ -424,13 +447,67 @@ a.signup:hover{border-color:#ff444f}
     if(bot.left===0&&bot.idx>=bot.legs.length)botRound();
   }
   function botRound(){
-    var b=bot,p=b.rp;bpnl+=p;if(p>0)bW++;else bL++;
+    var b=bot,p=b.rp,S=BS[b.o];S.p+=p;if(p>0)S.W++;else S.L++;
     log((p>0?'WIN +':'LOSS ')+p.toFixed(2),p>0?'w':'l');
     b.def.result(b.st,b.cfg,p);b.phase='idle';busy=false;setTimeout(pollBals,1500);botUi();
     var tp=b.cfg.tp,sl=b.cfg.sl;
-    if((tp&&bpnl>=tp)||(sl&&bpnl<=-sl)){botStop('Stopped: '+(bpnl>0?'take profit':'stop loss')+' reached ('+bpnl.toFixed(2)+')');return}
+    if((tp&&S.p>=tp)||(sl&&S.p<=-sl)){botStop('Stopped: '+(S.p>0?'take profit':'loss cap')+' reached ('+S.p.toFixed(2)+')');return}
     setTimeout(function(){if(bot===b)botTry()},400);
   }
+
+  /* ================= Manoo Scanner (floating, own panel and journal) ================= */
+  function mlabel(sy){var o=[].filter.call(symSel.options,function(x){return x.value===sy})[0];return o?o.text:sy}
+  function digitsOf(d){var pr=d.history.prices,dec=d.pip_size||Math.max.apply(null,pr.map(function(p){return (String(p).split('.')[1]||'').length}))||2;return pr.map(function(p){return +(+p).toFixed(dec).slice(-1)})}
+  function zs(D,fn,p){var a=D.slice(-300),b=D.slice(-100),fa=a.filter(fn).length/a.length,fb=b.filter(fn).length/b.length,q=Math.sqrt(p*(1-p));
+    return{z:Math.min((fa-p)/(q/Math.sqrt(a.length)),(fb-p)/(q/Math.sqrt(b.length))),f:fb}}
+  function bestOf(D,sym){
+    var best=null,b;
+    function tc(t,bb,name,fn,p){var r=zs(D,fn,p);if(!best||r.z>best.z)best={z:r.z,s:sym,t:t,b:bb,msg:mlabel(sym)+' · '+name+' won '+Math.round(r.f*100)+'% of the last 100 ticks (fair '+Math.round(p*100)+'%)'}}
+    for(b=1;b<=8;b++){(function(b){tc('DIGITOVER',b,'Over '+b,function(x){return x>b},(9-b)/10);tc('DIGITUNDER',b,'Under '+b,function(x){return x<b},b/10)})(b)}
+    tc('DIGITEVEN',undefined,'Even',function(x){return x%2===0},.5);tc('DIGITODD',undefined,'Odd',function(x){return x%2===1},.5);
+    for(b=0;b<10;b++){(function(b){tc('DIGITMATCH',b,'Matches '+b,function(x){return x===b},.1)})(b)}
+    return best}
+  function runScan(st,cb){
+    var syms=[].map.call(symSel.options,function(o){return o.value}),i=0,best=null,tmo=null,w=null,fin=false;
+    function done(r){if(fin)return;fin=true;clearTimeout(tmo);try{w.close()}catch(e){}cb(r)}
+    function step(){
+      if(st.dead||!bot||bot.st!==st){fin=true;try{w.close()}catch(e){}return}
+      if(i>=syms.length)return done(best&&best.z>=2?best:null);
+      var sym=syms[i];sst('Scanning '+(i+1)+'/'+syms.length+' · '+mlabel(sym));
+      tmo=setTimeout(function(){i++;step()},4000);
+      w.onmessage=function(m){var d;try{d=JSON.parse(m.data)}catch(e){return}
+        if(d.history||d.error){clearTimeout(tmo);
+          if(d.history){var D=digitsOf(d);if(D.length>=120){var c=bestOf(D,sym);if(c&&(!best||c.z>best.z))best=c}}
+          i++;step()}};
+      try{w.send(JSON.stringify({ticks_history:sym,count:300,end:'latest',style:'ticks'}))}catch(e){i++;step()}
+    }
+    try{w=new WebSocket(PUB);w.onopen=step;w.onerror=function(){done(null)}}catch(e){done(null)}
+  }
+  var SCAN={name:'Manoo Scanner',scanner:true,
+    init:function(){return{pick:null,scanning:false,at:0,dead:false}},
+    next:function(st,c){
+      if(st.pick){var p=st.pick;st.pick=null;sst('Trading '+p.msg.split(' won')[0]);return{legs:[{t:p.t,b:p.b,a:c.base,s:p.s}]}}
+      if(!st.scanning&&Date.now()>=st.at){st.scanning=true;runScan(st,function(pick){
+        st.scanning=false;if(st.dead||!bot||bot.st!==st)return;
+        if(pick){st.pick=pick;log('Signal: '+pick.msg+' (score '+pick.z.toFixed(1)+')');botTry()}
+        else{st.at=Date.now()+6000;sst('No strong signal, scanning again…');log('No strong signal on any market. Scanning again.','g')}})}
+      return null},
+    result:function(){}};
+  $('sgo').onclick=function(){startBot(SCAN,{base:+$('s_base').value,tp:+$('s_tp').value,sl:+$('s_cap').value,maxst:+$('s_base').value,cap:0})};
+  $('sstop').onclick=function(){botStop('Stopped')};
+  /* floating button: drag anywhere, tap to open */
+  (function(){
+    var f=$('scnBtn'),drag=false,moved=false,sx=0,sy=0,ox=0,oy=0;
+    function pos(x,y){f.style.left=Math.max(4,Math.min(innerWidth-f.offsetWidth-4,x))+'px';f.style.top=Math.max(4,Math.min(innerHeight-f.offsetHeight-4,y))+'px';f.style.right='auto';f.style.bottom='auto'}
+    try{var sp=JSON.parse(localStorage.getItem('mtl_fab')||'null');if(sp)pos(sp.x,sp.y)}catch(e){}
+    f.addEventListener('pointerdown',function(e){drag=true;moved=false;sx=e.clientX;sy=e.clientY;var r=f.getBoundingClientRect();ox=r.left;oy=r.top;try{f.setPointerCapture(e.pointerId)}catch(x){}});
+    f.addEventListener('pointermove',function(e){if(!drag)return;var dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)+Math.abs(dy)>8)moved=true;if(moved)pos(ox+dx,oy+dy)});
+    f.addEventListener('pointerup',function(){drag=false;if(moved){try{var r=f.getBoundingClientRect();localStorage.setItem('mtl_fab',JSON.stringify({x:r.left,y:r.top}))}catch(x){}}else{$('scnPanel').hidden=!$('scnPanel').hidden}});
+    f.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();$('scnPanel').hidden=!$('scnPanel').hidden}});
+    window.addEventListener('resize',function(){var r=f.getBoundingClientRect();if(f.style.left)pos(r.left,r.top)});
+  })();
+  $('scnX').onclick=function(){$('scnPanel').hidden=true};
+
   /* ---- Free bots list and Bot builder screens ---- */
   var selBot=null;
   $('bgrid').innerHTML=BOTS.map(function(b,i){return '<button class="bc" data-i="'+i+'">'+b.name+'<small>'+b.d+'</small></button>'}).join('');
@@ -451,7 +528,7 @@ a.signup:hover{border-color:#ff444f}
     var c={base:+$('b_base').value,tp:+$('b_tp').value,sl:+$('b_sl').value,maxst:+$('b_max').value,cap:+$('b_cap').value};
     (selBot.f||[]).forEach(function(f){var v=$('f_'+f.k).value;c[f.k]=f.o?v:+v});startBot(selBot,c)};
   $('bstop').onclick=function(){botStop('Stopped')};
-  $('breset').onclick=function(){botStop('');bpnl=0;bW=0;bL=0;botOpen={};botUi();$('blog').innerHTML='';logTo('blog','Reset: stats and journal cleared')};
+  $('breset').onclick=function(){botStop('');BS.b={p:0,W:0,L:0};botOpen={};botUi();$('blog').innerHTML='';logTo('blog','Reset: stats and journal cleared')};
   $('bsym').innerHTML=symSel.innerHTML;$('bsym').value=symSel.value;
   botUi();
 
