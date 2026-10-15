@@ -81,7 +81,7 @@ button.fab.run{animation:pulse 1.6s infinite}
 </style>
 </head>
 <body>
-<div class="top"><div class="logo"><span>M</span><h1>Manoo Tick Lab</h1><small style="color:var(--hot);font-weight:700;align-self:flex-end">Build 17</small></div>
+<div class="top"><div class="logo"><span>M</span><h1>Manoo Tick Lab</h1><small style="color:var(--hot);font-weight:700;align-self:flex-end">Build 19</small></div>
 <div><div id="out" class="tr" style="margin:0"><button id="login" class="brand">Log in with Deriv</button><a id="signup" class="signup" href="https://t.deriv.link?t=ZMDRX7S994PX" target="_blank" rel="noopener noreferrer sponsored">Sign up</a></div>
 <div id="in" class="tr" style="margin:0;display:none"><div class="acc"><button id="accbtn" class="pill" aria-haspopup="listbox" aria-expanded="false" aria-label="Switch account"><span id="flag"></span><span id="hbal">–</span><i id="tag" class="tag"></i><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div id="accmenu" class="menu" role="listbox"></div></div><select id="accsel" hidden aria-hidden="true"></select><button id="logout" class="alt">Log out</button></div></div></div>
 <div class="tabs" role="tablist"><button id="t1" class="tab on">Auto trades</button><button id="t2" class="tab">Free bots</button><button id="t3" class="tab">Bot builder</button><button id="t4" class="tab">Edging bot</button></div>
@@ -183,11 +183,11 @@ button.fab.run{animation:pulse 1.6s infinite}
 <div id="pg4" hidden>
 <div class="card" style="margin-bottom:12px">
 <h3 style="color:var(--ink);font-size:18px;margin-bottom:4px">Edging bot</h3>
-<div class="note">Places several digit trades at the same moment so they cover each other: Over 2 + Under 7, then Over 3 and Under 6 for 3 or 4 trades. When the last digit lands in the middle, every trade wins. Otherwise some win and some lose.</div>
+<div class="note">Places Over 4 and Under 5 at the same moment. Exactly one of them wins every round. Each pair is 2 trades.</div>
 <h4 class="sec">Trade parameters</h4>
 <div class="tr">
 <label class="f">Market<select id="e_sym" style="width:215px"><option value="R_10">Volatility 10 Index</option><option value="R_25">Volatility 25 Index</option><option value="R_50">Volatility 50 Index</option><option value="R_75">Volatility 75 Index</option><option value="R_100">Volatility 100 Index</option><option value="1HZ10V">Volatility 10 (1s) Index</option><option value="1HZ15V">Volatility 15 (1s) Index</option><option value="1HZ25V">Volatility 25 (1s) Index</option><option value="1HZ30V">Volatility 30 (1s) Index</option><option value="1HZ50V">Volatility 50 (1s) Index</option><option value="1HZ75V">Volatility 75 (1s) Index</option><option value="1HZ90V">Volatility 90 (1s) Index</option><option value="1HZ100V">Volatility 100 (1s) Index</option><option value="1HZ150V">Volatility 150 (1s) Index</option><option value="1HZ250V">Volatility 250 (1s) Index</option><option value="1HZ300V">Volatility 300 (1s) Index</option></select></label>
-<label class="f">Number of trades<select id="e_n"><option>2</option><option>3</option><option>4</option></select></label>
+<label class="f">Pairs per round<select id="e_n"><option>1</option><option>2</option><option>3</option></select></label>
 <label class="f">Stake per trade<input id="e_base" type="number" value="0.35" min="0.35" step="0.01"></label>
 </div>
 <div class="note" id="einfo"></div>
@@ -549,10 +549,10 @@ button.fab.run{animation:pulse 1.6s infinite}
   $('scnX').onclick=function(){$('scnPanel').hidden=true};
 
   /* ================= Edging bot (own tab, several trades at once) ================= */
-  var ESEQ=[['DIGITOVER',2],['DIGITUNDER',7],['DIGITOVER',3],['DIGITUNDER',6]];
+  function eSeq(c){var a=[],i;for(i=0;i<c.pairs;i++)a.push(['DIGITOVER',4],['DIGITUNDER',5]);return a}
   var EDGE={name:'Manoo Edging Bot',edge:true,parallel:true,
     init:function(){return{}},
-    next:function(st,c){var legs=[],i;for(i=0;i<c.n;i++)legs.push({t:ESEQ[i][0],b:ESEQ[i][1],a:c.base,s:c.sym});return{legs:legs}},
+    next:function(st,c){var legs=[];eSeq(c).forEach(function(q){legs.push({t:q[0],b:q[1],a:c.base,s:c.sym})});return{legs:legs}},
     result:function(){}};
   function botAll(){
     var b=bot;b.resp=0;b.errs=0;b.got=0;
@@ -577,12 +577,11 @@ button.fab.run{animation:pulse 1.6s infinite}
     b.left=ok;b.idx=b.legs.length;b.phase='open';b.haltAfter=true;
     log('Only '+ok+' of '+b.legs.length+' trades were placed. Stopping after this round.','l');
   }
-  function eCfg(){return{sym:$('e_sym').value,n:+$('e_n').value,base:+$('e_base').value,tp:+$('e_tp').value,sl:+$('e_sl').value,maxst:+$('e_base').value,cap:0}}
+  function eCfg(){var pr=+$('e_n').value||1;return{pairs:pr,sym:$('e_sym').value,n:pr*2,base:+$('e_base').value,tp:+$('e_tp').value,sl:+$('e_sl').value,maxst:+$('e_base').value,cap:0}}
   function eInfo(){
-    var c=eCfg(),tot=c.n*c.base,names=[],i;
-    for(i=0;i<c.n;i++)names.push((ESEQ[i][0]==='DIGITOVER'?'Over ':'Under ')+ESEQ[i][1]);
+    var c=eCfg(),tot=c.n*c.base;
     var pc=(acc&&acc.bal)?' ('+(tot/acc.bal*100).toFixed(1)+'% of your balance)':'';
-    $('einfo').textContent='Each round: '+c.n+' trades × '+(c.base||0).toFixed(2)+' = '+(tot||0).toFixed(2)+' staked'+pc+'. Trades: '+names.join(', ')+'.'}
+    $('einfo').textContent='Each round: '+c.pairs+' pair'+(c.pairs>1?'s':'')+' = '+c.n+' trades × '+(c.base||0).toFixed(2)+' = '+(tot||0).toFixed(2)+' staked'+pc+'. Trades: Over 4 and Under 5'+(c.pairs>1?' (each repeated '+c.pairs+' times)':'')+'. Exactly one trade of each pair wins, but the winner pays less than the loser costs, so each round loses about 5% of one stake per pair (about '+(0.05*(c.base||0)*c.pairs).toFixed(3)+' at these settings). It can never reach take profit, so it only ends at your stop loss.'}
   ['e_n','e_base'].forEach(function(id){$(id).addEventListener('input',eInfo);$(id).addEventListener('change',eInfo)});
   $('ego').onclick=function(){startBot(EDGE,eCfg())};
   $('estop').onclick=function(){botStop('Stopped')};
