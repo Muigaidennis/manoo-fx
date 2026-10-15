@@ -59,13 +59,14 @@ button.pill svg.chev{transition:transform .15s}button.pill[aria-expanded=true] s
 .mb{font-weight:700;font-variant-numeric:tabular-nums;font-size:14px}
 #log .g{color:var(--mute);word-break:break-all}
 [hidden]{display:none!important}
-.tabs{display:flex;gap:6px;margin-bottom:12px}
-button.tab{flex:1;background:var(--panel);color:var(--mute);border:1px solid var(--line)}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+button.tab{padding:10px 2px;font-size:13px;background:var(--panel);color:var(--mute);border:1px solid var(--line)}
 button.tab.on{background:#ff444f;color:#fff;border-color:#ff444f}
 button.bc{display:block;width:100%;text-align:left;background:var(--panel);color:var(--ink);border:1px solid var(--line);margin-bottom:8px;border-radius:12px;padding:12px;font-weight:700}
 button.bc small{display:block;font-weight:400;color:var(--mute);margin-top:2px}
 h4.sec{margin:14px 0 6px;font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--mute)}
 button:disabled{opacity:.4;cursor:not-allowed}
+#elog{max-height:160px;overflow:auto;font-size:12px;margin-top:6px}#elog .w{color:var(--up)}#elog .l{color:var(--down)}#elog .g{color:var(--mute)}
 #blog{max-height:160px;overflow:auto;font-size:12px;margin-top:6px}#blog .w{color:var(--up)}#blog .l{color:var(--down)}#blog .g{color:var(--mute);word-break:break-all}
 a.signup{display:inline-flex;align-items:center;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 14px;font-weight:700;text-decoration:none}
 a.signup:hover{border-color:#ff444f}
@@ -80,10 +81,10 @@ button.fab.run{animation:pulse 1.6s infinite}
 </style>
 </head>
 <body>
-<div class="top"><div class="logo"><span>M</span><h1>Manoo Tick Lab</h1><small style="color:var(--hot);font-weight:700;align-self:flex-end">Build 15</small></div>
+<div class="top"><div class="logo"><span>M</span><h1>Manoo Tick Lab</h1><small style="color:var(--hot);font-weight:700;align-self:flex-end">Build 17</small></div>
 <div><div id="out" class="tr" style="margin:0"><button id="login" class="brand">Log in with Deriv</button><a id="signup" class="signup" href="https://t.deriv.link?t=ZMDRX7S994PX" target="_blank" rel="noopener noreferrer sponsored">Sign up</a></div>
 <div id="in" class="tr" style="margin:0;display:none"><div class="acc"><button id="accbtn" class="pill" aria-haspopup="listbox" aria-expanded="false" aria-label="Switch account"><span id="flag"></span><span id="hbal">–</span><i id="tag" class="tag"></i><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div id="accmenu" class="menu" role="listbox"></div></div><select id="accsel" hidden aria-hidden="true"></select><button id="logout" class="alt">Log out</button></div></div></div>
-<div class="tabs" role="tablist"><button id="t1" class="tab on">Auto trades</button><button id="t2" class="tab">Free bots</button><button id="t3" class="tab">Bot builder</button></div>
+<div class="tabs" role="tablist"><button id="t1" class="tab on">Auto trades</button><button id="t2" class="tab">Free bots</button><button id="t3" class="tab">Bot builder</button><button id="t4" class="tab">Edging bot</button></div>
 <div id="pg1">
 <p class="sub">Live Deriv ticks: digit frequency, even/odd, rise/fall and entry signals.</p>
 
@@ -179,6 +180,32 @@ button.fab.run{animation:pulse 1.6s infinite}
 </div>
 
 
+<div id="pg4" hidden>
+<div class="card" style="margin-bottom:12px">
+<h3 style="color:var(--ink);font-size:18px;margin-bottom:4px">Edging bot</h3>
+<div class="note">Places several digit trades at the same moment so they cover each other: Over 2 + Under 7, then Over 3 and Under 6 for 3 or 4 trades. When the last digit lands in the middle, every trade wins. Otherwise some win and some lose.</div>
+<h4 class="sec">Trade parameters</h4>
+<div class="tr">
+<label class="f">Market<select id="e_sym" style="width:215px"><option value="R_10">Volatility 10 Index</option><option value="R_25">Volatility 25 Index</option><option value="R_50">Volatility 50 Index</option><option value="R_75">Volatility 75 Index</option><option value="R_100">Volatility 100 Index</option><option value="1HZ10V">Volatility 10 (1s) Index</option><option value="1HZ15V">Volatility 15 (1s) Index</option><option value="1HZ25V">Volatility 25 (1s) Index</option><option value="1HZ30V">Volatility 30 (1s) Index</option><option value="1HZ50V">Volatility 50 (1s) Index</option><option value="1HZ75V">Volatility 75 (1s) Index</option><option value="1HZ90V">Volatility 90 (1s) Index</option><option value="1HZ100V">Volatility 100 (1s) Index</option><option value="1HZ150V">Volatility 150 (1s) Index</option><option value="1HZ250V">Volatility 250 (1s) Index</option><option value="1HZ300V">Volatility 300 (1s) Index</option></select></label>
+<label class="f">Number of trades<select id="e_n"><option>2</option><option>3</option><option>4</option></select></label>
+<label class="f">Stake per trade<input id="e_base" type="number" value="0.35" min="0.35" step="0.01"></label>
+</div>
+<div class="note" id="einfo"></div>
+<h4 class="sec">Restart trading conditions</h4>
+<div class="tr">
+<label class="f">Take profit<input id="e_tp" type="number" value="1" min="0"></label>
+<label class="f">Stop loss<input id="e_sl" type="number" value="3" min="0"></label>
+</div>
+</div>
+<div class="card" style="margin-bottom:12px">
+<div class="row"><span>Balance <b id="ebal">–</b></span><span>P/L <b id="epnl">0.00</b></span><span>W/L <b id="ewl">0/0</b></span></div>
+<div class="note" id="ewst">Idle</div>
+<div class="tr"><button id="ego" style="background:#ff444f;color:#fff">Start edging</button><button id="estop" class="stop">Stop</button><button id="ereset" class="alt">Reset</button></div>
+<div id="elog"></div>
+</div>
+<p class="note">Edging does not remove Deriv's margin: over many rounds the total still drifts below zero, by roughly 4 to 5 percent of what you stake. Digit results are equally random on every market. Use the demo account first.</p>
+</div>
+
 <button id="scnBtn" class="fab" aria-label="Manoo Scanner. Drag to move, tap to open." title="Manoo Scanner (drag to move)"><span>✦</span><small>SCAN</small></button>
 <div id="scnPanel" class="sheet" hidden role="dialog" aria-label="Manoo Scanner">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h3 style="margin:0;color:var(--ink);font-size:17px">Manoo Scanner</h3><button id="scnX" class="alt" aria-label="Close">✕</button></div>
@@ -201,13 +228,14 @@ button.fab.run{animation:pulse 1.6s infinite}
   var API='https://api.derivws.com',PUB='wss://api.derivws.com/trading/v1/options/ws/public',SCOPE='trade account_manage';
   var access=null,refresh=null,acc=null,accts=[],cur='USD',busy=false,auto=false,stk=1,s0=1,pnl=0,W=0,L=0,done={},skipNext=false,lastReq=null,rtry=0,useDirect=true,directSent=false,subMode=false,quoteDone=false,qsub=null,lastDirect=true,wsReady=false,resumeOrder=false,freshTried=false;
   function ss(k,v){try{if(v===undefined)return sessionStorage.getItem(k);if(v===null)sessionStorage.removeItem(k);else sessionStorage.setItem(k,v)}catch(e){return null}}
-  var tSend=0,bot=null,botOpen={},hdig=[],ratio={},BS={b:{p:0,W:0,L:0},s:{p:0,W:0,L:0}};
+  var tSend=0,bot=null,botOpen={},hdig=[],ratio={},BS={b:{p:0,W:0,L:0},s:{p:0,W:0,L:0},e:{p:0,W:0,L:0}};
   function dbg(){var e=$('dbg');return e&&e.checked}
   function send(o){
     if(dbg()&&(o.proposal||o.buy||o.forget)){tSend=performance.now();log('→ '+JSON.stringify(o).slice(0,380),'g')}
     if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
   function logTo(id,t,c){var l=$(id);l.insertAdjacentHTML('afterbegin','<div class="'+(c||'')+'">'+new Date().toLocaleTimeString()+' '+t+'</div>');while(l.children.length>60)l.removeChild(l.lastChild)}
-  function log(t,c){logTo(bot?(bot.o==='s'?'slog':'blog'):'log',t,c)}
+  function log(t,c){logTo(bot?(bot.o==='s'?'slog':(bot.o==='e'?'elog':'blog')):'log',t,c)}
+  function lgOf(def){return def.scanner?'slog':(def.edge?'elog':'blog')}
   function setAuto(v){auto=v;$('auto').textContent=v?'Auto running':'Start auto';$('auto').className=v?'':'alt'}
   function show(){$('pnl').textContent=pnl.toFixed(2);$('wl').textContent=W+'/'+L;$('nx').textContent=stk.toFixed(2)}
   function sendOrder(){
@@ -232,6 +260,7 @@ button.fab.run{animation:pulse 1.6s infinite}
   function onTrade(d){
     var m=d.msg_type;
     if(d.error){
+      if(bot&&bot.par&&m==='buy'){botParErr(d);return}
       if(m==='buy'&&directSent&&busy){useDirect=false;directSent=false;log('Direct buy was refused ('+d.error.message+(d.error.code?' / '+d.error.code:'')+'). Switching to price quotes.','l');sendOrder();return}
       if(m==='buy'&&/unknown contract proposal/i.test(d.error.message||'')&&lastReq){
         if(qsub){send({forget:qsub});qsub=null}
@@ -247,6 +276,7 @@ button.fab.run{animation:pulse 1.6s infinite}
       send({buy:d.proposal.id,price:+d.proposal.ask_price})}
     else if(m==='buy'){rtry=0;directSent=false;if(qsub){send({forget:qsub});qsub=null}
       if(d.buy.payout&&d.buy.buy_price&&lastReq)ratio[lastReq.contract_type+(lastReq.barrier!=null?lastReq.barrier:'')]=d.buy.payout/d.buy.buy_price-1;
+      if(bot&&bot.par){botParBuy(d);return}
       if(bot){botOpen[d.buy.contract_id]=bot;log('Bought '+lastReq.contract_type.replace('DIGIT','')+(lastReq.barrier!=null?' '+lastReq.barrier:'')+' @ '+lastReq.amount.toFixed(2));send({proposal_open_contract:1,contract_id:d.buy.contract_id,subscribe:1});bot.idx++;if(bot.idx<bot.legs.length)botLeg();else bot.phase='open';return}
       log('Bought '+$('ctype').selectedOptions[0].text+' @ '+stk.toFixed(2));send({proposal_open_contract:1,contract_id:d.buy.contract_id,subscribe:1})}
     else if(m==='proposal_open_contract'){
@@ -274,7 +304,7 @@ button.fab.run{animation:pulse 1.6s infinite}
     return '<span class="flag gen">'+String(c||'?').slice(0,1)+'</span>'}
   function hb(v){
     var t=v==null?'–':fmt(v)+' '+(acc?acc.cur:'');
-    $('bal').textContent=t;$('hbal').textContent=t;$('bbal').textContent=t;
+    $('bal').textContent=t;$('hbal').textContent=t;$('bbal').textContent=t;$('ebal').textContent=t;if(typeof eInfo==='function')eInfo();
     if(acc){$('flag').innerHTML=flag(acc.cur);$('tag').textContent=acc.demo?'Demo':'Real';$('tag').className='tag '+(acc.demo?'d':'r')}
     $('accmenu').innerHTML=accts.map(function(a,i){return '<div class="mi'+(acc&&a.id===acc.id?' sel':'')+'" role="option" data-i="'+i+'">'+flag(a.cur)+'<span class="mid"><b>'+a.id+'</b><i class="tag '+(a.demo?'d':'r')+'">'+(a.demo?'Demo':'Real')+'</i></span><span class="mb">'+(a.bal!=null?fmt(a.bal)+' '+a.cur:'–')+'</span></div>'}).join('');
   }
@@ -413,21 +443,23 @@ button.fab.run{animation:pulse 1.6s infinite}
         return{legs:[{t:'CALL',b:'+'+o,a:a,d:d},{t:'PUT',b:'-'+o,a:a,d:d}]}},result:capRes}
   ];
   function botUi(){
-    var on=!!bot,ob=on&&bot.o==='b',os=on&&bot.o==='s';
-    $('bgo').disabled=on;$('bstop').disabled=!ob;$('sgo').disabled=on;$('sstop').disabled=!os;
+    var on=!!bot,ob=on&&bot.o==='b',os=on&&bot.o==='s',oe=on&&bot.o==='e';
+    $('bgo').disabled=on;$('bstop').disabled=!ob;$('sgo').disabled=on;$('sstop').disabled=!os;$('ego').disabled=on;$('estop').disabled=!oe;
     $('bwst').textContent=ob?(bot.def.name+(bot.wait&&bot.phase==='idle'?' · waiting for entry':' · running')):'Idle';
+    $('ewst').textContent=oe?(bot.def.name+' · running'):'Idle';
     $('bpnl').textContent=BS.b.p.toFixed(2);$('bwl').textContent=BS.b.W+'/'+BS.b.L;$('bnx').textContent=ob&&bot.next!=null?(+bot.next).toFixed(2):'–';
     $('spnl').textContent=BS.s.p.toFixed(2);$('swl').textContent=BS.s.W+'/'+BS.s.L;
+    $('epnl').textContent=BS.e.p.toFixed(2);$('ewl').textContent=BS.e.W+'/'+BS.e.L;
     if(!os)sst('Idle');$('scnBtn').classList.toggle('run',os)}
   function sst(t){$('sst').textContent=t}
   function botStop(msg){if(bot){if(msg)log(msg);if(bot.st)bot.st.dead=true;bot=null;busy=false}botUi()}
   function startBot(def,c){
     if(bot)return;
-    if(auto||busy){logTo(def.scanner?'slog':'blog','Another strategy is running. Stop it first.','l');return}
-    if(!acc){logTo(def.scanner?'slog':'blog','Log in with Deriv first','l');return}
-    if(!(c.base>=0.35)){logTo(def.scanner?'slog':'blog','Minimum stake is 0.35','l');return}
-    var bad=def.check&&def.check(c);if(bad){logTo(def.scanner?'slog':'blog',bad,'l');return}
-    var ow=def.scanner?'s':'b';BS[ow]={p:0,W:0,L:0};
+    if(auto||busy){logTo(lgOf(def),'Another strategy is running. Stop it first.','l');return}
+    if(!acc){logTo(lgOf(def),'Log in with Deriv first','l');return}
+    if(!(c.base>=0.35)){logTo(lgOf(def),'Minimum stake is 0.35','l');return}
+    var bad=def.check&&def.check(c);if(bad){logTo(lgOf(def),bad,'l');return}
+    var ow=def.scanner?'s':(def.edge?'e':'b');BS[ow]={p:0,W:0,L:0};
     bot={ready:false,o:ow,def:def,cfg:c,st:def.init?def.init(c):{},wait:true,phase:'idle',legs:[],idx:0,rp:0,left:0,next:c.base};
     log('Started: '+def.name);botUi();freshBuy(function(){if(bot){bot.ready=true;botTry()}});
   }
@@ -435,7 +467,8 @@ button.fab.run{animation:pulse 1.6s infinite}
     if(!bot||bot.phase!=='idle')return;
     var r=bot.def.next(bot.st,bot.cfg);
     if(!r){bot.wait=true;botUi();return}
-    bot.wait=false;bot.legs=r.legs;bot.idx=0;bot.rp=0;bot.left=r.legs.length;bot.phase='order';bot.next=r.legs[0].a;botUi();botLeg();
+    bot.wait=false;bot.legs=r.legs;bot.idx=0;bot.rp=0;bot.left=r.legs.length;bot.phase='order';bot.next=r.legs[0].a;botUi();
+    if(bot.def.parallel&&useDirect){bot.par=true;botAll()}else{bot.par=false;botLeg()}
   }
   function botTick(){if(bot&&bot.ready&&bot.phase==='idle'&&bot.wait)botTry()}
   function botLeg(){
@@ -453,6 +486,7 @@ button.fab.run{animation:pulse 1.6s infinite}
     var b=bot,p=b.rp,S=BS[b.o];S.p+=p;if(p>0)S.W++;else S.L++;
     log((p>0?'WIN +':'LOSS ')+p.toFixed(2),p>0?'w':'l');
     b.def.result(b.st,b.cfg,p);b.phase='idle';busy=false;setTimeout(pollBals,1500);botUi();
+    if(b.haltAfter){botStop('Stopped: not every trade could be placed');return}
     var tp=b.cfg.tp,sl=b.cfg.sl;
     if((tp&&S.p>=tp)||(sl&&S.p<=-sl)){botStop('Stopped: '+(S.p>0?'take profit':'loss cap')+' reached ('+S.p.toFixed(2)+')');return}
     setTimeout(function(){if(bot===b)botTry()},400);
@@ -514,6 +548,47 @@ button.fab.run{animation:pulse 1.6s infinite}
   })();
   $('scnX').onclick=function(){$('scnPanel').hidden=true};
 
+  /* ================= Edging bot (own tab, several trades at once) ================= */
+  var ESEQ=[['DIGITOVER',2],['DIGITUNDER',7],['DIGITOVER',3],['DIGITUNDER',6]];
+  var EDGE={name:'Manoo Edging Bot',edge:true,parallel:true,
+    init:function(){return{}},
+    next:function(st,c){var legs=[],i;for(i=0;i<c.n;i++)legs.push({t:ESEQ[i][0],b:ESEQ[i][1],a:c.base,s:c.sym});return{legs:legs}},
+    result:function(){}};
+  function botAll(){
+    var b=bot;b.resp=0;b.errs=0;b.got=0;
+    b.reqs=b.legs.map(function(l){
+      var p={proposal:1,amount:+Math.max(0.35,l.a).toFixed(2),basis:'stake',contract_type:l.t,currency:cur,duration:l.d||1,duration_unit:'t',underlying_symbol:l.s||symSel.value};
+      if(l.b!=null)p.barrier=String(l.b);return p});
+    busy=true;directSent=true;
+    b.reqs.forEach(function(p){var dp={},k;for(k in p)if(k!=='proposal')dp[k]=p[k];send({buy:'1',price:p.amount,parameters:dp})});
+  }
+  function botParBuy(d){
+    var b=bot,p=b.reqs[b.got]||b.reqs[0],cid=d.buy.contract_id;b.got++;b.resp++;botOpen[cid]=b;
+    log('Bought '+p.contract_type.replace('DIGIT','')+(p.barrier!=null?' '+p.barrier:'')+' @ '+p.amount.toFixed(2));
+    send({proposal_open_contract:1,contract_id:cid,subscribe:1});botParDone()}
+  function botParErr(d){var b=bot;b.errs++;b.resp++;log(d.error.message+(d.error.code?' ('+d.error.code+')':''),'l');botParDone()}
+  function botParDone(){
+    var b=bot;if(!b||b.resp<b.legs.length)return;
+    var ok=b.legs.length-b.errs;
+    if(b.errs===0){b.phase='open';b.idx=b.legs.length;return}
+    if(ok===0){
+      if(!b.fell){b.fell=true;b.par=false;useDirect=false;log('Placing the trades one by one instead','g');b.idx=0;botLeg();return}
+      botStop('Stopped after an error');return}
+    b.left=ok;b.idx=b.legs.length;b.phase='open';b.haltAfter=true;
+    log('Only '+ok+' of '+b.legs.length+' trades were placed. Stopping after this round.','l');
+  }
+  function eCfg(){return{sym:$('e_sym').value,n:+$('e_n').value,base:+$('e_base').value,tp:+$('e_tp').value,sl:+$('e_sl').value,maxst:+$('e_base').value,cap:0}}
+  function eInfo(){
+    var c=eCfg(),tot=c.n*c.base,names=[],i;
+    for(i=0;i<c.n;i++)names.push((ESEQ[i][0]==='DIGITOVER'?'Over ':'Under ')+ESEQ[i][1]);
+    var pc=(acc&&acc.bal)?' ('+(tot/acc.bal*100).toFixed(1)+'% of your balance)':'';
+    $('einfo').textContent='Each round: '+c.n+' trades × '+(c.base||0).toFixed(2)+' = '+(tot||0).toFixed(2)+' staked'+pc+'. Trades: '+names.join(', ')+'.'}
+  ['e_n','e_base'].forEach(function(id){$(id).addEventListener('input',eInfo);$(id).addEventListener('change',eInfo)});
+  $('ego').onclick=function(){startBot(EDGE,eCfg())};
+  $('estop').onclick=function(){botStop('Stopped')};
+  $('ereset').onclick=function(){if(bot&&bot.o==='e')botStop('');BS.e={p:0,W:0,L:0};botUi();$('elog').innerHTML='';logTo('elog','Reset: stats and journal cleared')};
+  eInfo();
+
   /* ---- Free bots list and Bot builder screens ---- */
   var selBot=null;
   $('bgrid').innerHTML=BOTS.map(function(b,i){return '<button class="bc" data-i="'+i+'">'+b.name+'<small>'+b.d+'</small></button>'}).join('');
@@ -524,10 +599,10 @@ button.fab.run{animation:pulse 1.6s infinite}
     $('bfields').innerHTML=(selBot.f||[]).map(function(f){return '<label class="f">'+f.l+(f.o?'<select id="f_'+f.k+'">'+f.o.map(function(o){return '<option'+(o==f.v?' selected':'')+'>'+o+'</option>'}).join('')+'</select>':'<input id="f_'+f.k+'" type="number" step="any" value="'+f.v+'">')+'</label>'}).join('')||'<span class="note">This bot has no extra conditions.</span>';
   }
   function showTab(n){
-    [1,2,3].forEach(function(i){$('pg'+i).hidden=(i!==n);$('t'+i).classList.toggle('on',i===n)});
+    [1,2,3,4].forEach(function(i){$('pg'+i).hidden=(i!==n);$('t'+i).classList.toggle('on',i===n)});
     window.scrollTo(0,0);
   }
-  $('t1').onclick=function(){showTab(1)};$('t2').onclick=function(){showTab(2)};$('t3').onclick=function(){showTab(3)};
+  $('t1').onclick=function(){showTab(1)};$('t2').onclick=function(){showTab(2)};$('t3').onclick=function(){showTab(3)};$('t4').onclick=function(){showTab(4)};
   $('bgrid').onclick=function(e){var el=e.target.closest('.bc');if(!el)return;loadBot(el.getAttribute('data-i'));showTab(3)};
   $('bsel').onchange=function(){loadBot(this.value)};
   $('bgo').onclick=function(){if(!selBot){logTo('blog','Choose a bot first','l');return}
@@ -570,7 +645,7 @@ button.fab.run{animation:pulse 1.6s infinite}
         var g={},cv=symSel.value,list=d.active_symbols.filter(function(x){return x.market==='synthetic_index'&&/^(R_\d+|1HZ\d+V)$/.test(x.underlying_symbol||x.symbol)&&x.is_trading_suspended!==1&&x.exchange_is_open!==0});
         list.forEach(function(x){var k=x.submarket_display_name||'Synthetic';(g[k]=g[k]||[]).push(x)});
         var h='';Object.keys(g).forEach(function(k){h+='<optgroup label="'+k+'">'+g[k].map(function(x){var sy=x.underlying_symbol||x.symbol;return '<option value="'+sy+'">'+(x.underlying_symbol_name||x.display_name||sy)+'</option>'}).join('')+'</optgroup>'});
-        if(h){symSel.innerHTML=h;symSel.value=cv;$('bsym').innerHTML=h;$('bsym').value=symSel.value;if(symSel.value!==cv){symSel.selectedIndex=0;connect()}}
+        if(h){symSel.innerHTML=h;symSel.value=cv;$('bsym').innerHTML=h;$('bsym').value=symSel.value;var ce=$('e_sym').value;$('e_sym').innerHTML=h;$('e_sym').value=ce;if($('e_sym').value!==ce)$('e_sym').selectedIndex=0;if(symSel.value!==cv){symSel.selectedIndex=0;connect()}}
         return;
       }
       if(d.history){
