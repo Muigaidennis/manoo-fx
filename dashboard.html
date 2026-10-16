@@ -66,7 +66,7 @@ button.bc{display:block;width:100%;text-align:left;background:var(--panel);color
 button.bc small{display:block;font-weight:400;color:var(--mute);margin-top:2px}
 h4.sec{margin:14px 0 6px;font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--mute)}
 button:disabled{opacity:.4;cursor:not-allowed}
-#elog{max-height:160px;overflow:auto;font-size:12px;margin-top:6px}#elog .w{color:var(--up)}#elog .l{color:var(--down)}#elog .g{color:var(--mute)}
+#klog{max-height:160px;overflow:auto;font-size:12px;margin-top:6px}#klog .w{color:var(--up)}#klog .l{color:var(--down)}#klog .g{color:var(--mute)}
 #blog{max-height:160px;overflow:auto;font-size:12px;margin-top:6px}#blog .w{color:var(--up)}#blog .l{color:var(--down)}#blog .g{color:var(--mute);word-break:break-all}
 a.signup{display:inline-flex;align-items:center;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 14px;font-weight:700;text-decoration:none}
 a.signup:hover{border-color:#ff444f}
@@ -78,13 +78,39 @@ button.fab.run{animation:pulse 1.6s infinite}
 @media(prefers-reduced-motion:reduce){button.fab.run{animation:none;outline:3px solid #ffc266}}
 .sheet{position:fixed;left:12px;right:12px;bottom:12px;max-width:420px;margin:auto;z-index:70;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;max-height:82vh;overflow:auto;box-shadow:0 12px 36px rgba(0,0,0,.6)}
 #slog{max-height:130px;overflow:auto;font-size:12px;margin:8px 0}#slog .w{color:var(--up)}#slog .l{color:var(--down)}#slog .g{color:var(--mute)}
+/* ---------- colour themes and backgrounds ---------- */
+:root{--bg:#0b1020;--panel:rgba(24,34,64,.78);--solid:#141c36;--field:rgba(6,10,26,.6);--line:#2b3b6e;--ink:#eef2ff;--mute:#9fb0d6;--g1:rgba(110,60,255,.42);--g2:rgba(255,68,79,.30);--g3:rgba(0,196,180,.30)}
+:root[data-theme="ocean"]{--bg:#061a26;--panel:rgba(10,44,66,.78);--solid:#0b2a3e;--field:rgba(3,16,26,.6);--line:#1f5a7d;--ink:#e9f8ff;--mute:#9cc3d6;--g1:rgba(14,165,233,.42);--g2:rgba(34,211,238,.28);--g3:rgba(99,102,241,.32)}
+:root[data-theme="sunset"]{--bg:#1c0e1a;--panel:rgba(58,26,46,.78);--solid:#2e1527;--field:rgba(22,8,18,.6);--line:#7a3560;--ink:#fff1f5;--mute:#d9a9bd;--g1:rgba(255,122,61,.40);--g2:rgba(255,61,129,.34);--g3:rgba(255,179,71,.26)}
+:root[data-theme="forest"]{--bg:#07180f;--panel:rgba(14,48,32,.78);--solid:#0c2a1c;--field:rgba(3,14,8,.6);--line:#287a53;--ink:#ecfff4;--mute:#9fcbb2;--g1:rgba(34,197,94,.38);--g2:rgba(20,184,166,.30);--g3:rgba(234,179,8,.26)}
+body{background:radial-gradient(900px 520px at 10% -6%,var(--g1),transparent 62%),radial-gradient(800px 560px at 104% 6%,var(--g2),transparent 62%),radial-gradient(1000px 640px at 50% 112%,var(--g3),transparent 62%),var(--bg);background-attachment:fixed;--tab:#ff444f;min-height:100vh}
+body[data-tab="2"]{--tab:#a66bff}body[data-tab="3"]{--tab:#3aa0ff}body[data-tab="5"]{--tab:#ffb02e}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:34px 34px}
+select,input{background:var(--field)}
+h1{background:linear-gradient(90deg,#fff 25%,var(--tab));-webkit-background-clip:text;background-clip:text;color:transparent}
+.card,.price,.digits,.sig{box-shadow:0 8px 24px rgba(0,0,0,.28)}
+.card{border-top:3px solid var(--tab)}
+.price{border-left:4px solid var(--tab)}
+h4.sec{color:var(--tab)}
+.top{border-bottom-color:var(--tab)}
+.logo{flex-wrap:wrap}
+button.tab{border-bottom-width:3px}
+button.tab#t1{border-bottom-color:#ff444f}button.tab#t2{border-bottom-color:#a66bff}button.tab#t3{border-bottom-color:#3aa0ff}button.tab#t5{border-bottom-color:#ffb02e}
+button.tab.on{background:var(--tab);border-color:var(--tab);color:#fff}
+body[data-tab="5"] button.tab.on{color:#07140f}
+button.bc{border-left:4px solid var(--tab)}
+.menu,.sheet{background:var(--solid)}
+.mi:hover,.mi.sel{background:rgba(255,255,255,.08)}
+#bgo,#kgo{background:var(--tab)!important;color:#fff!important}
+body[data-tab="5"] #kgo{color:#07140f!important}
+#thm{padding:4px 9px;font-size:12px}
 </style>
 </head>
-<body>
-<div class="top"><div class="logo"><span>M</span><h1>Manoo Tick Lab</h1><small style="color:var(--hot);font-weight:700;align-self:flex-end">Build 19</small></div>
+<body data-tab="1">
+<div class="top"><div class="logo"><span>M</span><h1>Manoo Tick Lab</h1><button id="thm" class="alt" aria-label="Change colour theme"></button></div>
 <div><div id="out" class="tr" style="margin:0"><button id="login" class="brand">Log in with Deriv</button><a id="signup" class="signup" href="https://t.deriv.link?t=ZMDRX7S994PX" target="_blank" rel="noopener noreferrer sponsored">Sign up</a></div>
 <div id="in" class="tr" style="margin:0;display:none"><div class="acc"><button id="accbtn" class="pill" aria-haspopup="listbox" aria-expanded="false" aria-label="Switch account"><span id="flag"></span><span id="hbal">–</span><i id="tag" class="tag"></i><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div id="accmenu" class="menu" role="listbox"></div></div><select id="accsel" hidden aria-hidden="true"></select><button id="logout" class="alt">Log out</button></div></div></div>
-<div class="tabs" role="tablist"><button id="t1" class="tab on">Auto trades</button><button id="t2" class="tab">Free bots</button><button id="t3" class="tab">Bot builder</button><button id="t4" class="tab">Edging bot</button></div>
+<div class="tabs" role="tablist"><button id="t1" class="tab on">Auto trades</button><button id="t2" class="tab">Free bots</button><button id="t3" class="tab">Bot builder</button><button id="t5" class="tab">Bulk</button></div>
 <div id="pg1">
 <p class="sub">Live Deriv ticks: digit frequency, even/odd, rise/fall and entry signals.</p>
 
@@ -180,41 +206,46 @@ button.fab.run{animation:pulse 1.6s infinite}
 </div>
 
 
-<div id="pg4" hidden>
+<div id="pg5" hidden>
 <div class="card" style="margin-bottom:12px">
-<h3 style="color:var(--ink);font-size:18px;margin-bottom:4px">Edging bot</h3>
-<div class="note">Places Over 4 and Under 5 at the same moment. Exactly one of them wins every round. Each pair is 2 trades.</div>
+<h3 style="color:var(--ink);font-size:18px;margin-bottom:4px">Bulk trading</h3>
+<div class="note">One contract that you choose, traded again and again. No pairs. If you place several trades in a round they go in at the same moment, so they win or lose together. For separate outcomes, use 1 trade per round and a higher number of rounds.</div>
 <h4 class="sec">Trade parameters</h4>
 <div class="tr">
-<label class="f">Market<select id="e_sym" style="width:215px"><option value="R_10">Volatility 10 Index</option><option value="R_25">Volatility 25 Index</option><option value="R_50">Volatility 50 Index</option><option value="R_75">Volatility 75 Index</option><option value="R_100">Volatility 100 Index</option><option value="1HZ10V">Volatility 10 (1s) Index</option><option value="1HZ15V">Volatility 15 (1s) Index</option><option value="1HZ25V">Volatility 25 (1s) Index</option><option value="1HZ30V">Volatility 30 (1s) Index</option><option value="1HZ50V">Volatility 50 (1s) Index</option><option value="1HZ75V">Volatility 75 (1s) Index</option><option value="1HZ90V">Volatility 90 (1s) Index</option><option value="1HZ100V">Volatility 100 (1s) Index</option><option value="1HZ150V">Volatility 150 (1s) Index</option><option value="1HZ250V">Volatility 250 (1s) Index</option><option value="1HZ300V">Volatility 300 (1s) Index</option></select></label>
-<label class="f">Pairs per round<select id="e_n"><option>1</option><option>2</option><option>3</option></select></label>
-<label class="f">Stake per trade<input id="e_base" type="number" value="0.35" min="0.35" step="0.01"></label>
+<label class="f">Market<select id="k_sym" style="width:215px"><option value="R_10">Volatility 10 Index</option><option value="R_25">Volatility 25 Index</option><option value="R_50">Volatility 50 Index</option><option value="R_75">Volatility 75 Index</option><option value="R_100">Volatility 100 Index</option><option value="1HZ10V">Volatility 10 (1s) Index</option><option value="1HZ15V">Volatility 15 (1s) Index</option><option value="1HZ25V">Volatility 25 (1s) Index</option><option value="1HZ30V">Volatility 30 (1s) Index</option><option value="1HZ50V">Volatility 50 (1s) Index</option><option value="1HZ75V">Volatility 75 (1s) Index</option><option value="1HZ90V">Volatility 90 (1s) Index</option><option value="1HZ100V">Volatility 100 (1s) Index</option><option value="1HZ150V">Volatility 150 (1s) Index</option><option value="1HZ250V">Volatility 250 (1s) Index</option><option value="1HZ300V">Volatility 300 (1s) Index</option></select></label>
+<label class="f">Contract<select id="k_c"></select></label>
+<label class="f">Stake per trade<input id="k_base" type="number" value="0.35" min="0.35" step="0.01"></label>
 </div>
-<div class="note" id="einfo"></div>
+<div class="tr">
+<label class="f">Trades per round<input id="k_n" type="number" value="1" min="1" max="10" step="1"></label>
+<label class="f">Rounds<input id="k_r" type="number" value="20" min="1" max="1000" step="1"></label>
+</div>
+<div class="note" id="kinfo"></div>
 <h4 class="sec">Restart trading conditions</h4>
 <div class="tr">
-<label class="f">Take profit<input id="e_tp" type="number" value="1" min="0"></label>
-<label class="f">Stop loss<input id="e_sl" type="number" value="3" min="0"></label>
+<label class="f">Take profit<input id="k_tp" type="number" value="1" min="0"></label>
+<label class="f">Stop loss<input id="k_sl" type="number" value="3" min="0"></label>
 </div>
 </div>
 <div class="card" style="margin-bottom:12px">
-<div class="row"><span>Balance <b id="ebal">–</b></span><span>P/L <b id="epnl">0.00</b></span><span>W/L <b id="ewl">0/0</b></span></div>
-<div class="note" id="ewst">Idle</div>
-<div class="tr"><button id="ego" style="background:#ff444f;color:#fff">Start edging</button><button id="estop" class="stop">Stop</button><button id="ereset" class="alt">Reset</button></div>
-<div id="elog"></div>
+<div class="row"><span>Balance <b id="kbal">–</b></span><span>P/L <b id="kpnl">0.00</b></span><span>W/L <b id="kwl">0/0</b></span></div>
+<div class="note" id="kwst">Idle</div>
+<div class="tr"><button id="kgo" style="background:#ff444f;color:#fff">Start bulk</button><button id="kstop" class="stop">Stop</button><button id="kreset" class="alt">Reset</button></div>
+<div id="klog"></div>
 </div>
-<p class="note">Edging does not remove Deriv's margin: over many rounds the total still drifts below zero, by roughly 4 to 5 percent of what you stake. Digit results are equally random on every market. Use the demo account first.</p>
+<p class="note">Bulk trading does not beat Deriv's margin: whichever contract you choose, the expected loss is roughly 4 to 5 percent of everything you stake. It stops at your take profit, your stop loss, or after the number of rounds you set. Use the demo account first.</p>
 </div>
-
 <button id="scnBtn" class="fab" aria-label="Manoo Scanner. Drag to move, tap to open." title="Manoo Scanner (drag to move)"><span>✦</span><small>SCAN</small></button>
 <div id="scnPanel" class="sheet" hidden role="dialog" aria-label="Manoo Scanner">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h3 style="margin:0;color:var(--ink);font-size:17px">Manoo Scanner</h3><button id="scnX" class="alt" aria-label="Close">✕</button></div>
 <div class="note" id="sst" style="margin:6px 0">Idle</div>
 <div class="tr"><label class="f">Stake<input id="s_base" type="number" value="0.35" min="0.35" step="0.01"></label><label class="f">Take profit<input id="s_tp" type="number" value="1" min="0"></label><label class="f">Loss cap<input id="s_cap" type="number" value="3" min="0"></label></div>
+<div class="tr"><label class="f">Recovery steps (×2)<select id="s_st"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></label><label class="f">Markets<select id="s_mk" style="width:210px"><option value="calm">Calm (Volatility 10, 15, 25)</option><option value="all">All Volatility</option></select></label></div>
+<div class="note" id="sinfo" style="margin:4px 0"></div>
 <div class="row"><span>P/L <b id="spnl">0.00</b></span><span>W/L <b id="swl">0/0</b></span></div>
 <div class="tr"><button id="sgo" class="brand">Start scanning</button><button id="sstop" class="stop">Stop</button><button id="sreset" class="alt">Reset</button></div>
 <div id="slog"></div>
-<div class="note">Scans every Volatility market and trades only higher-probability contracts (Even/Odd, Over 1-4, Under 5-8) when a pattern clearly beats the fair rate. Flat stake, no martingale. Loss cap = it stops once total losses reach that amount. It cannot predict ticks. Try it on the demo account first.</div>
+<div class="note">Scans the calmer Volatility indices and trades only Over 3, Over 4, Under 5 or Under 6 when a pattern clearly beats the fair rate. These win about half the time, which is what lets a doubled stake pay back the last loss. Loss cap = it stops once total losses reach that amount. It cannot predict ticks. Try it on the demo account first.</div>
 </div>
 <script>
 (function(){
@@ -228,14 +259,14 @@ button.fab.run{animation:pulse 1.6s infinite}
   var API='https://api.derivws.com',PUB='wss://api.derivws.com/trading/v1/options/ws/public',SCOPE='trade account_manage';
   var access=null,refresh=null,acc=null,accts=[],cur='USD',busy=false,auto=false,stk=1,s0=1,pnl=0,W=0,L=0,done={},skipNext=false,lastReq=null,rtry=0,useDirect=true,directSent=false,subMode=false,quoteDone=false,qsub=null,lastDirect=true,wsReady=false,resumeOrder=false,freshTried=false;
   function ss(k,v){try{if(v===undefined)return sessionStorage.getItem(k);if(v===null)sessionStorage.removeItem(k);else sessionStorage.setItem(k,v)}catch(e){return null}}
-  var tSend=0,bot=null,botOpen={},hdig=[],ratio={},BS={b:{p:0,W:0,L:0},s:{p:0,W:0,L:0},e:{p:0,W:0,L:0}};
+  var tSend=0,bot=null,botOpen={},hdig=[],ratio={},BS={b:{p:0,W:0,L:0},s:{p:0,W:0,L:0},k:{p:0,W:0,L:0}};
   function dbg(){var e=$('dbg');return e&&e.checked}
   function send(o){
     if(dbg()&&(o.proposal||o.buy||o.forget)){tSend=performance.now();log('→ '+JSON.stringify(o).slice(0,380),'g')}
     if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
   function logTo(id,t,c){var l=$(id);l.insertAdjacentHTML('afterbegin','<div class="'+(c||'')+'">'+new Date().toLocaleTimeString()+' '+t+'</div>');while(l.children.length>60)l.removeChild(l.lastChild)}
-  function log(t,c){logTo(bot?(bot.o==='s'?'slog':(bot.o==='e'?'elog':'blog')):'log',t,c)}
-  function lgOf(def){return def.scanner?'slog':(def.edge?'elog':'blog')}
+  function log(t,c){logTo(bot?(bot.o==='s'?'slog':(bot.o==='k'?'klog':'blog')):'log',t,c)}
+  function lgOf(def){return def.scanner?'slog':(def.bulk?'klog':'blog')}
   function setAuto(v){auto=v;$('auto').textContent=v?'Auto running':'Start auto';$('auto').className=v?'':'alt'}
   function show(){$('pnl').textContent=pnl.toFixed(2);$('wl').textContent=W+'/'+L;$('nx').textContent=stk.toFixed(2)}
   function sendOrder(){
@@ -304,7 +335,7 @@ button.fab.run{animation:pulse 1.6s infinite}
     return '<span class="flag gen">'+String(c||'?').slice(0,1)+'</span>'}
   function hb(v){
     var t=v==null?'–':fmt(v)+' '+(acc?acc.cur:'');
-    $('bal').textContent=t;$('hbal').textContent=t;$('bbal').textContent=t;$('ebal').textContent=t;if(typeof eInfo==='function')eInfo();
+    $('bal').textContent=t;$('hbal').textContent=t;$('bbal').textContent=t;$('kbal').textContent=t;if(typeof kInfo==='function')kInfo();if(typeof sInfo==='function')sInfo();
     if(acc){$('flag').innerHTML=flag(acc.cur);$('tag').textContent=acc.demo?'Demo':'Real';$('tag').className='tag '+(acc.demo?'d':'r')}
     $('accmenu').innerHTML=accts.map(function(a,i){return '<div class="mi'+(acc&&a.id===acc.id?' sel':'')+'" role="option" data-i="'+i+'">'+flag(a.cur)+'<span class="mid"><b>'+a.id+'</b><i class="tag '+(a.demo?'d':'r')+'">'+(a.demo?'Demo':'Real')+'</i></span><span class="mb">'+(a.bal!=null?fmt(a.bal)+' '+a.cur:'–')+'</span></div>'}).join('');
   }
@@ -443,13 +474,13 @@ button.fab.run{animation:pulse 1.6s infinite}
         return{legs:[{t:'CALL',b:'+'+o,a:a,d:d},{t:'PUT',b:'-'+o,a:a,d:d}]}},result:capRes}
   ];
   function botUi(){
-    var on=!!bot,ob=on&&bot.o==='b',os=on&&bot.o==='s',oe=on&&bot.o==='e';
-    $('bgo').disabled=on;$('bstop').disabled=!ob;$('sgo').disabled=on;$('sstop').disabled=!os;$('ego').disabled=on;$('estop').disabled=!oe;
+    var on=!!bot,ob=on&&bot.o==='b',os=on&&bot.o==='s',ok=on&&bot.o==='k';
+    $('bgo').disabled=on;$('bstop').disabled=!ob;$('sgo').disabled=on;$('sstop').disabled=!os;$('kgo').disabled=on;$('kstop').disabled=!ok;
     $('bwst').textContent=ob?(bot.def.name+(bot.wait&&bot.phase==='idle'?' · waiting for entry':' · running')):'Idle';
-    $('ewst').textContent=oe?(bot.def.name+' · running'):'Idle';
+    $('kwst').textContent=ok?(bot.def.name+' · round '+(bot.st.rounds+1)+' of '+bot.cfg.rounds):'Idle';
     $('bpnl').textContent=BS.b.p.toFixed(2);$('bwl').textContent=BS.b.W+'/'+BS.b.L;$('bnx').textContent=ob&&bot.next!=null?(+bot.next).toFixed(2):'–';
     $('spnl').textContent=BS.s.p.toFixed(2);$('swl').textContent=BS.s.W+'/'+BS.s.L;
-    $('epnl').textContent=BS.e.p.toFixed(2);$('ewl').textContent=BS.e.W+'/'+BS.e.L;
+    $('kpnl').textContent=BS.k.p.toFixed(2);$('kwl').textContent=BS.k.W+'/'+BS.k.L;
     if(!os)sst('Idle');$('scnBtn').classList.toggle('run',os)}
   function sst(t){$('sst').textContent=t}
   function botStop(msg){if(bot){if(msg)log(msg);if(bot.st)bot.st.dead=true;bot=null;busy=false}botUi()}
@@ -459,7 +490,7 @@ button.fab.run{animation:pulse 1.6s infinite}
     if(!acc){logTo(lgOf(def),'Log in with Deriv first','l');return}
     if(!(c.base>=0.35)){logTo(lgOf(def),'Minimum stake is 0.35','l');return}
     var bad=def.check&&def.check(c);if(bad){logTo(lgOf(def),bad,'l');return}
-    var ow=def.scanner?'s':(def.edge?'e':'b');BS[ow]={p:0,W:0,L:0};
+    var ow=def.scanner?'s':(def.bulk?'k':'b');BS[ow]={p:0,W:0,L:0};
     bot={ready:false,o:ow,def:def,cfg:c,st:def.init?def.init(c):{},wait:true,phase:'idle',legs:[],idx:0,rp:0,left:0,next:c.base};
     log('Started: '+def.name);botUi();freshBuy(function(){if(bot){bot.ready=true;botTry()}});
   }
@@ -487,6 +518,7 @@ button.fab.run{animation:pulse 1.6s infinite}
     log((p>0?'WIN +':'LOSS ')+p.toFixed(2),p>0?'w':'l');
     b.def.result(b.st,b.cfg,p);b.phase='idle';busy=false;setTimeout(pollBals,1500);botUi();
     if(b.haltAfter){botStop('Stopped: not every trade could be placed');return}
+    if(b.def.done&&b.def.done(b.st,b.cfg)){botStop('Finished all '+b.cfg.rounds+' rounds ('+BS[b.o].p.toFixed(2)+')');return}
     var tp=b.cfg.tp,sl=b.cfg.sl;
     if((tp&&S.p>=tp)||(sl&&S.p<=-sl)){botStop('Stopped: '+(S.p>0?'take profit':'loss cap')+' reached ('+S.p.toFixed(2)+')');return}
     setTimeout(function(){if(bot===b)botTry()},400);
@@ -502,12 +534,11 @@ button.fab.run{animation:pulse 1.6s infinite}
   function bestOf(D,sym){
     var best=null,b;
     function tc(t,bb,name,fn,p){var r=zs(D,fn,p);if(r.edge<0.06)return;if(!best||r.z>best.z)best={z:r.z,s:sym,t:t,b:bb,msg:mlabel(sym)+' · '+name+' won '+Math.round(r.f*100)+'% of the last 100 ticks (fair '+Math.round(p*100)+'%)'}}
-    for(b=1;b<=4;b++){(function(b){tc('DIGITOVER',b,'Over '+b,function(x){return x>b},(9-b)/10)})(b)}
-    for(b=5;b<=8;b++){(function(b){tc('DIGITUNDER',b,'Under '+b,function(x){return x<b},b/10)})(b)}
-    tc('DIGITEVEN',undefined,'Even',function(x){return x%2===0},.5);tc('DIGITODD',undefined,'Odd',function(x){return x%2===1},.5);
+    for(b=3;b<=4;b++){(function(b){tc('DIGITOVER',b,'Over '+b,function(x){return x>b},(9-b)/10)})(b)}
+    for(b=5;b<=6;b++){(function(b){tc('DIGITUNDER',b,'Under '+b,function(x){return x<b},b/10)})(b)}
     return best}
   function runScan(st,cb){
-    var syms=[].map.call(symSel.options,function(o){return o.value}),i=0,best=null,tmo=null,w=null,fin=false;
+    var calm=['R_10','R_25','1HZ10V','1HZ15V','1HZ25V'],all=[].map.call(symSel.options,function(o){return o.value}),syms=st.all?all:all.filter(function(v){return calm.indexOf(v)>-1}),i=0,best=null,tmo=null,w=null,fin=false;if(!syms.length)syms=all;
     function done(r){if(fin)return;fin=true;clearTimeout(tmo);try{w.close()}catch(e){}cb(r)}
     function step(){
       if(st.dead||!bot||bot.st!==st){fin=true;try{w.close()}catch(e){}return}
@@ -523,16 +554,23 @@ button.fab.run{animation:pulse 1.6s infinite}
     try{w=new WebSocket(PUB);w.onopen=step;w.onerror=function(){done(null)}}catch(e){done(null)}
   }
   var SCAN={name:'Manoo Scanner',scanner:true,
-    init:function(){return{pick:null,scanning:false,at:0,dead:false}},
+    init:function(c){return{pick:null,scanning:false,at:0,dead:false,all:c.all,stake:c.base,n:0}},
     next:function(st,c){
-      if(st.pick){var p=st.pick;st.pick=null;sst('Trading '+p.msg.split(' won')[0]);return{legs:[{t:p.t,b:p.b,a:c.base,s:p.s}]}}
+      if(st.pick){var p=st.pick;st.pick=null;sst('Trading '+p.msg.split(' won')[0]);return{legs:[{t:p.t,b:p.b,a:st.stake,s:p.s}]}}
       if(!st.scanning&&Date.now()>=st.at){st.scanning=true;runScan(st,function(pick){
         st.scanning=false;if(st.dead||!bot||bot.st!==st)return;
-        if(pick){st.pick=pick;log('Signal: '+pick.msg+' (score '+pick.z.toFixed(1)+')');botTry()}
+        if(pick){st.pick=pick;log('Signal: '+pick.msg+' (score '+pick.z.toFixed(1)+')'+(st.n?' · recovery step '+st.n+', stake '+st.stake.toFixed(2):''));botTry()}
         else{st.at=Date.now()+6000;sst('No strong signal, scanning again…');log('No strong signal on any market. Scanning again.','g')}})}
       return null},
-    result:function(){}};
-  $('sgo').onclick=function(){startBot(SCAN,{base:+$('s_base').value,tp:+$('s_tp').value,sl:+$('s_cap').value,maxst:+$('s_base').value,cap:0})};
+    result:function(st,c,p){
+      if(p>0){st.n=0;st.stake=c.base}
+      else{st.n++;if(st.n>c.steps){log('Recovery limit reached: stake reset','l');st.n=0;st.stake=c.base}else st.stake=c.base*Math.pow(2,st.n)}}};
+  function sCfg(){var stp=+$('s_st').value||3,b=+$('s_base').value;return{base:b,tp:+$('s_tp').value,sl:+$('s_cap').value,steps:stp,all:$('s_mk').value==='all',maxst:b*Math.pow(2,stp),cap:0}}
+  function sInfo(){var c=sCfg(),a=[],i;for(i=0;i<=c.steps;i++)a.push((c.base*Math.pow(2,i)).toFixed(2));var worst=c.base*(Math.pow(2,c.steps+1)-1);
+    $('sinfo').textContent='After each loss the stake doubles, up to '+c.steps+' times: '+a.join(' → ')+'. '+(c.steps+1)+' losses in a row cost '+worst.toFixed(2)+(acc&&acc.bal?' ('+(worst/acc.bal*100).toFixed(1)+'% of your balance)':'')+'.'}
+  ['s_base','s_st'].forEach(function(id){$(id).addEventListener('input',sInfo);$(id).addEventListener('change',sInfo)});
+  $('sgo').onclick=function(){startBot(SCAN,sCfg())};
+  sInfo();
   $('sstop').onclick=function(){botStop('Stopped')};
   $('sreset').onclick=function(){if(bot&&bot.o==='s')botStop('');BS.s={p:0,W:0,L:0};botUi();$('slog').innerHTML='';logTo('slog','Reset: stats and journal cleared')};
   /* floating button: drag anywhere, tap to open */
@@ -548,12 +586,7 @@ button.fab.run{animation:pulse 1.6s infinite}
   })();
   $('scnX').onclick=function(){$('scnPanel').hidden=true};
 
-  /* ================= Edging bot (own tab, several trades at once) ================= */
-  function eSeq(c){var a=[],i;for(i=0;i<c.pairs;i++)a.push(['DIGITOVER',4],['DIGITUNDER',5]);return a}
-  var EDGE={name:'Manoo Edging Bot',edge:true,parallel:true,
-    init:function(){return{}},
-    next:function(st,c){var legs=[];eSeq(c).forEach(function(q){legs.push({t:q[0],b:q[1],a:c.base,s:c.sym})});return{legs:legs}},
-    result:function(){}};
+  /* ================= Placing several trades at the same moment (used by Bulk) ================= */
   function botAll(){
     var b=bot;b.resp=0;b.errs=0;b.got=0;
     b.reqs=b.legs.map(function(l){
@@ -577,16 +610,32 @@ button.fab.run{animation:pulse 1.6s infinite}
     b.left=ok;b.idx=b.legs.length;b.phase='open';b.haltAfter=true;
     log('Only '+ok+' of '+b.legs.length+' trades were placed. Stopping after this round.','l');
   }
-  function eCfg(){var pr=+$('e_n').value||1;return{pairs:pr,sym:$('e_sym').value,n:pr*2,base:+$('e_base').value,tp:+$('e_tp').value,sl:+$('e_sl').value,maxst:+$('e_base').value,cap:0}}
-  function eInfo(){
-    var c=eCfg(),tot=c.n*c.base;
+
+  /* ================= Bulk trading (own tab, one contract you choose) ================= */
+  var BULK={name:'Manoo Bulk',bulk:true,parallel:true,
+    init:function(){return{rounds:0}},
+    next:function(st,c){var legs=[],i;for(i=0;i<c.n;i++)legs.push({t:c.t,b:c.b,a:c.base,s:c.sym});return{legs:legs}},
+    result:function(st){st.rounds++},
+    done:function(st,c){return st.rounds>=c.rounds}};
+  (function(){var h='',b;for(b=0;b<=8;b++)h+='<option value="DIGITOVER:'+b+'"'+(b===1?' selected':'')+'>Over '+b+'</option>';for(b=1;b<=9;b++)h+='<option value="DIGITUNDER:'+b+'">Under '+b+'</option>';$('k_c').innerHTML=h})();
+  function kCfg(){var v=$('k_c').value.split(':'),n=Math.max(1,Math.min(10,Math.round(+$('k_n').value||1))),r=Math.max(1,Math.min(1000,Math.round(+$('k_r').value||1)));
+    return{sym:$('k_sym').value,t:v[0],b:+v[1],n:n,rounds:r,base:+$('k_base').value,tp:+$('k_tp').value,sl:+$('k_sl').value,maxst:+$('k_base').value,cap:0}}
+  function kInfo(){
+    var c=kCfg(),tot=c.n*(c.base||0),pw=c.t==='DIGITOVER'?(9-c.b)*10:c.b*10,name=(c.t==='DIGITOVER'?'Over ':'Under ')+c.b;
     var pc=(acc&&acc.bal)?' ('+(tot/acc.bal*100).toFixed(1)+'% of your balance)':'';
-    $('einfo').textContent='Each round: '+c.pairs+' pair'+(c.pairs>1?'s':'')+' = '+c.n+' trades × '+(c.base||0).toFixed(2)+' = '+(tot||0).toFixed(2)+' staked'+pc+'. Trades: Over 4 and Under 5'+(c.pairs>1?' (each repeated '+c.pairs+' times)':'')+'. Exactly one trade of each pair wins, but the winner pays less than the loser costs, so each round loses about 5% of one stake per pair (about '+(0.05*(c.base||0)*c.pairs).toFixed(3)+' at these settings). It can never reach take profit, so it only ends at your stop loss.'}
-  ['e_n','e_base'].forEach(function(id){$(id).addEventListener('input',eInfo);$(id).addEventListener('change',eInfo)});
-  $('ego').onclick=function(){startBot(EDGE,eCfg())};
-  $('estop').onclick=function(){botStop('Stopped')};
-  $('ereset').onclick=function(){if(bot&&bot.o==='e')botStop('');BS.e={p:0,W:0,L:0};botUi();$('elog').innerHTML='';logTo('elog','Reset: stats and journal cleared')};
-  eInfo();
+    $('kinfo').textContent=name+' wins '+pw+'% of the time. Each round: '+c.n+' trade'+(c.n>1?'s':'')+' × '+(c.base||0).toFixed(2)+' = '+tot.toFixed(2)+' staked'+pc+'. Expected cost is about 4.5% of what you stake: about '+(tot*0.045).toFixed(3)+' per round, about '+(tot*0.045*c.rounds).toFixed(2)+' over '+c.rounds+' rounds.'}
+  ['k_c','k_n','k_r','k_base'].forEach(function(id){$(id).addEventListener('input',kInfo);$(id).addEventListener('change',kInfo)});
+  $('kgo').onclick=function(){startBot(BULK,kCfg())};
+  $('kstop').onclick=function(){botStop('Stopped')};
+  $('kreset').onclick=function(){if(bot&&bot.o==='k')botStop('');BS.k={p:0,W:0,L:0};botUi();$('klog').innerHTML='';logTo('klog','Reset: stats and journal cleared')};
+  kInfo();
+
+  /* ---- colour themes ---- */
+  var THEMES=[['midnight','Midnight'],['ocean','Ocean'],['sunset','Sunset'],['forest','Forest']],th=0;
+  try{var tsv=localStorage.getItem('mtl_theme');th=Math.max(0,THEMES.findIndex(function(x){return x[0]===tsv}))}catch(e){}
+  function applyTheme(){document.documentElement.setAttribute('data-theme',THEMES[th][0]);$('thm').textContent='🎨 '+THEMES[th][1]}
+  $('thm').onclick=function(){th=(th+1)%THEMES.length;try{localStorage.setItem('mtl_theme',THEMES[th][0])}catch(e){}applyTheme()};
+  applyTheme();
 
   /* ---- Free bots list and Bot builder screens ---- */
   var selBot=null;
@@ -598,10 +647,10 @@ button.fab.run{animation:pulse 1.6s infinite}
     $('bfields').innerHTML=(selBot.f||[]).map(function(f){return '<label class="f">'+f.l+(f.o?'<select id="f_'+f.k+'">'+f.o.map(function(o){return '<option'+(o==f.v?' selected':'')+'>'+o+'</option>'}).join('')+'</select>':'<input id="f_'+f.k+'" type="number" step="any" value="'+f.v+'">')+'</label>'}).join('')||'<span class="note">This bot has no extra conditions.</span>';
   }
   function showTab(n){
-    [1,2,3,4].forEach(function(i){$('pg'+i).hidden=(i!==n);$('t'+i).classList.toggle('on',i===n)});
-    window.scrollTo(0,0);
+    [1,2,3,5].forEach(function(i){$('pg'+i).hidden=(i!==n);$('t'+i).classList.toggle('on',i===n)});
+    document.body.setAttribute('data-tab',n);window.scrollTo(0,0);
   }
-  $('t1').onclick=function(){showTab(1)};$('t2').onclick=function(){showTab(2)};$('t3').onclick=function(){showTab(3)};$('t4').onclick=function(){showTab(4)};
+  $('t1').onclick=function(){showTab(1)};$('t2').onclick=function(){showTab(2)};$('t3').onclick=function(){showTab(3)};$('t5').onclick=function(){showTab(5)};
   $('bgrid').onclick=function(e){var el=e.target.closest('.bc');if(!el)return;loadBot(el.getAttribute('data-i'));showTab(3)};
   $('bsel').onchange=function(){loadBot(this.value)};
   $('bgo').onclick=function(){if(!selBot){logTo('blog','Choose a bot first','l');return}
@@ -644,7 +693,7 @@ button.fab.run{animation:pulse 1.6s infinite}
         var g={},cv=symSel.value,list=d.active_symbols.filter(function(x){return x.market==='synthetic_index'&&/^(R_\d+|1HZ\d+V)$/.test(x.underlying_symbol||x.symbol)&&x.is_trading_suspended!==1&&x.exchange_is_open!==0});
         list.forEach(function(x){var k=x.submarket_display_name||'Synthetic';(g[k]=g[k]||[]).push(x)});
         var h='';Object.keys(g).forEach(function(k){h+='<optgroup label="'+k+'">'+g[k].map(function(x){var sy=x.underlying_symbol||x.symbol;return '<option value="'+sy+'">'+(x.underlying_symbol_name||x.display_name||sy)+'</option>'}).join('')+'</optgroup>'});
-        if(h){symSel.innerHTML=h;symSel.value=cv;$('bsym').innerHTML=h;$('bsym').value=symSel.value;var ce=$('e_sym').value;$('e_sym').innerHTML=h;$('e_sym').value=ce;if($('e_sym').value!==ce)$('e_sym').selectedIndex=0;if(symSel.value!==cv){symSel.selectedIndex=0;connect()}}
+        if(h){symSel.innerHTML=h;symSel.value=cv;$('bsym').innerHTML=h;$('bsym').value=symSel.value;if(symSel.value!==cv){symSel.selectedIndex=0;connect()}}
         return;
       }
       if(d.history){
