@@ -104,6 +104,10 @@ button.bc{border-left:4px solid var(--tab)}
 #bgo,#kgo{background:var(--tab)!important;color:#fff!important}
 body[data-tab="5"] #kgo{color:#07140f!important}
 #thm{padding:4px 9px;font-size:12px}
+button.bc{--c:#3aa0ff;border-left:5px solid var(--c);background:linear-gradient(100deg,rgba(255,255,255,.11),rgba(255,255,255,.02))}
+button.bc:hover,button.bc:focus-visible{box-shadow:0 0 0 1px var(--c) inset,0 6px 18px rgba(0,0,0,.35)}
+.tg{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.7px;padding:2px 8px;border-radius:999px;background:var(--c);color:#0b1020;margin-right:8px;vertical-align:middle}
+#bgo,#kgo{color:var(--on,#fff)!important}
 </style>
 </head>
 <body data-tab="1">
@@ -424,6 +428,10 @@ body[data-tab="5"] #kgo{color:#07140f!important}
     f:[{k:'ob',l:'Over digit',o:O8,v:ob},{k:'rb',l:'Recovery Under digit',o:U9,v:rb}],
     init:function(){return{loss:0,n:0}},
     next:function(st,c){return st.loss<=0?{legs:[{t:'DIGITOVER',b:+c.ob,a:c.base}]}:{legs:[{t:'DIGITUNDER',b:+c.rb,a:recStake(st,c,'DIGITUNDER',+c.rb)}]}},result:recRes}}
+  function ud(id,name,d,t){return{id:id,name:name,d:d,tt:'Up/Down · Rise/Fall',
+    f:[{k:'dur',l:'Ticks',o:[5,6,7,8,9,10],v:5},{k:'mult',l:'Martingale ×',v:2}],
+    init:function(){return{n:0}},
+    next:function(st,c){return{legs:[{t:t,a:c.base*Math.pow(Math.max(1,c.mult),st.n),d:+c.dur}]}},result:capRes}}
   var BOTS=[
     ou('o1u6','Manoo Over 1 · Under 6','Trades Over 1. After a loss it recovers with Under 6, sized to recover the loss.',1,6),
     ou('o2u6','Manoo Over 2 · Under 6','Trades Over 2. After a loss it recovers with Under 6, sized to recover the loss.',2,6),
@@ -467,12 +475,16 @@ body[data-tab="5"] #kgo{color:#07140f!important}
       f:[{k:'dur',l:'Ticks',v:5}],
       init:function(){return{loss:0,n:0}},
       next:function(st,c){var t=st.loss>0?'PUT':'CALL';return{legs:[{t:t,a:recStake(st,c,t),d:Math.max(5,c.dur)}]}},result:recRes},
-    {id:'hl',name:'Manoo Higher/Lower Hedge',tt:'Up/Down · Higher/Lower',d:'Opens Higher and Lower together at your barrier offset. Martingale after a losing round.',
-      f:[{k:'off',l:'Offset',v:0.5},{k:'dur',l:'Ticks',v:5},{k:'mult',l:'Martingale ×',v:2}],
+    {id:'hl',name:'Manoo Higher/Lower Hedge',tt:'Up/Down · Higher/Lower',d:'Opens Higher and Lower together at your barrier offset, for a number of minutes (Higher/Lower is not offered in ticks). Martingale after a losing round.',
+      f:[{k:'off',l:'Offset',v:0.5},{k:'min',l:'Minutes',o:[1,2,3,5,10,15,30],v:5},{k:'mult',l:'Martingale ×',v:2}],
       init:function(){return{n:0}},
-      next:function(st,c){var a=c.base*Math.pow(Math.max(1,c.mult),st.n),o=(+c.off).toFixed(2),d=Math.max(5,c.dur);
-        return{legs:[{t:'CALL',b:'+'+o,a:a,d:d},{t:'PUT',b:'-'+o,a:a,d:d}]}},result:capRes}
+      next:function(st,c){var a=c.base*Math.pow(Math.max(1,c.mult),st.n),o=(+c.off).toFixed(2),d=+c.min;
+        return{legs:[{t:'CALL',b:'+'+o,a:a,d:d,u:'m'},{t:'PUT',b:'-'+o,a:a,d:d,u:'m'}]}},result:capRes},
+    ud('ups','Manoo Only Ups','Rise only. Every round buys a Rise; after a loss the stake is multiplied, after a win it returns to your stake.','CALL'),
+    ud('downs','Manoo Only Downs','Fall only. Every round buys a Fall; after a loss the stake is multiplied, after a win it returns to your stake.','PUT')
   ];
+  var BC={o1u6:['#ff7a3d','OVER/UNDER'],o2u6:['#ffb02e','OVER/UNDER','#241800'],o1s:['#a66bff','SMART RECOVERY'],o123:['#ff4fa3','OVER 1-2-3'],spd:['#3aa0ff','SPEEDY'],eof:['#19d3a2','EVEN/ODD','#07140f'],eoa:['#4de0ff','EVEN/ODD','#05202a'],mat:['#c3f03a','MATCHES','#1b2300'],rfs:['#ff5d73','RISE/FALL'],hl:['#7c6bff','HIGHER/LOWER'],ups:['#2ee59d','ONLY UPS','#05281a'],downs:['#ff4d6d','ONLY DOWNS']};
+  BOTS.forEach(function(b){var c=BC[b.id]||['#3aa0ff','BOT'];b.col=c[0];b.tag=c[1];b.on=c[2]||'#fff'});
   function botUi(){
     var on=!!bot,ob=on&&bot.o==='b',os=on&&bot.o==='s',ok=on&&bot.o==='k';
     $('bgo').disabled=on;$('bstop').disabled=!ob;$('sgo').disabled=on;$('sstop').disabled=!os;$('kgo').disabled=on;$('kstop').disabled=!ok;
@@ -504,7 +516,7 @@ body[data-tab="5"] #kgo{color:#07140f!important}
   function botTick(){if(bot&&bot.ready&&bot.phase==='idle'&&bot.wait)botTry()}
   function botLeg(){
     var l=bot.legs[bot.idx],amt=Math.max(0.35,Math.min(+l.a,bot.cfg.maxst||1e9));
-    var p={proposal:1,amount:+amt.toFixed(2),basis:'stake',contract_type:l.t,currency:cur,duration:l.d||1,duration_unit:'t',underlying_symbol:l.s||symSel.value};
+    var p={proposal:1,amount:+amt.toFixed(2),basis:'stake',contract_type:l.t,currency:cur,duration:l.d||1,duration_unit:l.u||'t',underlying_symbol:l.s||symSel.value};
     if(l.b!=null)p.barrier=String(l.b);
     if(subMode)p.subscribe=1;
     freshTried=false;lastDirect=p.duration<5;lastReq=p;rtry=0;busy=true;sendOrder();
@@ -590,7 +602,7 @@ body[data-tab="5"] #kgo{color:#07140f!important}
   function botAll(){
     var b=bot;b.resp=0;b.errs=0;b.got=0;
     b.reqs=b.legs.map(function(l){
-      var p={proposal:1,amount:+Math.max(0.35,l.a).toFixed(2),basis:'stake',contract_type:l.t,currency:cur,duration:l.d||1,duration_unit:'t',underlying_symbol:l.s||symSel.value};
+      var p={proposal:1,amount:+Math.max(0.35,l.a).toFixed(2),basis:'stake',contract_type:l.t,currency:cur,duration:l.d||1,duration_unit:l.u||'t',underlying_symbol:l.s||symSel.value};
       if(l.b!=null)p.barrier=String(l.b);return p});
     busy=true;directSent=true;
     b.reqs.forEach(function(p){var dp={},k;for(k in p)if(k!=='proposal')dp[k]=p[k];send({buy:'1',price:p.amount,parameters:dp})});
@@ -639,11 +651,11 @@ body[data-tab="5"] #kgo{color:#07140f!important}
 
   /* ---- Free bots list and Bot builder screens ---- */
   var selBot=null;
-  $('bgrid').innerHTML=BOTS.map(function(b,i){return '<button class="bc" data-i="'+i+'">'+b.name+'<small>'+b.d+'</small></button>'}).join('');
+  $('bgrid').innerHTML=BOTS.map(function(b,i){return '<button class="bc" data-i="'+i+'" style="--c:'+b.col+'"><span class="tg">'+b.tag+'</span>'+b.name+'<small>'+b.d+'</small></button>'}).join('');
   $('bsel').innerHTML='<option value="">Choose a bot…</option>'+BOTS.map(function(b,i){return '<option value="'+i+'">'+b.name+'</option>'}).join('');
   function loadBot(i){
     selBot=(i===''||i==null)?null:BOTS[+i];$('bsel').value=(i==null?'':i);$('bbody').hidden=!selBot;if(!selBot)return;
-    $('bname').textContent=selBot.name;$('bdesc').textContent=selBot.d;$('btype').value=selBot.tt;
+    $('bname').innerHTML='<span class="tg" style="--c:'+selBot.col+'">'+selBot.tag+'</span>'+selBot.name;$('bbody').style.setProperty('--tab',selBot.col);$('bbody').style.setProperty('--on',selBot.on);$('bdesc').textContent=selBot.d;$('btype').value=selBot.tt;
     $('bfields').innerHTML=(selBot.f||[]).map(function(f){return '<label class="f">'+f.l+(f.o?'<select id="f_'+f.k+'">'+f.o.map(function(o){return '<option'+(o==f.v?' selected':'')+'>'+o+'</option>'}).join('')+'</select>':'<input id="f_'+f.k+'" type="number" step="any" value="'+f.v+'">')+'</label>'}).join('')||'<span class="note">This bot has no extra conditions.</span>';
   }
   function showTab(n){
