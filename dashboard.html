@@ -542,10 +542,15 @@ a.wa:hover,a.wa:focus-visible{transform:scale(1.08);outline:2px solid #fff;outli
       init:function(){return{n:0}},
       next:function(st,c){var a=c.base*Math.pow(Math.max(1,c.mult),st.n),t=+c.tick;
         return{legs:[{t:'TICKHIGH',a:a,d:5,u:'t',st:t},{t:'TICKLOW',a:a,d:5,u:'t',st:t}]}},result:capRes},
+    {id:'o5u4',name:'Manoo Over 5 + Under 4',tt:'Digits · Over/Under pair',parallel:true,
+      d:'Buys Over 5 and Under 4 at the same moment (1 tick). A last digit of 6-9 or 0-3 gives one win and one loss; a 4 or 5 loses both. Optional martingale after a losing round.',
+      f:[{k:'mult',l:'Martingale ×',v:1}],
+      init:function(){return{n:0}},
+      next:function(st,c){var a=c.base*Math.pow(Math.max(1,c.mult),st.n);return{legs:[{t:'DIGITOVER',b:5,a:a},{t:'DIGITUNDER',b:4,a:a}]}},result:capRes},
     ud('ups','Manoo Only Ups','Rise only. Every round buys a Rise; after a loss the stake is multiplied, after a win it returns to your stake.','CALL'),
     ud('downs','Manoo Only Downs','Fall only. Every round buys a Fall; after a loss the stake is multiplied, after a win it returns to your stake.','PUT')
   ];
-  var BC={o1u6:['#ff7a3d','OVER/UNDER'],o2u6:['#ffb02e','OVER/UNDER','#241800'],o1s:['#a66bff','SMART RECOVERY'],o123:['#ff4fa3','OVER 1-2-3'],spd:['#3aa0ff','SPEEDY'],eof:['#19d3a2','EVEN/ODD','#07140f'],eoa:['#4de0ff','EVEN/ODD','#05202a'],mat:['#c3f03a','MATCHES','#1b2300'],rfs:['#ff5d73','RISE/FALL'],hl:['#7c6bff','HIGHER/LOWER'],hlt:['#00d1ff','HIGH/LOW TICKS','#04212a'],ups:['#2ee59d','ONLY UPS','#05281a'],downs:['#ff4d6d','ONLY DOWNS']};
+  var BC={o1u6:['#ff7a3d','OVER/UNDER'],o2u6:['#ffb02e','OVER/UNDER','#241800'],o1s:['#a66bff','SMART RECOVERY'],o123:['#ff4fa3','OVER 1-2-3'],spd:['#3aa0ff','SPEEDY'],eof:['#19d3a2','EVEN/ODD','#07140f'],eoa:['#4de0ff','EVEN/ODD','#05202a'],mat:['#c3f03a','MATCHES','#1b2300'],rfs:['#ff5d73','RISE/FALL'],hl:['#7c6bff','HIGHER/LOWER'],hlt:['#00d1ff','HIGH/LOW TICKS','#04212a'],o5u4:['#e879f9','OVER 5 + UNDER 4','#2a0a30'],ups:['#2ee59d','ONLY UPS','#05281a'],downs:['#ff4d6d','ONLY DOWNS']};
   BOTS.forEach(function(b){var c=BC[b.id]||['#3aa0ff','BOT'];b.col=c[0];b.tag=c[1];b.on=c[2]||'#fff'});
   function botUi(){
     var on=!!bot,ob=on&&bot.o==='b',os=on&&bot.o==='s',ok=on&&bot.o==='k';
