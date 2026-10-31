@@ -79,9 +79,13 @@ button.fab.run{animation:pulse 1.6s infinite}
 .sheet{position:fixed;left:12px;right:12px;bottom:12px;max-width:420px;margin:auto;z-index:70;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;max-height:82vh;overflow:auto;box-shadow:0 12px 36px rgba(0,0,0,.6)}
 #slog{max-height:130px;overflow:auto;font-size:12px;margin:8px 0}#slog .w{color:var(--up)}#slog .l{color:var(--down)}#slog .g{color:var(--mute)}
 /* ---------- colour themes and backgrounds ---------- */
-:root{--bg:#0e1526;--panel:#18223d;--solid:#141c33;--field:#0b1224;--line:#2c3860;--ink:#eef2ff;--mute:#a3b2d8}
-body{background:var(--bg);--tab:#ff444f;min-height:100vh}
+:root{--bg:#0b1020;--panel:rgba(24,34,64,.78);--solid:#141c36;--field:rgba(6,10,26,.6);--line:#2b3b6e;--ink:#eef2ff;--mute:#9fb0d6;--g1:rgba(110,60,255,.42);--g2:rgba(255,68,79,.30);--g3:rgba(0,196,180,.30)}
+:root[data-theme="ocean"]{--bg:#061a26;--panel:rgba(10,44,66,.78);--solid:#0b2a3e;--field:rgba(3,16,26,.6);--line:#1f5a7d;--ink:#e9f8ff;--mute:#9cc3d6;--g1:rgba(14,165,233,.42);--g2:rgba(34,211,238,.28);--g3:rgba(99,102,241,.32)}
+:root[data-theme="sunset"]{--bg:#1c0e1a;--panel:rgba(58,26,46,.78);--solid:#2e1527;--field:rgba(22,8,18,.6);--line:#7a3560;--ink:#fff1f5;--mute:#d9a9bd;--g1:rgba(255,122,61,.40);--g2:rgba(255,61,129,.34);--g3:rgba(255,179,71,.26)}
+:root[data-theme="forest"]{--bg:#07180f;--panel:rgba(14,48,32,.78);--solid:#0c2a1c;--field:rgba(3,14,8,.6);--line:#287a53;--ink:#ecfff4;--mute:#9fcbb2;--g1:rgba(34,197,94,.38);--g2:rgba(20,184,166,.30);--g3:rgba(234,179,8,.26)}
+body{background:radial-gradient(900px 520px at 10% -6%,var(--g1),transparent 62%),radial-gradient(800px 560px at 104% 6%,var(--g2),transparent 62%),radial-gradient(1000px 640px at 50% 112%,var(--g3),transparent 62%),var(--bg);background-attachment:fixed;--tab:#ff444f;min-height:100vh}
 body[data-tab="2"]{--tab:#a66bff}body[data-tab="3"]{--tab:#3aa0ff}body[data-tab="5"]{--tab:#ffb02e}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:34px 34px}
 select,input{background:var(--field)}
 h1{background:linear-gradient(90deg,#fff 25%,var(--tab));-webkit-background-clip:text;background-clip:text;color:transparent}
 .card,.price,.digits,.sig{box-shadow:0 8px 24px rgba(0,0,0,.28)}
@@ -152,25 +156,13 @@ button.tab#t7.alert{animation:sigblink .9s infinite;background:#a3e635;color:#14
 #g_ev .ev{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:13px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.07)}
 #glog{max-height:150px;overflow:auto;font-size:12px;margin-top:6px}#glog .w{color:var(--up)}#glog .l{color:var(--down)}#glog .g{color:var(--mute)}
 @media(prefers-reduced-motion:reduce){button.tab#t7.alert,#sigbar{animation:none;outline:3px solid #14230a}}
-#g_tbl .ar{display:grid;grid-template-columns:1.5fr 1fr .8fr .5fr;gap:6px;padding:7px 2px;border-bottom:1px solid rgba(255,255,255,.07);font-size:12.5px}
-#g_tbl .ar.hd{color:var(--mute);font-size:11px}
-#g_tbl .ar.ok{color:#a3e635;font-weight:700}
-/* ---------- one scrolling navigation bar with icons ---------- */
-.tabs{display:flex;grid-template-columns:none;gap:4px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;background:var(--solid);border:1px solid var(--line);border-radius:16px;padding:5px;margin-bottom:12px}
-.tabs::-webkit-scrollbar{display:none}
-button.tab{display:flex;align-items:center;gap:8px;flex:none;scroll-snap-align:center;padding:11px 15px;font-size:13.5px;font-weight:700;background:transparent;color:var(--ink);border:0;border-width:0;border-radius:12px;white-space:nowrap}
-button.tab svg{stroke:var(--ic,currentColor);flex:none}
-button.tab#t1{--ic:#ff6b78}button.tab#t2{--ic:#b98dff}button.tab#t3{--ic:#6cb6ff}button.tab#t5{--ic:#ffc654}button.tab#t6{--ic:#4ee3f5}button.tab#t7{--ic:#b9f35a}
-button.tab.on{background:var(--tab);color:#fff;box-shadow:0 4px 14px -4px var(--tab)}
-button.tab.on svg{stroke:currentColor}
-button.tab#t7.alert svg{stroke:currentColor}
 </style>
 </head>
 <body data-tab="1">
-<div class="top"><div class="logo"><span>M</span><a id="wa" class="wa" href="https://wa.me/254769968830" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp" title="Chat on WhatsApp"><svg viewBox="0 0 448 512" width="22" height="22" aria-hidden="true"><path fill="#fff" d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg></a></div>
+<div class="top"><div class="logo"><span>M</span><button id="thm" class="alt" aria-label="Change colour theme"></button><a id="wa" class="wa" href="https://wa.me/254769968830" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp" title="Chat on WhatsApp"><svg viewBox="0 0 448 512" width="22" height="22" aria-hidden="true"><path fill="#fff" d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg></a></div>
 <div><div id="out" class="tr" style="margin:0"><button id="login" class="brand">Log in with Deriv</button><a id="signup" class="signup" href="https://t.deriv.link?t=ZMDRX7S994PX" target="_blank" rel="noopener noreferrer sponsored">Sign up</a></div>
 <div id="in" class="tr" style="margin:0;display:none"><div class="acc"><button id="accbtn" class="pill" aria-haspopup="listbox" aria-expanded="false" aria-label="Switch account"><span id="flag"></span><span id="hbal">–</span><i id="tag" class="tag"></i><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div id="accmenu" class="menu" role="listbox"></div></div><select id="accsel" hidden aria-hidden="true"></select><button id="logout" class="alt">Log out</button></div></div></div>
-<div class="tabs" role="tablist"><button id="t1" class="tab on"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z"/></svg><span>Auto trades</span></button><button id="t2" class="tab"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="11" rx="3"/><path d="M12 4v4"/><circle cx="9.5" cy="13" r="1"/><circle cx="14.5" cy="13" r="1"/></svg><span>Free bots</span></button><button id="t3" class="tab"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span>Bot builder</span></button><button id="t5" class="tab"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg><span>Bulk</span></button><button id="t6" class="tab"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span>Manual</span></button><button id="t7" class="tab"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="20" rx="3"/><circle cx="12" cy="7" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="17" r="1.4"/></svg><span>Signal</span></button></div>
+<div class="tabs" role="tablist"><button id="t1" class="tab on">Auto trades</button><button id="t2" class="tab">Free bots</button><button id="t3" class="tab">Bot builder</button><button id="t5" class="tab">Bulk</button><button id="t6" class="tab">Manual</button><button id="t7" class="tab">Signal</button></div>
 <div id="sigbar" role="button" tabindex="0">🚦 New signal. Tap to open it</div>
 <div id="pg1">
 <p class="sub">Live Deriv ticks: digit frequency, even/odd, rise/fall and entry signals.</p>
@@ -331,9 +323,7 @@ button.tab#t7.alert svg{stroke:currentColor}
 <div class="card" style="margin-bottom:12px">
 <div class="tr" style="margin:0 0 8px"><button id="g_on" class="alt">Scanner: ON</button><button id="g_now" class="alt">Scan now</button><button id="g_test" class="alt">Test ring</button></div>
 <div class="tr" style="margin:0 0 6px"><label class="f">Scan every<select id="g_iv"><option value="120000">2 min</option><option value="300000" selected>5 min</option><option value="600000">10 min</option></select></label>
-<label class="f">Markets<select id="g_mk" style="width:200px"><option value="calm" selected>Calm markets (Volatility 10, 15, 25)</option><option value="all">All Volatility</option></select></label></div>
-<div class="tr" style="margin:0 0 6px"><button id="g_auto" class="alt">Auto-trade: OFF</button><label class="f">Auto-trade loss limit<input id="g_lim" type="number" value="3" min="0.35" step="0.01"></label></div>
-<div class="note">Auto-trade starts the runs by itself when a new signal appears, one signal at a time, and turns itself off when your session losses reach the loss limit. It only starts if you are logged in.</div>
+<label class="f">Markets<select id="g_mk" style="width:200px"><option value="all">All Volatility</option><option value="calm">Calm only (10, 15, 25)</option></select></label></div>
 <div class="note" id="g_status">Starting…</div>
 </div>
 <div class="card" style="margin-bottom:12px">
@@ -346,7 +336,6 @@ button.tab#t7.alert svg{stroke:currentColor}
 <div class="tr" style="margin-top:8px"><button id="g_go" style="background:var(--tab);color:#14230a;font-weight:800">Start runs</button><button id="g_dismiss" class="alt">Dismiss</button></div>
 </div>
 </div>
-<div class="card" style="margin-bottom:12px" id="g_tblbox" hidden><h3>Markets scanned (real data)</h3><div id="g_tbl"></div></div>
 <div class="card" style="margin-bottom:12px" id="g_evbox" hidden><h3>Evidence</h3><div id="g_ev"></div></div>
 <div class="card" style="margin-bottom:12px">
 <div class="row"><span>Balance <b id="g_bal">–</b></span><span>P/L <b id="g_pnl">0.00</b></span><span>W/L <b id="g_wl">0/0</b></span></div>
@@ -627,7 +616,7 @@ button.tab#t7.alert svg{stroke:currentColor}
     if(typeof manBusyUi==='function')manBusyUi();
     if(!os)sst('Idle');$('scnBtn').classList.toggle('run',os)}
   function sst(t){$('sst').textContent=t}
-  function botStop(msg){if(bot){if(msg)log(msg);if(bot.def&&bot.def.onEnd)bot.def.onEnd(bot);if(bot.st)bot.st.dead=true;bot=null;busy=false}botUi()}
+  function botStop(msg){if(bot){if(msg)log(msg);if(bot.st)bot.st.dead=true;bot=null;busy=false}botUi()}
   function startBot(def,c){
     if(bot)return;
     if(auto||busy){logTo(lgOf(def),'Another strategy is running. Stop it first.','l');return}
@@ -775,6 +764,12 @@ button.tab#t7.alert svg{stroke:currentColor}
   $('kreset').onclick=function(){if(bot&&bot.o==='k')botStop('');BS.k={p:0,W:0,L:0};botUi();$('klog').innerHTML='';logTo('klog','Reset: stats and journal cleared')};
   kInfo();
 
+  /* ---- colour themes ---- */
+  var THEMES=[['midnight','Midnight'],['ocean','Ocean'],['sunset','Sunset'],['forest','Forest']],th=0;
+  try{var tsv=localStorage.getItem('mtl_theme');th=Math.max(0,THEMES.findIndex(function(x){return x[0]===tsv}))}catch(e){}
+  function applyTheme(){document.documentElement.setAttribute('data-theme',THEMES[th][0]);$('thm').textContent='🎨 '+THEMES[th][1]}
+  $('thm').onclick=function(){th=(th+1)%THEMES.length;try{localStorage.setItem('mtl_theme',THEMES[th][0])}catch(e){}applyTheme()};
+  applyTheme();
 
   /* ================= Manual trading (digit circles + one-tap trades) ================= */
   var man={q:[],pq:[],inflight:false,t:null,pay:{A:null,B:null},sel:4,last:''};
@@ -881,7 +876,7 @@ button.tab#t7.alert svg{stroke:currentColor}
   manType();
 
   /* ================= Signal tab: background scanner, alert, one signal ================= */
-  var sg={on:true,iv:300000,t:null,scanning:false,cur:null,last:0,seen:{},alert:false,ring:null,actx:null,n:0,mk:0,auto:false,sess:0,rows:[]};
+  var sg={on:true,iv:300000,t:null,scanning:false,cur:null,last:0,seen:{},alert:false,ring:null,actx:null,n:0,mk:0};
   var SGC=(function(){var c=[],b,d;function mk(t,bb,name,p,fn){var dg=[];for(d=0;d<10;d++)if(fn(d))dg.push(d);c.push({t:t,b:bb,name:name,p:p,dg:dg})}
     for(b=0;b<=8;b++)(function(b){mk('DIGITOVER',b,'Over '+b,(9-b)/10,function(x){return x>b})})(b);
     for(b=1;b<=9;b++)(function(b){mk('DIGITUNDER',b,'Under '+b,b/10,function(x){return x<b})})(b);
@@ -897,7 +892,7 @@ button.tab#t7.alert svg{stroke:currentColor}
       var zm=Math.min.apply(null,zs);if(!best||zm>best.zm)best={c:c,zs:zs,fs:fs,zm:zm,W:W}}
     return best}
   function sgRec(c){
-    var bal=(acc&&acc.bal)?acc.bal:null,match=c.t==='DIGITMATCH',base=bal?Math.min(2,Math.max(0.35,bal*0.01)):0.35;
+    var bal=(acc&&acc.bal)?acc.bal:null,match=c.t==='DIGITMATCH',base=bal?Math.min(5,Math.max(0.35,bal*0.01)):0.35;
     if(match)base=Math.max(0.35,base/2);return{base:Math.round(base*100)/100,runs:match?20:10,match:match}}
   function sgRing(){
     try{var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!sg.actx)sg.actx=new AC();var c=sg.actx;if(c.state==='suspended')c.resume();
@@ -911,8 +906,8 @@ button.tab#t7.alert svg{stroke:currentColor}
   function sgLight(k){$('g_light').className='tl '+k}
   function sgRender(){
     var c=sg.cur,when=sg.last?new Date(sg.last).toLocaleTimeString():'–',mb=(sg.mk*500*28/1048576)*(3600000/sg.iv);
-    $('g_on').textContent='Scanner: '+(sg.on?'ON':'OFF');$('g_auto').textContent='Auto-trade: '+(sg.auto?'ON':'OFF');$('g_auto').style.background=sg.auto?'var(--tab)':'';$('g_auto').style.color=sg.auto?'#14230a':'';
-    $('g_status').textContent=(sg.on?(sg.scanning?'Scanning markets… ':'Last scan '+when+' · '):'Scanner is off. ')+'about '+mb.toFixed(1)+' MB of data per hour at this setting.'+(sg.auto?' Auto-trade is ON (session '+(sg.sess>=0?'+':'')+sg.sess.toFixed(2)+').':'');
+    $('g_on').textContent='Scanner: '+(sg.on?'ON':'OFF');
+    $('g_status').textContent=(sg.on?(sg.scanning?'Scanning markets… ':'Last scan '+when+' · '):'Scanner is off. ')+'about '+mb.toFixed(1)+' MB of data per hour at this setting.';
     if(!c){
       sgLight(sg.scanning?'amb':'red');$('g_state').textContent=sg.scanning?'SCANNING':(sg.on?'NO SIGNAL':'OFF');$('g_title').textContent=sg.scanning?'Scanning markets…':'No signal right now';
       $('g_text').textContent=sg.scanning?'Checking every market for Over/Under, Even/Odd and Matches patterns.':'Nothing is stronger than ordinary randomness. The best trade right now is no trade. The tab rings and blinks when a signal appears.';
@@ -920,28 +915,27 @@ button.tab#t7.alert svg{stroke:currentColor}
     var age=Math.round((Date.now()-c.time)/60000),old=age>=10;
     sgLight(old?'amb':'grn');$('g_state').textContent=old?'SIGNAL (OLD, '+age+' MIN)':'SIGNAL · found '+(age<1?'just now':age+' min ago');
     $('g_title').textContent=c.name+' · '+c.market;
-    $('g_text').textContent=c.name+' on '+c.market+' beat its fair rate in the last 100, 300 and 500 live ticks (strength '+c.zs.map(function(z){return z.toFixed(1)}).join(' / ')+'). Real data from Deriv, scanned at '+new Date(sg.last).toLocaleTimeString()+'.'+(old?' Patterns fade fast: scan again before using it.':'');
+    $('g_text').textContent=c.name+' on '+c.market+' beat its fair rate in the last 100, 300 and 500 ticks (strength '+c.zs.map(function(z){return z.toFixed(1)}).join(' / ')+').'+(old?' Patterns fade fast: scan again before using it.':'');
     var r=sgRec(c.c);
-    if($('g_recbox').hidden||c.fresh){$('g_base').value=r.base;$('g_n').value=r.runs;c.fresh=false}
+    if(!$('g_recbox').hidden===false||c.fresh){$('g_base').value=r.base;$('g_n').value=r.runs;c.fresh=false}
     $('g_recbox').hidden=false;
-    $('g_rec').textContent='Go with '+r.runs+' runs at a stake of '+r.base.toFixed(2)+' each. '+(r.match?'Matches wins about 1 in 10, so expect long gaps; it stops if your losses reach 10 stakes.':'It stops early if you lose 3 runs in a row.')+' Most you can lose: '+(r.runs*r.base).toFixed(2)+(acc&&acc.bal?' ('+(r.runs*r.base/acc.bal*100).toFixed(1)+'% of your balance)':'')+'. Stake is about 1% of your balance, never above 2.00.';
+    $('g_rec').textContent='Go with '+r.runs+' runs at a stake of '+r.base.toFixed(2)+' each. '+(r.match?'Matches wins about 1 in 10, so expect long gaps; it stops if your losses reach 10 stakes.':'It stops early if you lose 3 runs in a row.')+' Most you can lose: '+(r.runs*r.base).toFixed(2)+(acc&&acc.bal?' ('+(r.runs*r.base/acc.bal*100).toFixed(1)+'% of your balance)':'')+'. Stake is about 1% of your balance, never above 5.00.';
     $('g_evbox').hidden=false;
     $('g_ev').innerHTML='<div class="ev" style="color:var(--mute);font-size:11px"><span>Window</span><span>Wins</span><span>Fair rate</span></div>'+[100,300,500].map(function(w,i){return '<div class="ev"><span>last '+w+'</span><span>'+(c.fs[i]*100).toFixed(1)+'%</span><span>'+(c.c.p*100).toFixed(0)+'%</span></div>'}).join('');
   }
   function sgScan(){
     if(sg.scanning||!sg.on)return;sg.scanning=true;sgRender();
     var calm=['R_10','R_25','1HZ10V','1HZ15V','1HZ25V'],all=[].map.call(symSel.options,function(o){return o.value}),
-        syms=$('g_mk').value==='calm'?all.filter(function(v){return calm.indexOf(v)>-1}):all,i=0,best=null,rows=[],w=null,tmo=null,fin=false;
+        syms=$('g_mk').value==='calm'?all.filter(function(v){return calm.indexOf(v)>-1}):all,i=0,best=null,w=null,tmo=null,fin=false;
     if(!syms.length)syms=all;sg.mk=syms.length;
     function done(){if(fin)return;fin=true;clearTimeout(tmo);try{w.close()}catch(e){}
-      sg.scanning=false;sg.last=Date.now();sg.rows=rows.sort(function(x,y){return y.zm-x.zm});
-      var trigger=false;
+      sg.scanning=false;sg.last=Date.now();
       if(best&&best.zm>=3.3){
         var c=best,key=c.sym+c.c.t+c.c.b,fresh=!sg.cur||sg.cur.key!==key;
         sg.cur={key:key,c:c.c,name:c.c.name,sym:c.sym,market:c.market,zs:c.zs,fs:c.fs,zm:c.zm,time:Date.now(),fresh:fresh};
-        if(!sg.seen[key]||Date.now()-sg.seen[key]>20*60000){sg.seen[key]=Date.now();trigger=true;sgAlert(true)}
+        if(!sg.seen[key]||Date.now()-sg.seen[key]>20*60000){sg.seen[key]=Date.now();sgAlert(true)}
       }else{sg.cur=null;if(sg.alert)sgAlert(false)}
-      sgRender();sgTable();if(trigger&&sg.auto)sgRun(true)}
+      sgRender()}
     function step(){
       if(!sg.on&&!fin){fin=true;sg.scanning=false;try{w.close()}catch(e){}sgRender();return}
       if(i>=syms.length)return done();
@@ -949,7 +943,7 @@ button.tab#t7.alert svg{stroke:currentColor}
       tmo=setTimeout(function(){i++;step()},5000);
       w.onmessage=function(m){var d;try{d=JSON.parse(m.data)}catch(e){return}
         if(d.history||d.error){clearTimeout(tmo);
-          if(d.history){var D=digitsOf(d);if(D.length>=300){var b=sgBest(D);if(b){b.sym=sym;b.market=mlabel(sym);b.px=d.history.prices[d.history.prices.length-1];b.ld=D.slice(-10);rows.push(b);if(!best||b.zm>best.zm)best=b}}}
+          if(d.history){var D=digitsOf(d);if(D.length>=300){var b=sgBest(D);if(b&&(!best||b.zm>best.zm)){b.sym=sym;b.market=mlabel(sym);best=b}}}
           i++;step()}};
       try{w.send(JSON.stringify({ticks_history:sym,count:500,end:'latest',style:'ticks'}))}catch(e){i++;step()}
     }
@@ -963,36 +957,16 @@ button.tab#t7.alert svg{stroke:currentColor}
   $('g_test').onclick=function(){sgRing()};
   $('sigbar').onclick=function(){showTab(7)};
   $('g_dismiss').onclick=function(){sg.cur=null;sgAlert(false);sgRender()};
-
-  function sgTable(){
-    var r=sg.rows;if(!r||!r.length){$('g_tblbox').hidden=true;return}
-    $('g_tblbox').hidden=false;
-    $('g_tbl').innerHTML='<div class="ar hd"><span>Market</span><span>Strongest</span><span>Wins</span><span>z</span></div>'+r.map(function(x){return '<div class="ar'+(x.zm>=3.3?' ok':'')+'"><span>'+x.market.replace(' Index','')+'</span><span>'+x.c.name+'</span><span>'+(x.fs[2]*100).toFixed(1)+'%</span><span>'+x.zm.toFixed(1)+'</span><span style="grid-column:1/-1;font-weight:400;color:var(--mute);font-size:11px">latest price '+x.px+' · last digits '+x.ld.join(' ')+'</span></div>'}).join('')+'<div class="note" style="margin-top:6px">Last '+(sg.rows.length)+' markets, 500 live ticks each. Source: live tick history from Deriv\'s own feed, fetched at '+new Date(sg.last).toLocaleTimeString()+'. Nothing here is simulated, and you can check the latest price and last digits against Deriv\'s chart. A row turns green only when the pattern is strong in all three windows (z of 3.3 or more). Most scans show none, which is what random data does.</div>'}
-  function sgRun(auto){
-    var c=sg.cur;if(!c){logTo('glog','No signal to run. Scan first.','l');return}
-    if(bot||(typeof auto!=='undefined'&&false)){}
-    if(bot||busy){logTo('glog','Another strategy is running, so this signal was skipped.','l');return}
-    var r=sgRec(c.c),base=auto===true?r.base:+$('g_base').value,n=auto===true?r.runs:Math.max(1,Math.round(+$('g_n').value||1));
-    if(auto===true){if(!acc){logTo('glog','Auto-trade needs a Deriv login.','l');return}logTo('glog','Auto-trading '+c.name+' on '+c.market+': '+n+' runs at '+base.toFixed(2),'g')}
-    startBot(SIGRUN,{t:c.c.t,b:c.c.b,sym:c.sym,base:base,rounds:n,tp:0,sl:base*10,stop3:c.c.t!=='DIGITMATCH',maxst:1e9,cap:0});
-  }
   var SIGRUN={name:'Signal runs',signal:true,
     init:function(){return{runs:0,lossRun:0}},
     next:function(st,c){return{legs:[{t:c.t,b:c.b,a:c.base,s:c.sym}]}},
     result:function(st,c,p){st.runs++;if(p>0)st.lossRun=0;else st.lossRun++},
     done:function(st,c){return st.runs>=c.rounds||(c.stop3&&st.lossRun>=3)},
-    why:function(st,c){return st.runs>=c.rounds?'Finished all '+c.rounds+' runs':'Stopped after 3 losses in a row'},
-    onEnd:function(b){sg.sess+=BS.g.p;var lim=+$('g_lim').value||3;
-      if(sg.auto&&sg.sess<=-lim){sg.auto=false;logTo('glog','Auto-trade turned OFF: session losses reached the limit ('+sg.sess.toFixed(2)+').','l')}
-      sgRender()}};
-  $('g_go').onclick=function(){sgRun(false)};
-  $('g_auto').onclick=function(){
-    if(!sg.auto){
-      if(!acc){logTo('glog','Log in with Deriv first','l');return}
-      if(!acc.demo&&!confirm('This is a REAL money account. Auto-trade will place trades by itself when a signal appears, until your loss limit is reached. Turn it on?'))return;
-      sg.auto=true;sg.sess=0;if(!sg.on){sg.on=true;sgStart()}
-    }else sg.auto=false;
-    sgRender()};
+    why:function(st,c){return st.runs>=c.rounds?'Finished all '+c.rounds+' runs':'Stopped after 3 losses in a row'}};
+  $('g_go').onclick=function(){
+    var c=sg.cur;if(!c){logTo('glog','No signal to run. Scan first.','l');return}
+    var base=+$('g_base').value,n=Math.max(1,Math.round(+$('g_n').value||1));
+    startBot(SIGRUN,{t:c.c.t,b:c.c.b,sym:c.sym,base:base,rounds:n,tp:0,sl:base*10,stop3:c.c.t!=='DIGITMATCH',maxst:1e9,cap:0})};
   $('g_stop').onclick=function(){botStop('Stopped')};
   $('g_reset').onclick=function(){if(bot&&bot.o==='g')botStop('');BS.g={p:0,W:0,L:0};botUi();$('glog').innerHTML='';logTo('glog','Reset: stats and journal cleared')};
   document.addEventListener('pointerdown',function(){try{if(sg.actx&&sg.actx.state==='suspended')sg.actx.resume()}catch(e){}},{passive:true});
@@ -1010,7 +984,7 @@ button.tab#t7.alert svg{stroke:currentColor}
   function showTab(n){
     if(n!==6&&bot&&bot.o==='m'){if(bot.phase==='idle')botStop('Manual session ended');else bot.leave=true}
     [1,2,3,5,6,7].forEach(function(i){$('pg'+i).hidden=(i!==n);$('t'+i).classList.toggle('on',i===n)});
-    document.body.setAttribute('data-tab',n);window.scrollTo(0,0);try{$('t'+n).scrollIntoView({inline:'center',block:'nearest'})}catch(e){}
+    document.body.setAttribute('data-tab',n);window.scrollTo(0,0);
     if(n===6){manRender();manPayouts()}
     if(n===7)sigOpen();
   }
@@ -1062,4 +1036,75 @@ button.tab#t7.alert svg{stroke:currentColor}
       }
       if(d.history){
         prices=[];digits=[];dirs=[];hdig=[];
-        dec=d.pip_size||Math.max.apply(null,d.history.prices.map(function(p){return (String(p).split('.')[1]||'').length}))||2
+        dec=d.pip_size||Math.max.apply(null,d.history.prices.map(function(p){return (String(p).split('.')[1]||'').length}))||2;
+        d.history.prices.forEach(function(p){add(+p,true)});render();
+      }
+      if(d.tick){if(d.tick.pip_size)dec=d.tick.pip_size;add(+d.tick.quote,false);render();botTick();manRender()}
+    };
+    ws.onclose=function(){alive=false;if(auto){setAuto(false);log('Connection lost: auto stopped','l')}if(bot)botStop('Connection lost: bot stopped');busy=false;$('st').textContent='Reconnecting…';setTimeout(connect,Math.min(1000*++retry,8000))};
+    ws.onerror=function(){try{ws.close()}catch(e){}};
+  }
+  async function init(){
+    access=ss('mtl_a');refresh=ss('mtl_r');
+    await callback();
+    if(access){try{await loadAccts()}catch(e){$('acct').textContent=e.message;access=null}}
+    renderAuth();connect();setInterval(pollBals,15000);sgStart();
+  }
+  function add(p,quiet){
+    var prev=prices.length?prices[prices.length-1]:null;
+    prices.push(p);
+    digits.push(+p.toFixed(dec).slice(-1));hdig.push(digits[digits.length-1]);if(hdig.length>1000)hdig.shift();
+    dirs.push(prev===null?0:(p>prev?1:p<prev?-1:0));
+    var max=+winSel.value;
+    while(prices.length>max){prices.shift();digits.shift();dirs.shift()}
+  }
+  function pct(n,t){return t?(n/t*100):0}
+  function run(arr){var n=0,last=arr[arr.length-1];for(var i=arr.length-1;i>=0&&arr[i]===last;i--)n++;return {v:last,n:n}}
+
+  function render(){
+    var n=digits.length;if(!n)return;
+    var last=digits[n-1];
+    $('px').textContent=prices[n-1].toFixed(dec);
+    $('ld').textContent=last;
+    $('tape').innerHTML=digits.slice(-20).map(function(x,i,a){
+      var dr=dirs[n-a.length+i];return '<span class="'+(dr>0?'u':dr<0?'d':'')+'">'+x+'</span>'}).join('');
+    var cnt=Array(10).fill(0);digits.forEach(function(x){cnt[x]++});
+    var mx=Math.max.apply(null,cnt),mn=Math.min.apply(null,cnt);
+    for(var i=0;i<10;i++){
+      var c=$('c'+i);c.className='col'+(cnt[i]===mx?' hi':cnt[i]===mn?' lo':'')+(i===last?' cur':'');
+      $('b'+i).style.height=Math.max(2,cnt[i]/mx*100)+'%';
+      $('p'+i).textContent=pct(cnt[i],n).toFixed(1)+'%';
+    }
+    var ev=digits.filter(function(x){return x%2===0}).length;
+    $('ev').textContent=pct(ev,n).toFixed(1)+'%';$('od').textContent=pct(n-ev,n).toFixed(1)+'%';
+    $('evb').style.width=pct(ev,n)+'%';$('odb').style.width=pct(n-ev,n)+'%';
+    var d=dirs.slice(1),ri=d.filter(function(x){return x>0}).length,fa=d.filter(function(x){return x<0}).length,tt=ri+fa;
+    $('ri').textContent=pct(ri,tt).toFixed(1)+'%';$('fa').textContent=pct(fa,tt).toFixed(1)+'%';
+    $('rib').style.width=pct(ri,tt)+'%';$('fab').style.width=pct(fa,tt)+'%';
+    var b=+barSel.value,ov=digits.filter(function(x){return x>b}).length,un=digits.filter(function(x){return x<b}).length;
+    $('ov').textContent=pct(ov,n).toFixed(1)+'%';$('un').textContent=pct(un,n).toFixed(1)+'%';$('eq').textContent=pct(n-ov-un,n).toFixed(1)+'%';
+    var pr=run(digits.map(function(x){return x%2})),dr=run(dirs.slice(1)),sd=run(digits);
+    $('sp').textContent=pr.n+'× '+(pr.v?'odd':'even');
+    $('sd').textContent=dr.n+'× '+(dr.v>0?'rise':dr.v<0?'fall':'flat');
+    $('ss').textContent=sd.n+'× digit '+sd.v;
+    var s=[];
+    var top=cnt.indexOf(mx),low=cnt.indexOf(mn);
+    s.push('Most frequent digit: <b>'+top+'</b> ('+pct(mx,n).toFixed(1)+'%). Least frequent: <b>'+low+'</b> ('+pct(mn,n).toFixed(1)+'%).');
+    if(Math.abs(pct(ev,n)-50)>=6)s.push((ev>n/2?'Even':'Odd')+' is leading by '+Math.abs(pct(ev,n)-50).toFixed(1)+' points over the window.');
+    if(pr.n>=4)s.push('Parity has repeated '+pr.n+' times in a row ('+(pr.v?'odd':'even')+').');
+    if(dr.n>=4&&dr.v)s.push('Price has '+(dr.v>0?'risen':'fallen')+' '+dr.n+' ticks in a row.');
+    if(sd.n>=3)s.push('Digit '+sd.v+' has repeated '+sd.n+' times.');
+    var ovp=pct(ov,n);if(Math.abs(ovp-(b<9?(9-b)*10:0))>=7&&b<9)s.push('Over '+b+' is hitting '+ovp.toFixed(1)+'% vs a fair '+((9-b)*10)+'%.');
+    $('sigs').innerHTML=s.map(function(x){return '<li>'+x+'</li>'}).join('');
+  }
+  symSel.onchange=function(){$('bsym').value=symSel.value;$('m_sym').value=symSel.value;connect()};
+  $('bsym').onchange=function(){symSel.value=this.value;symSel.onchange()};
+  $('m_sym').onchange=function(){symSel.value=this.value;symSel.onchange();manPayouts()};
+  winSel.onchange=function(){connect()};
+  barSel.onchange=render;
+  $('reset').onclick=function(){connect()};
+  init();
+})();
+</script>
+</body>
+</html>
