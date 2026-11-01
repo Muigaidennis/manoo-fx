@@ -164,13 +164,16 @@ button.tab#t1{--ic:#ff6b78}button.tab#t2{--ic:#b98dff}button.tab#t3{--ic:#6cb6ff
 button.tab.on{background:var(--tab);color:#fff;box-shadow:0 4px 14px -4px var(--tab)}
 button.tab.on svg{stroke:currentColor}
 button.tab#t7.alert svg{stroke:currentColor}
+/* ---------- copy trading ---------- */
+body[data-tab="8"]{--tab:#f472b6}button.tab#t8{--ic:#f9a8d4}body[data-tab="8"] button.tab.on{color:#2a0a1a}
+#clog{max-height:170px;overflow:auto;font-size:12px;margin-top:6px}#clog .w{color:var(--up)}#clog .l{color:var(--down)}#clog .g{color:var(--mute)}
 </style>
 </head>
 <body data-tab="1">
 <div class="top"><div class="logo"><span>M</span><a id="wa" class="wa" href="https://wa.me/254769968830" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp" title="Chat on WhatsApp"><svg viewBox="0 0 448 512" width="22" height="22" aria-hidden="true"><path fill="#fff" d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg></a></div>
 <div><div id="out" class="tr" style="margin:0"><button id="login" class="brand">Log in with Deriv</button><a id="signup" class="signup" href="https://t.deriv.link?t=ZMDRX7S994PX" target="_blank" rel="noopener noreferrer sponsored">Sign up</a></div>
 <div id="in" class="tr" style="margin:0;display:none"><div class="acc"><button id="accbtn" class="pill" aria-haspopup="listbox" aria-expanded="false" aria-label="Switch account"><span id="flag"></span><span id="hbal">–</span><i id="tag" class="tag"></i><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div id="accmenu" class="menu" role="listbox"></div></div><select id="accsel" hidden aria-hidden="true"></select><button id="logout" class="alt">Log out</button></div></div></div>
-<div class="tabs" role="tablist"><button id="t1" class="tab on"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z"/></svg><span>Auto trades</span></button><button id="t2" class="tab"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="11" rx="3"/><path d="M12 4v4"/><circle cx="9.5" cy="13" r="1"/><circle cx="14.5" cy="13" r="1"/></svg><span>Free bots</span></button><button id="t3" class="tab"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span>Bot builder</span></button><button id="t5" class="tab"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg><span>Bulk</span></button><button id="t6" class="tab"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span>Manual</span></button><button id="t7" class="tab"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="20" rx="3"/><circle cx="12" cy="7" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="17" r="1.4"/></svg><span>Signal</span></button></div>
+<div class="tabs" role="tablist"><button id="t1" class="tab on"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z"/></svg><span>Auto trades</span></button><button id="t2" class="tab"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="11" rx="3"/><path d="M12 4v4"/><circle cx="9.5" cy="13" r="1"/><circle cx="14.5" cy="13" r="1"/></svg><span>Free bots</span></button><button id="t3" class="tab"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span>Bot builder</span></button><button id="t5" class="tab"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg><span>Bulk</span></button><button id="t6" class="tab"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span>Manual</span></button><button id="t7" class="tab"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="20" rx="3"/><circle cx="12" cy="7" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="17" r="1.4"/></svg><span>Signal</span></button><button id="t8" class="tab"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg><span>Copy trading</span></button></div>
 <div id="sigbar" role="button" tabindex="0">🚦 New signal. Tap to open it</div>
 <div id="pg1">
 <p class="sub">Live Deriv ticks: digit frequency, even/odd, rise/fall and entry signals.</p>
@@ -356,6 +359,30 @@ button.tab#t7.alert svg{stroke:currentColor}
 </div>
 <p class="note">A signal means a pattern that is stronger than chance in the last 100, 300 and 500 ticks. It does not predict the next trade: Deriv draws each digit at random, and patterns usually fade. The stake and run count are risk limits, not promises. The expected result after Deriv's margin is still slightly negative, so keep to the runs shown and stop when it says stop.</p>
 </div>
+<div id="pg8" hidden>
+<div class="card" style="margin-bottom:12px">
+<h3 style="color:var(--ink);font-size:18px;margin-bottom:4px">Copy trading: demo to real</h3>
+<div class="note">Every trade you place on your <b>demo</b> account in this site (Manual, bots, Auto trades, Bulk, Signal) is also placed on your <b>real</b> account, at the same moment. You do not need to paste a token: the Deriv login already gives access to both accounts.</div>
+<h4 class="sec">Accounts</h4>
+<div class="note" id="c_pri">Not logged in</div>
+<div class="tr" style="margin-top:6px"><label class="f">Real account to copy into<select id="c_acc" style="width:230px"></select></label></div>
+<h4 class="sec">Safety limits</h4>
+<div class="tr">
+<label class="f">Stake multiplier ×<input id="c_mult" type="number" value="1" min="0.1" step="0.1"></label>
+<label class="f">Max stake per copied trade<input id="c_max" type="number" value="1" min="0.35" step="0.01"></label>
+<label class="f">Real loss limit<input id="c_lim" type="number" value="3" min="0.35" step="0.01"></label>
+</div>
+<div class="note">The real stake is your demo stake times the multiplier, never above the max stake (and never below 0.35). Copying turns itself off when your real losses reach the loss limit. It starts OFF every time you open the site.</div>
+<div class="tr" style="margin-top:8px"><button id="c_on" class="alt">Turn copying ON</button></div>
+</div>
+<div class="card" style="margin-bottom:12px">
+<div class="row"><span>Real balance <b id="c_bal">–</b></span><span>Copied P/L <b id="c_pnl">0.00</b></span><span>W/L <b id="c_wl">0/0</b></span></div>
+<div class="note" id="c_st">Copying is OFF</div>
+<div class="tr"><button id="c_reset" class="alt">Reset</button></div>
+<div id="clog"></div>
+</div>
+<p class="note">Copying doubles your exposure: every demo trade, including tests and experiments, becomes a real-money trade. Demo results do not predict real results, because the same trade can win on one account and lose on the other if it lands on a different tick. Deriv's margin applies to the real account too. Keep the max stake and loss limit small.</p>
+</div>
 <button id="scnBtn" class="fab" aria-label="Manoo Scanner. Drag to move, tap to open." title="Manoo Scanner (drag to move)"><span>✦</span><small>SCAN</small></button>
 <div id="scnPanel" class="sheet" hidden role="dialog" aria-label="Manoo Scanner">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h3 style="margin:0;color:var(--ink);font-size:17px">Manoo Scanner</h3><button id="scnX" class="alt" aria-label="Close">✕</button></div>
@@ -384,6 +411,7 @@ button.tab#t7.alert svg{stroke:currentColor}
   function dbg(){var e=$('dbg');return e&&e.checked}
   function send(o){
     if(dbg()&&(o.proposal||o.buy||o.forget)){tSend=performance.now();log('→ '+JSON.stringify(o).slice(0,380),'g')}
+    if(o.buy==='1'&&ws&&ws.readyState===1)cpMirror(o);
     if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
   function logTo(id,t,c){var l=$(id);l.insertAdjacentHTML('afterbegin','<div class="'+(c||'')+'">'+new Date().toLocaleTimeString()+' '+t+'</div>');while(l.children.length>60)l.removeChild(l.lastChild)}
   function log(t,c){logTo(bot?(bot.o==='s'?'slog':(bot.o==='k'?'klog':(bot.o==='m'?'mlog':(bot.o==='g'?'glog':'blog')))):'log',t,c)}
@@ -427,7 +455,7 @@ button.tab#t7.alert svg{stroke:currentColor}
     else if(m==='proposal'&&busy){
       if(quoteDone)return;quoteDone=true;if(d.subscription)qsub=d.subscription.id;
       send({buy:d.proposal.id,price:+d.proposal.ask_price})}
-    else if(m==='buy'){rtry=0;directSent=false;if(qsub){send({forget:qsub});qsub=null}
+    else if(m==='buy'){var wasDirect=directSent;rtry=0;directSent=false;if(!wasDirect&&!(bot&&bot.par))cpMirror({buy:'q'});if(qsub){send({forget:qsub});qsub=null}
       if(d.buy.payout&&d.buy.buy_price&&lastReq)ratio[lastReq.contract_type+(lastReq.barrier!=null?lastReq.barrier:'')]=d.buy.payout/d.buy.buy_price-1;
       if(bot&&bot.par){botParBuy(d);return}
       if(bot){botOpen[d.buy.contract_id]=bot;log('Bought '+lastReq.contract_type.replace('DIGIT','')+(lastReq.barrier!=null?' '+lastReq.barrier:'')+(lastReq.selected_tick!=null?' tick '+lastReq.selected_tick:'')+' @ '+lastReq.amount.toFixed(2));send({proposal_open_contract:1,contract_id:d.buy.contract_id,subscribe:1});bot.idx++;if(bot.idx<bot.legs.length)botLeg();else bot.phase='open';return}
@@ -514,8 +542,8 @@ button.tab#t7.alert svg{stroke:currentColor}
       $('accsel').value=i;acc=accts[i];cur=acc.cur;hb(acc.bal);$('acct').textContent=acc.id+(acc.demo?' (demo)':' (REAL MONEY)')+' · '+cur}
   }
   $('login').onclick=login;
-  $('accsel').onchange=function(){var a=accts[+this.value];ss('mtl_sel',a.id);botStop('');setAuto(false);pnl=0;W=0;L=0;stk=s0=+$('stk').value;show();$('bal').textContent='–';renderAuth();connect()};
-  $('logout').onclick=function(){['mtl_a','mtl_r','mtl_sel'].forEach(function(k){ss(k,null)});access=refresh=null;accts=[];botStop('');setAuto(false);renderAuth();$('acct').textContent='Logged out.';$('bal').textContent='–';connect()};
+  $('accsel').onchange=function(){var a=accts[+this.value];ss('mtl_sel',a.id);cpOff('');botStop('');setAuto(false);pnl=0;W=0;L=0;stk=s0=+$('stk').value;show();$('bal').textContent='–';renderAuth();connect()};
+  $('logout').onclick=function(){['mtl_a','mtl_r','mtl_sel'].forEach(function(k){ss(k,null)});access=refresh=null;accts=[];cpOff('');botStop('');setAuto(false);renderAuth();$('acct').textContent='Logged out.';$('bal').textContent='–';connect()};
   function freshBuy(fn){
     fn=fn||buy;if(!acc){fn();return}
     log('Opening a fresh trading session…','g');connect();var t0=Date.now();
@@ -997,6 +1025,76 @@ button.tab#t7.alert svg{stroke:currentColor}
   $('g_reset').onclick=function(){if(bot&&bot.o==='g')botStop('');BS.g={p:0,W:0,L:0};botUi();$('glog').innerHTML='';logTo('glog','Reset: stats and journal cleared')};
   document.addEventListener('pointerdown',function(){try{if(sg.actx&&sg.actx.state==='suspended')sg.actx.resume()}catch(e){}},{passive:true});
 
+  /* ================= Copy trading: demo -> real (second connection to the real account) ================= */
+  var cp={on:false,ws:null,ready:false,id:null,cur:'USD',pnl:0,W:0,L:0,bal:null,q:[],pq:[],open:{},retry:0,mode:'direct'};
+  function clog(t,c){logTo('clog',t,c)}
+  function cpAccts(){var r=accts.filter(function(a){return !a.demo}),keep=$('c_acc').value;
+    $('c_acc').innerHTML=r.length?r.map(function(a){return '<option value="'+a.id+'">'+a.id+' · '+a.cur+' · Real</option>'}).join(''):'<option value="">No real account found</option>';if(keep)$('c_acc').value=keep}
+  function cpUi(){
+    $('c_on').textContent=cp.on?'Copying is ON (tap to stop)':'Turn copying ON';$('c_on').style.background=cp.on?'var(--tab)':'';$('c_on').style.color=cp.on?'#2a0a1a':'';
+    $('c_pri').textContent=acc?(acc.id+(acc.demo?' (demo): the trades you place here are copied.':' (REAL account). Switch to your demo account in the menu at the top to use copying.')):'Not logged in.';
+    $('c_bal').textContent=cp.bal==null?'–':cp.bal.toFixed(2)+' '+cp.cur;$('c_pnl').textContent=cp.pnl.toFixed(2);$('c_wl').textContent=cp.W+'/'+cp.L;
+    $('c_st').textContent=cp.on?(cp.ready?'Connected to the real account '+cp.id+'. Waiting for your demo trades.':'Connecting to the real account…'):'Copying is OFF'}
+  function cpOff(msg){
+    var was=cp.on;cp.on=false;cp.ready=false;cp.q=[];cp.pq=[];
+    try{if(cp.ws){cp.ws.onclose=null;cp.ws.close()}}catch(e){}cp.ws=null;
+    if(msg&&(was||msg))clog(msg,'l');cpUi()}
+  async function cpConnect(){
+    try{
+      var r=await fetch(API+'/trading/v1/options/accounts/'+encodeURIComponent(cp.id)+'/otp',{method:'POST',headers:{Authorization:'Bearer '+access}});
+      if(r.status===401&&await doRefresh())return cpConnect();
+      if(!r.ok)throw new Error('Could not open a session on the real account ('+r.status+'). Log in again and tick your real account.');
+      var url=(await r.json()).data.url;if(!cp.on)return;
+      var w=new WebSocket(url);cp.ws=w;
+      w.onopen=function(){if(cp.ws!==w)return;cp.ready=true;cp.retry=0;w.send(JSON.stringify({balance:1,subscribe:1}));clog('Connected to the real account '+cp.id,'g');cpUi()};
+      w.onmessage=function(m){var d;try{d=JSON.parse(m.data)}catch(e){return}cpMsg(d)};
+      w.onclose=function(){if(cp.ws!==w)return;cp.ready=false;
+        if(cp.on&&cp.retry<3){cp.retry++;setTimeout(function(){if(cp.on)cpConnect()},2000)}else if(cp.on)cpOff('Lost the connection to the real account. Copying is OFF.');cpUi()};
+    }catch(e){cpOff(String(e.message||e))}
+  }
+  function cpMsg(d){
+    var m=d.msg_type;
+    if(d.error){
+      if(m==='buy'){var it=cp.q.shift();
+        if(it&&it.dp&&cp.mode==='direct'){cp.mode='quote';clog('The real account refused the one-step buy ('+d.error.message+'). Using price quotes instead.','g');cpSend(it);return}}
+      if(m==='proposal')cp.pq.shift();
+      clog('Real account: '+d.error.message+(d.error.code?' ('+d.error.code+')':''),'l');return}
+    if(m==='proposal'){var pi=cp.pq.shift();if(pi){cp.q.push(pi);cp.ws.send(JSON.stringify({buy:d.proposal.id,price:+d.proposal.ask_price}))}return}
+    if(m==='balance'){cp.bal=+d.balance.balance;if(d.balance.currency)cp.cur=d.balance.currency;cpUi()}
+    else if(m==='buy'){var q=cp.q.shift()||{};cp.open[d.buy.contract_id]=q;clog('Real: bought '+(q.name||'contract')+' @ '+(+d.buy.buy_price).toFixed(2),'g');cp.ws.send(JSON.stringify({proposal_open_contract:1,contract_id:d.buy.contract_id,subscribe:1}))}
+    else if(m==='proposal_open_contract'){var c=d.proposal_open_contract;
+      if(c.is_sold&&cp.open[c.contract_id]){var q2=cp.open[c.contract_id];delete cp.open[c.contract_id];if(d.subscription)cp.ws.send(JSON.stringify({forget:d.subscription.id}));
+        var p=+c.profit;cp.pnl+=p;if(p>0)cp.W++;else cp.L++;clog('Real: '+(p>0?'WIN +':'LOSS ')+p.toFixed(2)+(q2.name?' · '+q2.name:''),p>0?'w':'l');cpUi();
+        var lim=+$('c_lim').value||3;if(cp.on&&cp.pnl<=-lim)cpOff('Copying turned OFF: real losses reached the limit ('+cp.pnl.toFixed(2)+').')}}
+  }
+  /* a trade sent on the demo account: place the same one on the real account at the same moment */
+  function cpMirror(o){
+    if(!cp.on||!cp.ready||!acc||!acc.demo||!cp.ws||cp.ws.readyState!==1)return;
+    var p=(o.buy==='1'&&o.parameters)?o.parameters:(o.buy==='q'?lastReq:null);if(!p)return;
+    var dp={},k;for(k in p)if(k!=='proposal'&&k!=='subscribe')dp[k]=p[k];
+    var amt=Math.max(0.35,Math.min(+$('c_max').value||1,Math.round((+dp.amount||0.35)*(+$('c_mult').value||1)*100)/100));
+    dp.amount=amt;dp.currency=cp.cur;
+    var name=String(dp.contract_type).replace('DIGIT','')+(dp.barrier!=null?' '+dp.barrier:'')+(dp.selected_tick!=null?' tick '+dp.selected_tick:'');
+    clog('Copying '+name+' · demo stake '+(+p.amount).toFixed(2)+' → real '+amt.toFixed(2),'g');
+    cpSend({name:name,dp:dp,amt:amt})
+  }
+  function cpSend(it){
+    if(!cp.ws||cp.ws.readyState!==1)return;
+    if(cp.mode==='direct'){cp.q.push(it);cp.ws.send(JSON.stringify({buy:'1',price:it.amt,parameters:it.dp}))}
+    else{var q={proposal:1},k;for(k in it.dp)q[k]=it.dp[k];cp.pq.push(it);cp.ws.send(JSON.stringify(q))}
+  }
+  $('c_on').onclick=function(){
+    if(cp.on){cpOff('Copying turned OFF');return}
+    if(!acc){clog('Log in with Deriv first','l');return}
+    if(!acc.demo){clog('Copying only works while you trade on your DEMO account. Switch to the demo account in the menu at the top first.','l');return}
+    var id=$('c_acc').value;if(!id){clog('No real account found in your login. Log out, log in again, and tick your real account on Deriv\'s page.','l');return}
+    var ra=accts.filter(function(a){return a.id===id})[0];
+    if(!confirm('REAL MONEY. Every trade you place on the demo account will also be placed on the real account '+id+', with a stake of up to '+(+$('c_max').value||1).toFixed(2)+' per trade, until your real losses reach '+(+$('c_lim').value||3).toFixed(2)+'. Turn copying on?'))return;
+    cp.on=true;cp.id=id;cp.cur=ra?ra.cur:'USD';cp.pnl=0;cp.W=0;cp.L=0;cp.bal=null;cp.q=[];cp.open={};cp.retry=0;
+    clog('Copying ON: demo '+acc.id+' → real '+id,'g');cpUi();cpConnect()};
+  $('c_reset').onclick=function(){cp.pnl=0;cp.W=0;cp.L=0;$('clog').innerHTML='';clog('Reset: stats and journal cleared','g');cpUi()};
+  cpAccts();cpUi();
+
   /* ---- Free bots list and Bot builder screens ---- */
   var selBot=null;
   var ROBOT='<svg viewBox="0 0 64 64" width="72" height="72" aria-hidden="true"><line x1="32" y1="7" x2="32" y2="15" stroke="var(--c)" stroke-width="3"/><circle cx="32" cy="5.5" r="3.5" fill="var(--c)"/><rect x="10" y="15" width="44" height="36" rx="11" fill="#0b1020" stroke="var(--c)" stroke-width="3"/><rect x="3.5" y="27" width="6.5" height="12" rx="3" fill="var(--c)"/><rect x="54" y="27" width="6.5" height="12" rx="3" fill="var(--c)"/><circle cx="23" cy="31" r="6" fill="var(--c)"/><circle cx="41" cy="31" r="6" fill="var(--c)"/><circle cx="23" cy="31" r="2.2" fill="#fff"/><circle cx="41" cy="31" r="2.2" fill="#fff"/><rect x="22" y="41" width="20" height="6" rx="3" fill="none" stroke="var(--c)" stroke-width="2"/><path d="M27 41v6M32 41v6M37 41v6" stroke="var(--c)" stroke-width="1.5"/><rect x="18" y="54" width="28" height="6" rx="3" fill="var(--c)" opacity=".85"/></svg>',CHECK='<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#3b82f6"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -1009,12 +1107,13 @@ button.tab#t7.alert svg{stroke:currentColor}
   }
   function showTab(n){
     if(n!==6&&bot&&bot.o==='m'){if(bot.phase==='idle')botStop('Manual session ended');else bot.leave=true}
-    [1,2,3,5,6,7].forEach(function(i){$('pg'+i).hidden=(i!==n);$('t'+i).classList.toggle('on',i===n)});
+    [1,2,3,5,6,7,8].forEach(function(i){$('pg'+i).hidden=(i!==n);$('t'+i).classList.toggle('on',i===n)});
     document.body.setAttribute('data-tab',n);window.scrollTo(0,0);try{$('t'+n).scrollIntoView({inline:'center',block:'nearest'})}catch(e){}
     if(n===6){manRender();manPayouts()}
     if(n===7)sigOpen();
+    if(n===8){cpAccts();cpUi()}
   }
-  $('t1').onclick=function(){showTab(1)};$('t2').onclick=function(){showTab(2)};$('t3').onclick=function(){showTab(3)};$('t5').onclick=function(){showTab(5)};$('t6').onclick=function(){showTab(6)};$('t7').onclick=function(){showTab(7)};
+  $('t1').onclick=function(){showTab(1)};$('t2').onclick=function(){showTab(2)};$('t3').onclick=function(){showTab(3)};$('t5').onclick=function(){showTab(5)};$('t6').onclick=function(){showTab(6)};$('t7').onclick=function(){showTab(7)};$('t8').onclick=function(){showTab(8)};
   $('bgrid').onclick=function(e){var el=e.target.closest('.bc');if(!el)return;loadBot(el.getAttribute('data-i'));showTab(3)};
   $('bsel').onchange=function(){loadBot(this.value)};
   $('bgo').onclick=function(){if(!selBot){logTo('blog','Choose a bot first','l');return}
