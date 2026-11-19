@@ -224,6 +224,7 @@ body[data-tab="11"]{--tab:#f5c542}button.tab#t11{--ic:#ffd978}body[data-tab="11"
 #p_live .pl{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:3px 0}#p_live b{color:#f5c542}
 #p_tick{font-size:18px;color:#22ff55;text-shadow:0 0 8px #22ff55;letter-spacing:1px}
 #plog{max-height:170px;overflow:auto;font-size:12px;margin-top:6px}#plog .w{color:var(--up)}#plog .l{color:var(--down)}#plog .g{color:var(--mute)}
+button.bc.bot.sel{box-shadow:0 0 0 3px var(--c),0 0 26px -4px var(--c)}
 </style>
 </head>
 <body data-tab="1">
@@ -456,12 +457,14 @@ body[data-tab="11"]{--tab:#f5c542}button.tab#t11{--ic:#ffd978}body[data-tab="11"
 </div>
 <div id="pg11" hidden>
 <p class="sub">Premium bots scan live Deriv data for you. Press Run and the bot does the rest.</p>
-<button class="bc bot" id="p_card" type="button" style="--c:#f5c542;--on:#2a2000;cursor:default"><span class="rb" id="p_robot"></span><span><span class="tg" style="margin:0">PREMIUM · AUTO SCAN</span><b class="bn">Manoo Auto Pilot</b><span class="by">by Manoo <span id="p_check"></span></span></span><small>No analysis needed. When you press Run it scans every Volatility market on live Deriv data (Over/Under, Even/Odd, Rise/Fall; never Matches or Differs), picks the strongest market, then waits for an entry point before each trade.</small></button>
+<button class="bc bot sel" id="p_card" type="button" style="--c:#f5c542;--on:#2a2000"><span class="rb" id="p_robot"></span><span><span class="tg" style="margin:0">PREMIUM · AUTO SCAN</span><b class="bn">Manoo Auto Pilot</b><span class="by">by Manoo <span id="p_check"></span></span></span><small>No analysis needed. When you press Run it scans every Volatility market on live Deriv data (Over/Under, Even/Odd, Rise/Fall; never Matches or Differs), picks the strongest market, then waits for an entry point before each trade.</small></button>
+<button class="bc bot" id="p_card2" type="button" style="--c:#60a5fa;--on:#06182f"><span class="rb" id="p_robot2"></span><span><span class="tg" style="margin:0">PREMIUM · ANALYSIS</span><b class="bn">Manoo Market Analyst</b><span class="by">by Manoo <span id="p_check2"></span></span></span><small>You choose the volatility, for example Volatility 10 (1s). The bot analyses that market on live Deriv data, decides whether Over/Under or Even/Odd is strongest, picks the contract, and waits for an entry point before every trade.</small></button>
 <div class="card" style="margin-bottom:12px">
 <h4 class="sec" style="margin-top:0">1 · Trade parameters</h4>
 <div class="tr">
 <label class="f">Stake<input id="p_stake" type="number" value="0.35" min="0.35" step="0.01"></label>
-<label class="f">Markets to scan<select id="p_mk" style="width:200px"><option value="all">All Volatility</option><option value="calm">Calm (10, 15, 25)</option></select></label>
+<label class="f" id="p_mkrow">Markets to scan<select id="p_mk" style="width:200px"><option value="all">All Volatility</option><option value="calm">Calm (10, 15, 25)</option></select></label>
+<label class="f" id="p_symrow" hidden>Volatility to analyse<select id="p_sym" style="width:220px"></select></label>
 <label class="f">Ticks analysed<select id="p_ticks"><option>500</option><option>1000</option><option>3000</option></select></label>
 </div>
 <h4 class="sec">2 · Entry point</h4>
@@ -1361,7 +1364,7 @@ body[data-tab="11"]{--tab:#f5c542}button.tab#t11{--ic:#ffd978}body[data-tab="11"
   $('b_sort').onchange=function(){bd.rn=0;bdRender()};
 
   /* ================= Premium bot: Manoo Auto Pilot ================= */
-  var pr={keep:false};
+  var pr={keep:false,bot:'auto'};
   var PRC=(function(){var c=[],b,d;function mk(t,bb,name,p,fn){var dg=[];for(d=0;d<10;d++)if(fn(d))dg.push(d);c.push({t:t,b:bb,name:name,p:p,dg:dg,k:'d'})}
     for(b=1;b<=4;b++)(function(b){mk('DIGITOVER',b,'Over '+b,(9-b)/10,function(x){return x>b})})(b);
     for(b=5;b<=8;b++)(function(b){mk('DIGITUNDER',b,'Under '+b,b/10,function(x){return x<b})})(b);
@@ -1372,9 +1375,9 @@ body[data-tab="11"]{--tab:#f5c542}button.tab#t11{--ic:#ffd978}body[data-tab="11"
     if(c.k==='d'){var a=D.slice(-w),k=0,i;for(i=0;i<a.length;i++)if(c.dg.indexOf(a[i])>-1)k++;var f=k/a.length;return{z:(f-c.p)/Math.sqrt(c.p*(1-c.p)/a.length),f:f,p:c.p}}
     var m=MV.slice(-w),u=0,d=0,fl=0,i2;for(i2=0;i2<m.length;i2++){if(m[i2]>0)u++;else if(m[i2]<0)d++;else fl++}
     var pf=(1-fl/m.length)/2,f2=(c.k==='u'?u:d)/m.length;return{z:(f2-pf)/Math.sqrt(pf*(1-pf)/m.length),f:f2,p:pf}}
-  function prBest(D,MV,ticks){
+  function prBest(D,MV,ticks,rf){
     var W=[100,300,Math.min(ticks,D.length)],best=null,j,w;
-    for(j=0;j<PRC.length;j++){var c=PRC[j],zs=[],fs=[],ps=[];
+    for(j=0;j<PRC.length;j++){var c=PRC[j],zs=[],fs=[],ps=[];if(c.k!=='d'&&rf===false)continue;
       for(w=0;w<3;w++){var r=prZwin(c,D,MV,W[w]);zs.push(r.z);fs.push(r.f);ps.push(r.p)}
       var zm=Math.min.apply(null,zs);if(!best||zm>best.zm)best={c:c,zs:zs,fs:fs,ps:ps,zm:zm,W:W}}
     return best}
@@ -1386,15 +1389,15 @@ body[data-tab="11"]{--tab:#f5c542}button.tab#t11{--ic:#ffd978}body[data-tab="11"
   function prScan(st,c){
     prClose(st);st.phase='scan';st.pick=null;
     var calm=['R_10','R_25','1HZ10V','1HZ15V','1HZ25V'],all=[].map.call(symSel.options,function(o){return o.value}),
-        syms=c.calm?all.filter(function(v){return calm.indexOf(v)>-1}):all,i=0,best=null,w=null,tmo=null,fin=false;
+        syms=c.fixed?[c.fixed]:(c.calm?all.filter(function(v){return calm.indexOf(v)>-1}):all),i=0,best=null,w=null,tmo=null,fin=false;
     if(!syms.length)syms=all;
-    prLog('Scanning '+syms.length+' markets on live Deriv data ('+c.ticks+' ticks each)','g');
+    prLog(c.fixed?'Analysing '+mlabel(c.fixed)+' on live Deriv data ('+c.ticks+' ticks)':'Scanning '+syms.length+' markets on live Deriv data ('+c.ticks+' ticks each)','g');
     function done(){if(fin)return;fin=true;clearTimeout(tmo);try{w.close()}catch(e){}st.sws=null;
       if(!bot||bot.st!==st)return;
       if(best&&best.zm>=prZthr(c)){
-        st.pick=best;st.zthr=prZthr(c);prLog('Best market: '+best.market+' · '+best.c.name+' · strength '+best.zm.toFixed(1)+' · wins '+(best.fs[2]*100).toFixed(1)+'% (fair '+(best.ps[2]*100).toFixed(0)+'%)','w');
+        st.pick=best;st.zthr=prZthr(c);prLog((c.fixed?'Best contract on '+best.market+': ':'Best market: '+best.market+' · ')+best.c.name+' · strength '+best.zm.toFixed(1)+' · wins '+(best.fs[2]*100).toFixed(1)+'% (fair '+(best.ps[2]*100).toFixed(0)+'%)','w');
         $('p_mkt').textContent=best.market;$('p_cand').textContent=best.c.name;prWatch(st,c)}
-      else{prLog('No market passes the confidence level ('+c.conf+'%). Scanning again in 30 seconds.','g');prSay(st,'Waiting','No pattern strong enough right now. Scanning again soon.');st.phase='pause';
+      else{prLog(c.fixed?'No contract on '+mlabel(c.fixed)+' passes the confidence level ('+c.conf+'%). Analysing again in 30 seconds.':'No market passes the confidence level ('+c.conf+'%). Scanning again in 30 seconds.','g');prSay(st,'Waiting','No pattern strong enough right now. Scanning again soon.');st.phase='pause';
         setTimeout(function(){if(bot&&bot.st===st&&st.phase==='pause'){st.phase='idle';botTry()}},30000)}}
     function step(){
       if(!bot||bot.st!==st){fin=true;try{w.close()}catch(e){}return}
@@ -1403,7 +1406,7 @@ body[data-tab="11"]{--tab:#f5c542}button.tab#t11{--ic:#ffd978}body[data-tab="11"
       tmo=setTimeout(function(){prLog('No answer from '+mlabel(sym)+', skipped','g');i++;step()},6000);
       w.onmessage=function(m){var d;try{d=JSON.parse(m.data)}catch(e){return}
         if(d.history||d.error){clearTimeout(tmo);
-          if(d.history){var D=digitsOf(d),P=d.history.prices.map(Number);if(D.length>=300){var b=prBest(D,prMoves(P),c.ticks);b.sym=sym;b.market=mlabel(sym);if(!best||b.zm>best.zm)best=b}}
+          if(d.history){var D=digitsOf(d),P=d.history.prices.map(Number);if(D.length>=300){var b=prBest(D,prMoves(P),c.ticks,!c.fixed);b.sym=sym;b.market=mlabel(sym);if(!best||b.zm>best.zm)best=b}}
           i++;step()}};
       try{w.send(JSON.stringify({ticks_history:sym,count:c.ticks,end:'latest',style:'ticks'}))}catch(e){i++;step()}}
     try{w=new WebSocket(PUB);st.sws=w;w.onopen=step;w.onerror=function(){prLog('Could not connect to Deriv for the scan','l');done()}}catch(e){done()}
@@ -1450,15 +1453,19 @@ body[data-tab="11"]{--tab:#f5c542}button.tab#t11{--ic:#ffd978}body[data-tab="11"
       st.rounds++;if(p>0){st.n=0;st.loss=0}else{st.n++;st.loss++;if(c.cap&&st.n>=c.cap){st.n=0}}
       if((c.resc>0&&st.rounds%c.resc===0)||st.loss>=3){st.rescan=true;prLog(st.loss>=3?'3 losses in a row: scanning for a better market.':'Re-scan after '+st.rounds+' trades.','g');st.loss=0}},
     onEnd:function(b){prClose(b.st);$('p_phase').textContent='Idle';$('p_tick').textContent='--'}};
-  function prCfg(){return{base:+$('p_stake').value,calm:$('p_mk').value==='calm',ticks:+$('p_ticks').value||500,entry:+$('p_entry').value,conf:+$('p_conf').value,resc:+$('p_resc').value,tp:+$('p_tp').value,sl:+$('p_sl').value,maxst:+$('p_max').value||5,mult:+$('p_mult').value||1,cap:0}}
-  $('p_run').onclick=function(){if(!acc){prLog('Log in with Deriv first','l');return}$('p_mkt').textContent='–';$('p_cand').textContent='–';startBot(PREM,prCfg())};
+  var PREM2=Object.assign({},PREM,{name:'Manoo Market Analyst'});
+  function prSyms(){var k=$('p_sym').value;$('p_sym').innerHTML=symSel.innerHTML;if(k)$('p_sym').value=k;if(!$('p_sym').value){var o=[].filter.call($('p_sym').options,function(x){return x.value==='1HZ10V'})[0];$('p_sym').value=o?o.value:$('p_sym').options[0]&&$('p_sym').options[0].value}}
+  function prPick(w){pr.bot=w;$('p_card').classList.toggle('sel',w==='auto');$('p_card2').classList.toggle('sel',w==='analyst');$('p_mkrow').hidden=w==='analyst';$('p_symrow').hidden=w!=='analyst';$('p_conf').value=w==='analyst'?'99':'99.9';prSyms()}
+  $('p_card').onclick=function(){prPick('auto')};$('p_card2').onclick=function(){prPick('analyst')};
+  function prCfg(){return{fixed:pr.bot==='analyst'?$('p_sym').value:null,base:+$('p_stake').value,calm:$('p_mk').value==='calm',ticks:+$('p_ticks').value||500,entry:+$('p_entry').value,conf:+$('p_conf').value,resc:+$('p_resc').value,tp:+$('p_tp').value,sl:+$('p_sl').value,maxst:+$('p_max').value||5,mult:+$('p_mult').value||1,cap:0}}
+  $('p_run').onclick=function(){if(!acc){prLog('Log in with Deriv first','l');return}$('p_mkt').textContent='–';$('p_cand').textContent='–';startBot(pr.bot==='analyst'?PREM2:PREM,prCfg())};
   $('p_stop').onclick=function(){botStop('Stopped')};
   $('p_reset').onclick=function(){if(bot&&bot.o==='p')botStop('');BS.p={p:0,W:0,L:0};botUi();$('plog').innerHTML='';prLog('Reset: stats and journal cleared','g')};
 
   /* ---- Free bots list and Bot builder screens ---- */
   var selBot=null;
   var ROBOT='<svg viewBox="0 0 64 64" width="72" height="72" aria-hidden="true"><line x1="32" y1="7" x2="32" y2="15" stroke="var(--c)" stroke-width="3"/><circle cx="32" cy="5.5" r="3.5" fill="var(--c)"/><rect x="10" y="15" width="44" height="36" rx="11" fill="#0b1020" stroke="var(--c)" stroke-width="3"/><rect x="3.5" y="27" width="6.5" height="12" rx="3" fill="var(--c)"/><rect x="54" y="27" width="6.5" height="12" rx="3" fill="var(--c)"/><circle cx="23" cy="31" r="6" fill="var(--c)"/><circle cx="41" cy="31" r="6" fill="var(--c)"/><circle cx="23" cy="31" r="2.2" fill="#fff"/><circle cx="41" cy="31" r="2.2" fill="#fff"/><rect x="22" y="41" width="20" height="6" rx="3" fill="none" stroke="var(--c)" stroke-width="2"/><path d="M27 41v6M32 41v6M37 41v6" stroke="var(--c)" stroke-width="1.5"/><rect x="18" y="54" width="28" height="6" rx="3" fill="var(--c)" opacity=".85"/></svg>',CHECK='<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#3b82f6"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  $('bgrid').innerHTML=BOTS.map(function(b,i){return '<button class="bc bot" data-i="'+i+'" style="--c:'+b.col+';--on:'+b.on+'"><span class="rb">'+ROBOT+'</span><span><span class="tg" style="margin:0">'+b.tag+'</span><b class="bn">'+b.name+'</b><span class="by">by Manoo '+CHECK+'</span></span><small>'+b.d+'</small><span class="lb">Load Bot →</span></button>'}).join('');$('p_robot').innerHTML=ROBOT;$('p_check').innerHTML=CHECK;
+  $('bgrid').innerHTML=BOTS.map(function(b,i){return '<button class="bc bot" data-i="'+i+'" style="--c:'+b.col+';--on:'+b.on+'"><span class="rb">'+ROBOT+'</span><span><span class="tg" style="margin:0">'+b.tag+'</span><b class="bn">'+b.name+'</b><span class="by">by Manoo '+CHECK+'</span></span><small>'+b.d+'</small><span class="lb">Load Bot →</span></button>'}).join('');$('p_robot').innerHTML=ROBOT;$('p_check').innerHTML=CHECK;$('p_robot2').innerHTML=ROBOT;$('p_check2').innerHTML=CHECK;
   $('bsel').innerHTML='<option value="">Choose a bot…</option>'+BOTS.map(function(b,i){return '<option value="'+i+'">'+b.name+'</option>'}).join('');
   function loadBot(i){
     selBot=(i===''||i==null)?null:BOTS[+i];$('bsel').value=(i==null?'':i);$('bbody').hidden=!selBot;if(!selBot)return;
@@ -1473,6 +1480,7 @@ body[data-tab="11"]{--tab:#f5c542}button.tab#t11{--ic:#ffd978}body[data-tab="11"
     if(n===7)sigOpen();
     if(n===8){cpAccts();cpUi()}
     if(n!==10)bdStop();if(n===10)bdStart();
+    if(n===11)prSyms();
 
   }
   $('t1').onclick=function(){showTab(1)};$('t2').onclick=function(){showTab(2)};$('t3').onclick=function(){showTab(3)};$('t5').onclick=function(){showTab(5)};$('t6').onclick=function(){showTab(6)};$('t7').onclick=function(){showTab(7)};$('t8').onclick=function(){showTab(8)};$('t9').onclick=function(){showTab(9)};$('t10').onclick=function(){showTab(10)};$('t11').onclick=function(){showTab(11)};
