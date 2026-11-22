@@ -469,11 +469,11 @@ button.bc.bot.sel{box-shadow:0 0 0 3px var(--c),0 0 26px -4px var(--c)}
 </div>
 <h4 class="sec">2 · Entry point</h4>
 <div class="tr">
-<label class="f">Wait for N winning ticks<input id="p_entry" type="number" value="2" min="0" max="6" step="1"></label>
-<label class="f">Min confidence %<input id="p_conf" type="number" value="99.9" min="90" max="99.999" step="0.01"></label>
+<label class="f">Wait for N winning ticks<input id="p_entry" type="number" value="1" min="0" max="6" step="1"></label>
+<label class="f">Min confidence %<input id="p_conf" type="number" value="50" min="50" max="99.999" step="0.01"></label>
 <label class="f">Re-scan after N trades<input id="p_resc" type="number" value="10" min="0" step="1"></label>
 </div>
-<div class="note">Entry point: after the best market is chosen, the bot watches its live ticks and only trades when the pattern still holds and the last N ticks were in the trade's winning zone. Set 0 to trade as soon as the market is chosen. Timing an entry does not change the odds of the next tick; it keeps the bot from trading when the pattern has faded.</div>
+<div class="note">Min confidence decides how strong a pattern must be before the bot trades. 50 (the default) means it always trades the best option it finds; raise it to trade only stronger patterns, but expect long waits with no trades. Entry point: after the best market is chosen, the bot watches its live ticks and only trades when the pattern still holds and the last N ticks were in the trade's winning zone. Set 0 to trade as soon as the market is chosen. Timing an entry does not change the odds of the next tick; it keeps the bot from trading when the pattern has faded.</div>
 <h4 class="sec">3 · Restart trading conditions</h4>
 <div class="tr">
 <label class="f">Take profit<input id="p_tp" type="number" value="1" min="0"></label>
@@ -547,7 +547,7 @@ button.bc.bot.sel{box-shadow:0 0 0 3px var(--c),0 0 26px -4px var(--c)}
   var API='https://api.derivws.com',PUB='wss://api.derivws.com/trading/v1/options/ws/public',SCOPE='trade account_manage';
   var access=null,refresh=null,acc=null,accts=[],cur='USD',busy=false,auto=false,stk=1,s0=1,pnl=0,W=0,L=0,done={},skipNext=false,lastReq=null,rtry=0,useDirect=true,directSent=false,subMode=false,quoteDone=false,qsub=null,lastDirect=true,wsReady=false,resumeOrder=false,freshTried=false;
   function ss(k,v){try{if(v===undefined)return sessionStorage.getItem(k);if(v===null)sessionStorage.removeItem(k);else sessionStorage.setItem(k,v)}catch(e){return null}}
-  var tSend=0,bot=null,botOpen={},hdig=[],ratio={},BS={b:{p:0,W:0,L:0},s:{p:0,W:0,L:0},k:{p:0,W:0,L:0},m:{p:0,W:0,L:0},g:{p:0,W:0,L:0},p:{p:0,W:0,L:0}};
+  var tSend=0,bot=null,botOpen={},hdig=[],tkc=0,ratio={},BS={b:{p:0,W:0,L:0},s:{p:0,W:0,L:0},k:{p:0,W:0,L:0},m:{p:0,W:0,L:0},g:{p:0,W:0,L:0},p:{p:0,W:0,L:0}};
   function dbg(){var e=$('dbg');return e&&e.checked}
   function send(o){
     if(dbg()&&(o.proposal||o.buy||o.forget)){tSend=performance.now();log('→ '+JSON.stringify(o).slice(0,380),'g')}
@@ -710,23 +710,51 @@ button.bc.bot.sel{box-shadow:0 0 0 3px var(--c),0 0 26px -4px var(--c)}
     else{st.loss+=-p;st.n=(st.n||0)+1;if(c.cap&&st.n>=c.cap){log('Loss cap reached: stakes reset','l');st.loss=0;st.n=0}}}
   function capRes(st,c,p){if(p>0)st.n=0;else{st.n++;if(c.cap&&st.n>=c.cap){log('Loss cap reached: stakes reset','l');st.n=0}}}
   var D9=[0,1,2,3,4,5,6,7,8,9],O8=D9.slice(0,9),U9=D9.slice(1);
-  function ou(id,name,d,ob,rb){return{id:id,name:name,d:d,tt:'Digits · Over/Under',
-    f:[{k:'ob',l:'Over digit',o:O8,v:ob},{k:'rb',l:'Recovery Under digit',o:U9,v:rb}],
-    init:function(){return{loss:0,n:0}},
-    next:function(st,c){return st.loss<=0?{legs:[{t:'DIGITOVER',b:+c.ob,a:c.base}]}:{legs:[{t:'DIGITUNDER',b:+c.rb,a:recStake(st,c,'DIGITUNDER',+c.rb)}]}},result:recRes}}
+  /* ---- recovery bots: the live cursor must touch a zone, then a 1-tick recovery trade goes in at once; recovery is partial and capped ---- */
+  function rcFields(first){return first.concat([{k:'tch',l:'Cursor touches needed',o:[1,2,3,4],v:2},{k:'win',l:'… out of the last ticks',o:[2,3,4,5],v:3},{k:'pct',l:'Recover % of the loss',v:50},{k:'mx',l:'Max recovery stake ×',v:4},{k:'tries',l:'Max recovery tries',o:[1,2,3,4,5],v:3}])}
+  function rcStake(st,c,t,b){var need=Math.max(0,st.loss-st.goal),a=need/R(t,b);return Math.min(c.base*(+c.mx||4),Math.max(0.35,Math.round(a*100)/100))}
+  function rcWait(st,c,zoneFn,label){
+    var need=+c.tch||2,win=+c.win||3,fresh=Math.min(win,tkc-st.t0),last=hdig.slice(-3).join(' ');
+    if(fresh<1){st.say='Recovery: waiting for the cursor to touch '+label+' '+need+' of the last '+win+' ticks (last digits: '+last+')';return false}
+    var a=hdig.slice(-fresh),k=0,i;for(i=0;i<a.length;i++)if(zoneFn(a[i]))k++;
+    if(k<need){st.say='Recovery: cursor touched '+label+' '+k+' of '+need+' times (last digits: '+last+')';return false}
+    return true}
+  function rcResult(st,c,p){
+    var f=Math.min(1,Math.max(0,(+c.pct||50)/100));
+    if(!st.rec){
+      if(p<=0){st.loss=-p;st.L0=st.loss;st.goal=st.L0*(1-f);st.rec=true;st.tries=0;st.t0=tkc;if(st.pickSide){st.pickSide(st,c);log('Analysis picked '+(st.side==='DIGITOVER'?'Over ':'Under ')+c.rb+' for the recovery','g')}
+        log('Loss of '+st.loss.toFixed(2)+'. Recovery mode: aiming to win back '+(f*100).toFixed(0)+'%, at most '+(+c.tries||3)+' tries, stake up to '+((+c.mx||4)*c.base).toFixed(2),'g')}
+      return}
+    st.tries++;
+    if(p>0)st.loss=Math.max(0,st.loss-p);else st.loss+=-p;
+    if(st.loss<=st.goal+0.0001){st.loss=0;st.rec=false;log('Recovery target reached. The rest of the loss is accepted.','w')}
+    else if(st.tries>=(+c.tries||3)){log('Max recovery tries reached. Recovery stopped and the remaining loss is accepted.','l');st.loss=0;st.rec=false}
+    else{st.t0=tkc}}
+  function recBot(id,name,d,ob,rb){return{id:id,name:name,d:d,tt:'Digits · Over/Under',
+    f:rcFields([{k:'ob',l:'Over digit',o:O8,v:ob},{k:'rb',l:'Recovery Under digit',o:U9,v:rb}]),
+    init:function(){return{rec:false,loss:0,goal:0,tries:0,t0:0,say:''}},
+    next:function(st,c){
+      if(!st.rec){st.say='';return{legs:[{t:'DIGITOVER',b:+c.ob,a:c.base}]}}
+      var rb=+c.rb;if(!rcWait(st,c,function(x){return x>rb},'over '+rb))return null;
+      st.t0=tkc;st.say='';return{legs:[{t:'DIGITUNDER',b:rb,a:rcStake(st,c,'DIGITUNDER',rb)}]}},
+    result:rcResult}}
   function ud(id,name,d,t){return{id:id,name:name,d:d,tt:'Up/Down · Rise/Fall',
     f:[{k:'dur',l:'Ticks',o:[5,6,7,8,9,10],v:5},{k:'mult',l:'Martingale ×',v:2}],
     init:function(){return{n:0}},
     next:function(st,c){return{legs:[{t:t,a:c.base*Math.pow(Math.max(1,c.mult),st.n),d:+c.dur}]}},result:capRes}}
   var BOTS=[
-    ou('o1u6','Manoo Over 1 · Under 6','Trades Over 1. After a loss it recovers with Under 6, sized to recover the loss.',1,6),
-    ou('o2u6','Manoo Over 2 · Under 6','Trades Over 2. After a loss it recovers with Under 6, sized to recover the loss.',2,6),
-    {id:'o1s',name:'Manoo Over 1 · Smart Recovery',tt:'Digits · Over/Under',d:'Trades Over 1. After a loss it picks Over or Under on your recovery digit from the latest digits and sizes the stake to recover.',
-      f:[{k:'ob',l:'Over digit',o:O8,v:1},{k:'rb',l:'Recovery digit',o:[1,2,3,4,5,6,7,8],v:5},{k:'aw',l:'Analysis ticks',v:100}],
-      init:function(){return{loss:0,n:0}},
-      next:function(st,c){if(st.loss<=0)return{legs:[{t:'DIGITOVER',b:+c.ob,a:c.base}]};
-        var rb=+c.rb,f=freq(c.aw),o=0,u=0,k;for(k=0;k<10;k++){if(k>rb)o+=f[k];if(k<rb)u+=f[k]}
-        var t=(o/(9-rb)>=u/rb)?'DIGITOVER':'DIGITUNDER';return{legs:[{t:t,b:rb,a:recStake(st,c,t,rb)}]}},result:recRes},
+    recBot('o1u6','Manoo Over 1 · Under 6','Trades Over 1. After a loss it waits for the live cursor to touch the digits over 6 (7, 8, 9) two times out of three, then places Under 6 at once for 1 tick. It recovers only part of the loss, with a capped stake and a limited number of tries, to protect a small account.',1,6),
+    recBot('o2u6','Manoo Over 2 · Under 6','Trades Over 2. After a loss it waits for the live cursor to touch the digits over 6 (7, 8, 9) two times out of three, then places Under 6 at once for 1 tick. It recovers only part of the loss, with a capped stake and a limited number of tries, to protect a small account.',2,6),
+    {id:'o1s',name:'Manoo Over 1 · Smart Recovery',tt:'Digits · Over/Under',d:'Trades Over 1. After a loss it analyses the latest digits and picks Under 5 or Over 5 for the recovery. For Under 5 it waits for the cursor to touch digits over 5 (two of three ticks); for Over 5 it waits for digits under 5. Then it places the trade at once for 1 tick. Recovery is partial and capped.',
+      f:rcFields([{k:'ob',l:'Over digit',o:O8,v:1},{k:'rb',l:'Recovery digit',o:[1,2,3,4,5,6,7,8],v:5},{k:'aw',l:'Analysis ticks',v:100}]),
+      init:function(){return{rec:false,loss:0,goal:0,tries:0,t0:0,say:'',side:'DIGITUNDER',
+        pickSide:function(st,c){var rb=+c.rb,f=freq(c.aw),o=0,u=0,k;for(k=0;k<10;k++){if(k>rb)o+=f[k];if(k<rb)u+=f[k]}st.side=(o/(9-rb)>=u/rb)?'DIGITOVER':'DIGITUNDER'}}},
+      next:function(st,c){
+        if(!st.rec){st.say='';return{legs:[{t:'DIGITOVER',b:+c.ob,a:c.base}]}}
+        var rb=+c.rb,over=st.side==='DIGITOVER',zone=over?function(x){return x<rb}:function(x){return x>rb};
+        if(!rcWait(st,c,zone,(over?'under ':'over ')+rb))return null;
+        st.t0=tkc;st.say='';return{legs:[{t:st.side,b:rb,a:rcStake(st,c,st.side,rb)}]}},
+      result:rcResult},
     {id:'o123',name:'Manoo Over 1-2-3 Martingale',tt:'Digits · Over/Under',d:'Cycles Over 1, 2 and 3. Waits until recent digits favor the entry, then trades. Martingale recovers losses.',
       f:[{k:'aw',l:'Filter ticks',v:50}],
       init:function(){return{loss:0,n:0,i:0}},
@@ -785,7 +813,7 @@ button.bc.bot.sel{box-shadow:0 0 0 3px var(--c),0 0 26px -4px var(--c)}
   function botUi(){
     var on=!!bot,ob=on&&bot.o==='b',os=on&&bot.o==='s',ok=on&&bot.o==='k';
     $('bgo').disabled=on;$('bstop').disabled=!ob;$('sgo').disabled=on;$('sstop').disabled=!os;$('kgo').disabled=on;$('kstop').disabled=!ok;
-    $('bwst').textContent=ob?(bot.def.name+(bot.wait&&bot.phase==='idle'?' · waiting for entry':' · running')):'Idle';
+    $('bwst').textContent=ob?(bot.def.name+(bot.wait&&bot.phase==='idle'?' · '+((bot.st&&bot.st.say)||'waiting for entry'):' · running')):'Idle';
     $('kwst').textContent=ok?(bot.def.name+' · round '+(bot.st.rounds+1)+' of '+bot.cfg.rounds):'Idle';
     $('bpnl').textContent=BS.b.p.toFixed(2);$('bwl').textContent=BS.b.W+'/'+BS.b.L;$('bnx').textContent=ob&&bot.next!=null?(+bot.next).toFixed(2):'–';
     $('spnl').textContent=BS.s.p.toFixed(2);$('swl').textContent=BS.s.W+'/'+BS.s.L;
@@ -1379,11 +1407,11 @@ button.bc.bot.sel{box-shadow:0 0 0 3px var(--c),0 0 26px -4px var(--c)}
     var W=[100,300,Math.min(ticks,D.length)],best=null,j,w;
     for(j=0;j<PRC.length;j++){var c=PRC[j],zs=[],fs=[],ps=[];if(c.k!=='d'&&rf===false)continue;
       for(w=0;w<3;w++){var r=prZwin(c,D,MV,W[w]);zs.push(r.z);fs.push(r.f);ps.push(r.p)}
-      var zm=Math.min.apply(null,zs);if(!best||zm>best.zm)best={c:c,zs:zs,fs:fs,ps:ps,zm:zm,W:W}}
+      var zm=(zs[0]+zs[1]+zs[2])/3;if(!best||zm>best.zm)best={c:c,zs:zs,fs:fs,ps:ps,zm:zm,W:W}}
     return best}
   function prLog(t,cls){logTo('plog',t,cls)}
   function prSay(st,phase,msg){$('p_phase').textContent=phase;$('p_say').textContent=msg}
-  function prZthr(c){var p=(+c.conf||99.9)/100;p=Math.min(0.99999,Math.max(0.9,p));return invN(p)}
+  function prZthr(c){var p=(+c.conf||90)/100;p=Math.min(0.99999,Math.max(0.5,p));return invN(p)}
   function prClose(st){try{if(st.sws){st.sws.onclose=null;st.sws.close()}}catch(e){}st.sws=null;try{if(st.ws){st.ws.onclose=null;st.ws.close()}}catch(e){}st.ws=null;st.live=false}
   /* step 1: scan every market once, from live Deriv history */
   function prScan(st,c){
@@ -1395,7 +1423,7 @@ button.bc.bot.sel{box-shadow:0 0 0 3px var(--c),0 0 26px -4px var(--c)}
     function done(){if(fin)return;fin=true;clearTimeout(tmo);try{w.close()}catch(e){}st.sws=null;
       if(!bot||bot.st!==st)return;
       if(best&&best.zm>=prZthr(c)){
-        st.pick=best;st.zthr=prZthr(c);prLog((c.fixed?'Best contract on '+best.market+': ':'Best market: '+best.market+' · ')+best.c.name+' · strength '+best.zm.toFixed(1)+' · wins '+(best.fs[2]*100).toFixed(1)+'% (fair '+(best.ps[2]*100).toFixed(0)+'%)','w');
+        st.pick=best;st.zthr=prZthr(c);prLog((c.fixed?'Best contract on '+best.market+': ':'Best market: '+best.market+' · ')+best.c.name+' · confidence '+(100*(0.5*(1+(function(z){var t=1/(1+0.2316419*Math.abs(z)),d=0.3989423*Math.exp(-z*z/2),pp=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return z>=0?1-pp:pp})(best.zm)))).toFixed(1)+'% · strength '+best.zm.toFixed(1)+' · wins '+(best.fs[2]*100).toFixed(1)+'% (fair '+(best.ps[2]*100).toFixed(0)+'%)','w');
         $('p_mkt').textContent=best.market;$('p_cand').textContent=best.c.name;prWatch(st,c)}
       else{prLog(c.fixed?'No contract on '+mlabel(c.fixed)+' passes the confidence level ('+c.conf+'%). Analysing again in 30 seconds.':'No market passes the confidence level ('+c.conf+'%). Scanning again in 30 seconds.','g');prSay(st,'Waiting','No pattern strong enough right now. Scanning again soon.');st.phase='pause';
         setTimeout(function(){if(bot&&bot.st===st&&st.phase==='pause'){st.phase='idle';botTry()}},30000)}}
@@ -1426,7 +1454,7 @@ button.bc.bot.sel{box-shadow:0 0 0 3px var(--c),0 0 26px -4px var(--c)}
   function prEntry(st,c){
     var cand=st.pick.c,K=Math.max(0,Math.round(+c.entry||0));
     if(!st.live||st.dg.length<300)return{ok:false,msg:'Loading live ticks…'};
-    var MV=prMoves(st.pxs),z=Math.min(prZwin(cand,st.dg,MV,100).z,prZwin(cand,st.dg,MV,300).z);
+    var MV=prMoves(st.pxs),z=(prZwin(cand,st.dg,MV,100).z+prZwin(cand,st.dg,MV,300).z)/2;
     if(z<st.zthr-0.7)return{ok:false,stale:true,msg:'The pattern faded on live data (strength '+z.toFixed(1)+'). Re-scanning soon.'};
     var fresh=st.tc-st.cool;
     if(K>0){
@@ -1455,7 +1483,7 @@ button.bc.bot.sel{box-shadow:0 0 0 3px var(--c),0 0 26px -4px var(--c)}
     onEnd:function(b){prClose(b.st);$('p_phase').textContent='Idle';$('p_tick').textContent='--'}};
   var PREM2=Object.assign({},PREM,{name:'Manoo Market Analyst'});
   function prSyms(){var k=$('p_sym').value;$('p_sym').innerHTML=symSel.innerHTML;if(k)$('p_sym').value=k;if(!$('p_sym').value){var o=[].filter.call($('p_sym').options,function(x){return x.value==='1HZ10V'})[0];$('p_sym').value=o?o.value:$('p_sym').options[0]&&$('p_sym').options[0].value}}
-  function prPick(w){pr.bot=w;$('p_card').classList.toggle('sel',w==='auto');$('p_card2').classList.toggle('sel',w==='analyst');$('p_mkrow').hidden=w==='analyst';$('p_symrow').hidden=w!=='analyst';$('p_conf').value=w==='analyst'?'99':'99.9';prSyms()}
+  function prPick(w){pr.bot=w;$('p_card').classList.toggle('sel',w==='auto');$('p_card2').classList.toggle('sel',w==='analyst');$('p_mkrow').hidden=w==='analyst';$('p_symrow').hidden=w!=='analyst';$('p_conf').value='50';prSyms()}
   $('p_card').onclick=function(){prPick('auto')};$('p_card2').onclick=function(){prPick('analyst')};
   function prCfg(){return{fixed:pr.bot==='analyst'?$('p_sym').value:null,base:+$('p_stake').value,calm:$('p_mk').value==='calm',ticks:+$('p_ticks').value||500,entry:+$('p_entry').value,conf:+$('p_conf').value,resc:+$('p_resc').value,tp:+$('p_tp').value,sl:+$('p_sl').value,maxst:+$('p_max').value||5,mult:+$('p_mult').value||1,cap:0}}
   $('p_run').onclick=function(){if(!acc){prLog('Log in with Deriv first','l');return}$('p_mkt').textContent='–';$('p_cand').textContent='–';startBot(pr.bot==='analyst'?PREM2:PREM,prCfg())};
@@ -1546,6 +1574,7 @@ button.bc.bot.sel{box-shadow:0 0 0 3px var(--c),0 0 26px -4px var(--c)}
     renderAuth();connect();setInterval(pollBals,15000);sgStart();
   }
   function add(p,quiet){
+    tkc++;
     var prev=prices.length?prices[prices.length-1]:null;
     prices.push(p);
     digits.push(+p.toFixed(dec).slice(-1));hdig.push(digits[digits.length-1]);if(hdig.length>1000)hdig.shift();
